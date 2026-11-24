@@ -1,0 +1,108 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #e8f1ee; background: #121a1b; }
+.tutorial { position: fixed; inset: 0; z-index: 100; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; background: #121a1b; color: #e8f1ee; }
+.tutorial button, .tutorial select { font: inherit; color: inherit; border: 1px solid #415655; border-radius: .45rem; background: #20302f; padding: .35rem .65rem; cursor: pointer; }
+.tutorial button[aria-pressed=true] { background: #325c50; border-color: #83c7ad; }
+.tutorial button:disabled { cursor: default; opacity: .5; }
+.tutorial :focus-visible { outline: 2px solid #f2c783; outline-offset: 2px; }
+.tutorial h1, .tutorial h2 { margin: 0; font-weight: 620; }
+.tutorial h1 { font-size: 1.1rem; }
+.tutorial h2 { font-size: 1rem; white-space: nowrap; }
+.tutorial-header, .lesson-title, .guide-actions, .tools, .audio-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.tutorial-header, .lesson-title, .guide-actions { justify-content: space-between; }
+.tutorial-header { padding: .55rem clamp(.5rem, 3vw, 2rem); border-bottom: 1px solid #304440; }
+.tutorial nav { display: flex; gap: .85rem; max-width: 100%; overflow-x: auto; }
+.section { display: grid; justify-items: center; min-width: max-content; }
+.tutorial .section-title, .tutorial .dot { background: none; border: 0; padding: .15rem .35rem; }
+.section-dots { display: flex; }
+.tutorial .dot { min-width: 2rem; min-height: 1.55rem; display: grid; place-items: center; }
+.dot span { display: block; height: .55rem; width: .55rem; border: 1px solid #95b5aa; border-radius: 50%; }
+.dot.visited span { background: #659486; }
+.dot[aria-current] span { background: #f2c783; border-color: #f2c783; }
+.lesson { min-height: 0; display: flex; flex-direction: column; position: relative; }
+.lesson-title { padding: .45rem clamp(.5rem, 3vw, 2rem); min-height: 2.7rem; }
+.tools { font-size: .85rem; }
+.tool { text-transform: capitalize; }
+.scene { position: relative; min-height: 0; flex: 1; overflow: hidden; background: radial-gradient(ellipse, #f1f3ea, #d9e4dc); color: #283b37; }
+.scene .three-canvas { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.three-canvas canvas, .three-canvas svg { display: block; }
+.scene .symmetry-overlay { position: absolute; z-index: 1; background: #f7faf4; border-radius: .6rem; border: 1px solid #859991; padding: .5rem; }
+.scene .symmetry-overlay canvas { touch-action: none; display: block; }
+.scene .symmetry-overlay button { background: #304843; color: white; }
+.scene-hint { position: absolute; bottom: .4rem; left: .75rem; padding: .25rem .5rem; border-radius: .3rem; background: #243a37; margin: 0; font-size: .8rem; pointer-events: none; }
+.guide { padding: .65rem clamp(.5rem, 3vw, 2rem); border-top: 1px solid #304440; }
+.prompt p, .transcript { margin: 0 0 .55rem; }
+.transcript { color: #c7d9d3; max-height: 16vh; overflow: auto; }
+.guide-actions { justify-content: flex-end; }
+.audio-actions { margin-right: auto; font-size: .85rem; }
+.tutorial .continue { background: #a7d6be; color: #142b23; font-weight: 650; }
+@media (max-width: 600px) {
+  .tutorial-header { gap: .2rem; }
+  .tools, .audio-actions { gap: .25rem; }
+  .tutorial button, .tutorial select { padding: .3rem .45rem; }
+  .guide { font-size: .9rem; }
+}
+body:has(> .tutorial) #page-root { visibility: hidden; }
+.symmetry-overlay { transform: translate(-50%, -50%); }
+.symmetry-overlay.mirror-picker { max-width: min(26rem, 90vw); }
+.scene .mirror-picker button:not(.mirror-cancel) { border-color: var(--mirror-color); }
+.scene .mirror-picker .preview { background: var(--mirror-color); }
+.scene .konvajs-content { touch-action: none; }
+body:has(> .tutorial) { overflow: hidden; }
+.tutorial-brand { display: flex; align-items: center; gap: .8rem; }
+body:has(> :is(.adventure, .office-chapter, .clock-lesson)) #page-root { visibility: hidden; }
+body:has(> :is(.adventure, .office-chapter, .clock-lesson)) { overflow: hidden; }
+.adventure, .office-chapter { position: fixed; inset: 0; z-index: 100; overflow: auto; }
+.adventure { display: flex; flex-direction: column; align-items: center; gap: clamp(.6rem, 2vh, 1.25rem); padding: clamp(.65rem, 2.2vh, 1.4rem) clamp(.65rem, 2vw, 1.5rem); color: #f5e8cd; background: #161a18; }
+.adventure-header { text-align: center; }
+.adventure-header h1 { margin: 0; font-family: Georgia, serif; font-size: clamp(1.65rem, 3.2vw, 2.75rem); }
+.adventure-header p { margin: .25rem 0 0; color: #d0c6af; font-size: .9rem; }
+.adventure-view { display: grid; place-items: center; position: relative; min-height: 0; flex: 1; width: 100%; container-type: size; }
+.adventure-room { position: relative; visibility: hidden; width: min(100cqw, calc(100cqh * 1672 / 941)); max-width: 94rem; }
+.adventure-room.ready { visibility: visible; box-shadow: 0 0 0 1px #76664b, 0 13px 35px #0008; }
+.adventure-room img { display: block; width: 100%; height: 100%; }
+.adventure-canvas { position: absolute; inset: 0; }
+.adventure-status { position: absolute; text-align: center; }
+.adventure-levels { width: min(100%, 68rem); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; }
+.adventure button { cursor: pointer; font: inherit; color: inherit; background: #242923; border: 1px solid #56543e; border-radius: .35rem; padding: .55rem .75rem; }
+.adventure-levels button { display: flex; gap: .65rem; align-items: center; text-align: left; min-width: 0; }
+.adventure-levels button.active, .adventure button:focus-visible { color: #fff7e4; background: #3c392a; border-color: #e0c792; outline: 2px solid #e0c792; outline-offset: 2px; }
+.adventure-levels strong, .adventure-levels small { display: block; }
+.adventure-levels strong { line-height: 1.18; font-size: .92rem; }
+.adventure-levels small { margin-top: .2rem; color: #c3b89e; }
+.adventure-levels .level-number { font: 1.35rem Georgia, serif; color: #e0c792; }
+.office-chapter { background: #f5f4ef; color: #252c2a; }
+.office-chapter-inner { width: min(100%, 1230px); margin: 0 auto; padding: clamp(.7rem, 3vw, 2rem); }
+.office-chapter-header { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1.1rem; margin-bottom: 1rem; }
+.office-chapter-header h1 { margin: 0; font: clamp(1.7rem, 4vw, 3rem) Georgia, serif; color: #304238; }
+.object-lesson { display: flex; align-items: center; gap: clamp(.8rem, 3vw, 2.25rem); border: 1px solid #dcded4; padding: clamp(.8rem, 2.5vw, 1.5rem); border-radius: .65rem; margin-bottom: 1rem; background: #fffefa; }
+.object-lesson h2 { margin: 0; font: 1.4rem Georgia, serif; }
+.object-lesson p { margin: .6rem 0; line-height: 1.55; }
+.shield-closeup { position: relative; overflow: hidden; margin: 0; flex: 0 0 clamp(120px, 22vw, 260px); }
+.shield-closeup img { position: absolute; max-width: none; height: auto; }
+@media (max-width: 680px) {
+  .adventure-levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adventure-view { min-height: min(55vw, 20rem); }
+  .object-lesson { align-items: flex-start; }
+}
+@media (max-width: 460px) {
+  .adventure { justify-content: center; }
+  .adventure-view { flex: 0 0 auto; min-height: 55vw; }
+  .object-lesson { flex-wrap: wrap; }
+}
+.scene-frame { position: relative; flex: 1; min-height: 0; }
+.scene-frame .scene { position: absolute; inset: 0; }
+.transform-dock { position: absolute; z-index: 2; left: 50%; bottom: .65rem; transform: translateX(-50%); border-radius: 17px; }
+.scene-frame .scene-hint { bottom: auto; top: .45rem; z-index: 2; max-width: calc(100% - 1.5rem); }
+
+/* Slidev renders the definition authored in group-theory.md. */
+.group-definition-slide { color: #315748; padding: 18px 65px 14px; max-width: 820px; margin: auto; }
+.group-definition-slide h1 { margin: 0; text-align: center; font-size: 52px; line-height: 1.1; }
+.group-definition-slide > p:first-of-type { margin: 4px 0 20px; text-align: center; font-size: 18px; }
+.group-law { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 8px 0; padding: 12px 18px; background: #fffcf2; border: 1px solid #ccd8cd; border-radius: 8px; }
+.group-definition-slide .group-summary { font-size: 14px; margin-top: 12px; line-height: 1.35; }
+body.show-group-slide .guided-clock-canvas canvas { background: transparent !important; }
+body.show-group-slide .guided-clock { background: transparent; pointer-events: none; }
+body.show-group-slide .guided-clock-canvas { pointer-events: auto; }
+body.show-group-slide #page-root { visibility: visible; }
+.group-law p { margin: 0; width: 50%; }
+.group-law p:last-child { text-align: center; font-size: 21px; }

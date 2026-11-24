@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "vite/client",
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "@slidev/client": [
+        "./src/vendor.d.ts"
+      ],
+      "three": [
+        "./node_modules/@types/three/index.d.ts"
+      ],
+      "three/addons/*": [
+        "./node_modules/@types/three/examples/jsm/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.vue"
+  ]
+}

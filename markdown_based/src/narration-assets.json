@@ -1,0 +1,86 @@
+{
+  "square-intro": {
+    "file": "square-intro-8297a910a4544456.mp3",
+    "text": "Welcome to Chapter Zero. For now, we will focus on how to use the game controls. This is a square lattice. It is a repeating grid of dots, and each dot represents a pair of integer coordinates. Look for the triangle with three labeled corners. Those labels will help you see what moves."
+  },
+  "square-translate": {
+    "file": "square-translate-03c9e6398d767f84.mp3",
+    "text": "Select the highlighted Translate tool in the bottom toolbar. Drag from one lattice dot to another, or click the two dots in order. Watch the grid and the marked triangle move together."
+  },
+  "square-rotate": {
+    "file": "square-rotate-4fe161b83ff75a36.mp3",
+    "text": "Great. Now try the highlighted Rotate tool. Click a lattice dot to pick a center, then drag around the dial clockwise or counterclockwise. On this grid, one step turns the triangle a quarter turn."
+  },
+  "square-reflect": {
+    "file": "square-reflect-6f83f3acae74d097.mp3",
+    "text": "Now select the highlighted Reflect tool. Press a lattice dot and drag horizontally or vertically to choose the mirror line. Release and watch the marked triangle flip across that line."
+  },
+  "square-match": {
+    "file": "square-match-0a210b8d0dbfb7d5.mp3",
+    "text": "Can you line up the two triangles? Use the bottom toolbar to switch between tools. Match A with A, B with B, and C with C on the dashed target. Once all three corners overlap, you can continue."
+  },
+  "eisenstein-intro": {
+    "file": "eisenstein-intro-f20b0149f0295736.mp3",
+    "text": "This is the triangular lattice, also called the Eisenstein lattice. Translation still moves between dots. A single turn is now sixty degrees, and the mirror axis snaps to the directions of the triangular grid."
+  },
+  "orbit-cube-guide": {
+    "file": "orbit-cube-guide-a4c93a1c167f1304.mp3",
+    "text": "Drag to look around the cube. You are moving your viewpoint. The cube itself keeps its orientation."
+  },
+  "select-face-guide": {
+    "file": "select-face-guide-99ad11b60d4f86e6.mp3",
+    "text": "Click a flat face of the cube. The highlight shows which face you chose."
+  },
+  "select-edge-guide": {
+    "file": "select-edge-guide-88aa29dab9f7732c.mp3",
+    "text": "Now pick an edge, where two faces meet. You can orbit if an edge is hard to see."
+  },
+  "select-vertex-guide": {
+    "file": "select-vertex-guide-8ca98956da9711fa.mp3",
+    "text": "Pick a vertex. A vertex is a corner where edges meet."
+  },
+  "solid-turn-guide": {
+    "file": "solid-turn-guide-38082ca92bd5cfe3.mp3",
+    "text": "Select Rotate in the bottom toolbar. Then pick a face, edge, or vertex for the rotation axis. The camera pauses while you turn the dial. Watch the colored features to see where the rotation takes them."
+  },
+  "solid-mirror-guide": {
+    "file": "solid-mirror-guide-f2310f898210ec73.mp3",
+    "text": "Select Reflect in the bottom toolbar and pick a feature again. Orbit to inspect the colored mirror planes, then choose one. Watch the solid reflect across it."
+  },
+  "solid-gallery-guide": {
+    "file": "solid-gallery-guide-d845a438bdb29f8a.mp3",
+    "text": "Try any of the five Platonic solids. The cube and octahedron are duals, as are the dodecahedron and icosahedron. The tetrahedron is its own dual. Compare how their features move when you turn or reflect them."
+  },
+  "group-definition-voice": {
+    "file": "group-definition-voice-901e6c1c7b7cc11e.mp3",
+    "text": "A group is a way to describe symmetries and transformations algebraically. Instead of holding up a physical object and turning it around, give each transformation a symbolic name. Write two symbols next to each other to compose their transformations. Read them from right to left: in R S, apply S first, then R. A group is closed under its operation. The operation is associative, so grouping three moves differently gives the same result. There is an identity that leaves things unchanged, and every element has an inverse that undoes it."
+  },
+  "group-clock-inverse": {
+    "file": "group-clock-inverse-18a0d6a0861123e5.mp3",
+    "text": "A clock gives us a simple example of a group under addition. The hand has moved five hours forward. What move undoes that shift? Drag the hand back to twelve."
+  },
+  "group-clock-identity": {
+    "file": "group-clock-identity-f2488b6b9ab2b1ca.mp3",
+    "text": "The identity leaves the hand where it started. Doing nothing is the identity. So is any whole number of full turns, clockwise or counterclockwise."
+  },
+  "group-clock-associativity": {
+    "file": "group-clock-associativity-b05b5d635fd9bcd0.mp3",
+    "text": "Associativity means regrouping three moves does not change their result. Add the first two shifts, then the third, or add the last two first. The final position is the same. Clock addition is also commutative, so the order of two shifts can be exchanged. This makes the clock group abelian."
+  },
+  "group-clock-around": {
+    "file": "group-clock-around-00940729524ea97b.mp3",
+    "text": "Adding on a clock gives us one of the simplest examples of a group: modular arithmetic. You already use it when you read an analog clock. After twelve, the clock wraps around to one instead of counting to thirteen. That's because twelve and zero name the same position. Try moving the hand forward two hours from eleven and see where it lands."
+  },
+  "group-clock-zero": {
+    "file": "group-clock-zero-ca8796519f392685.mp3",
+    "text": "Look at the top tick. On a clock we call it twelve, and when we count remainders we call it zero. They name the same spot. Start there and move the hand forward one tick. Whether you start by saying twelve or zero, you land on one."
+  },
+  "group-clock-multiply": {
+    "file": "group-clock-multiply-6f02a3da6fc5e2e3.mp3",
+    "text": "Multiplication also wraps around the clock. On this eight-position dial, drag three onto the face. Each residue has its own destination. Now drag two onto the dial. Some paths join at the same destination. Three is reversible modulo eight: multiply by three again and you get back to where you started. Two has no inverse modulo eight."
+  },
+  "group-clock-wilson": {
+    "file": "group-clock-wilson-e7cd371b6c78ac8f.mp3",
+    "text": "Let’s see why six factorial is one less than seven, modulo seven. Pair two with four, and three with five: each pair has product one, modulo seven. One and six are left over. This works for every odd prime: each nonzero residue has an inverse, and only one and minus one are their own inverses. If a square is one modulo a prime, the prime divides either the number minus one or the number plus one. So all the other factors cancel in pairs, leaving minus one. For the prime two, one and minus one name the same residue. Conversely, if the modulus is composite, a proper divisor greater than one appears among the factors. It divides the factorial, so the remainder cannot be minus one."
+  }
+}
