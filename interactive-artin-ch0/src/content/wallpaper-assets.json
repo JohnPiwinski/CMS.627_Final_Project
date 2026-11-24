@@ -1,0 +1,356 @@
+{
+  "photos": [
+    {
+      "id": "ornament-pm",
+      "group": "pm",
+      "path": "./wallpaper/Wallpaper_group-pm-1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-pm-1.jpg",
+      "originalFilename": "Wallpaper_group-pm-1.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Ornament plate study",
+      "note": "Look for parallel mirror lines through the repeating figures. The Commons page has conflicting plate metadata, so regional attribution is omitted. A finite print is approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1082,
+        1076
+      ],
+      "changes": "Resized and re-encoded; no crop."
+    },
+    {
+      "id": "Wallpaper_group-cmm-1",
+      "group": "cmm",
+      "path": "./wallpaper/Wallpaper_group-cmm-1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-cmm-1.jpg",
+      "originalFilename": "Wallpaper_group-cmm-1.jpg",
+      "author": "Dmharvey",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "Running-bond brickwork",
+      "note": "Rows are offset by half a brick. Look for perpendicular mirrors in the ideal bond; real brick textures vary. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1528,
+        1528
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-pmg-3",
+      "group": "pmg",
+      "path": "./wallpaper/Wallpaper_group-pmg-3.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-pmg-3.jpg",
+      "originalFilename": "Wallpaper_group-pmg-3.jpg",
+      "author": "Dmharvey",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "Municipal House floor, Prague",
+      "note": "Look for half-turns and mirror lines in one direction. In the other direction, a flip needs a shift. The source photograph was digitally enhanced. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1050,
+        968
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-pgg-2",
+      "group": "pgg",
+      "path": "./wallpaper/Wallpaper_group-pgg-2.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-pgg-2.jpg",
+      "originalFilename": "Wallpaper_group-pgg-2.jpg",
+      "author": "Dmharvey",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "Pavement near the Great Synagogue, Budapest",
+      "note": "Compare both directions of the herringbone bonds. The source labels the ideal design pgg. The photograph was digitally enhanced. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1150,
+        910
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Alhambra-p3-closeup",
+      "group": "p3",
+      "path": "./wallpaper/Alhambra-p3-closeup.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Alhambra-p3-closeup.jpg",
+      "originalFilename": "Alhambra-p3-closeup.jpg",
+      "author": "Dmharvey",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "label": "Wall tiles at the Alhambra, Granada",
+      "note": "Look for three tiles cycling around a common corner. Compare the colors as well as the shapes. The source classification describes the repeating motif in this digitally enhanced photograph.",
+      "crop": [
+        0,
+        0,
+        809,
+        680
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-pg-1",
+      "group": "pg",
+      "path": "./wallpaper/Wallpaper_group-pg-1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-pg-1.jpg",
+      "originalFilename": "Wallpaper_group-pg-1.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Egyptian ornament print",
+      "note": "Compare the fine stripes when testing a glide. Simplifying the zigzag can introduce extra mirrors. This historical print provides approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1091,
+        1064
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-p4m-6",
+      "group": "p4m",
+      "path": "./wallpaper/Wallpaper_group-p4m-6.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-p4m-6.jpg",
+      "originalFilename": "Wallpaper_group-p4m-6.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Persian ornament print",
+      "note": "Inspect the quarter-turn centers and look for horizontal, vertical and diagonal mirror directions. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1070,
+        1074
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-p4g-4",
+      "group": "p4g",
+      "path": "./wallpaper/Wallpaper_group-p4g-4.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-p4g-4.jpg",
+      "originalFilename": "Wallpaper_group-p4g-4.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Chinese ornament print",
+      "note": "Look for quarter-turn centers and offset diagonal mirrors. Compare corresponding colors as well as outlines. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1068,
+        1080
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-p6m-1",
+      "group": "p6m",
+      "path": "./wallpaper/Wallpaper_group-p6m-1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-p6m-1.jpg",
+      "originalFilename": "Wallpaper_group-p6m-1.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Persian rosette ornament print",
+      "note": "Look for sixth-turn centers and mirrors through the rosettes. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1590,
+        1073
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-p2-1",
+      "group": "p2",
+      "path": "./wallpaper/Wallpaper_group-p2-1.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-p2-1.jpg",
+      "originalFilename": "Wallpaper_group-p2-1.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Historic ornament print",
+      "note": "Look for a half-turn exchanging motifs, then test whether a mirror would reverse their details. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1018,
+        980
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    },
+    {
+      "id": "Wallpaper_group-p6m-4",
+      "group": "p6m",
+      "path": "./wallpaper/Wallpaper_group-p6m-4.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group-p6m-4.jpg",
+      "originalFilename": "Wallpaper_group-p6m-4.jpg",
+      "author": "Owen Jones, The Grammar of Ornament (1856)",
+      "license": "Public Domain Mark 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "label": "Byzantine ornament print",
+      "note": "Follow the rotations and mirrored regions around a hexagon in this tiling. Finite images give approximate evidence.",
+      "crop": [
+        0,
+        0,
+        1134,
+        1134
+      ],
+      "changes": "Resized if needed and re-encoded; no additional crop."
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "Wallpaper_group_diagram_p1",
+      "group": "p1",
+      "path": "./wallpaper/Wallpaper_group_diagram_p1.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_p1.svg",
+      "originalFilename": "Wallpaper_group_diagram_p1.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "p1 cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_p2",
+      "group": "p2",
+      "path": "./wallpaper/Wallpaper_group_diagram_p2.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_p2.svg",
+      "originalFilename": "Wallpaper_group_diagram_p2.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "p2 cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_pm",
+      "group": "pm",
+      "path": "./wallpaper/Wallpaper_group_diagram_pm.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_pm.svg",
+      "originalFilename": "Wallpaper_group_diagram_pm.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "pm cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_pg",
+      "group": "pg",
+      "path": "./wallpaper/Wallpaper_group_diagram_pg.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_pg.svg",
+      "originalFilename": "Wallpaper_group_diagram_pg.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "pg cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_cm",
+      "group": "cm",
+      "path": "./wallpaper/Wallpaper_group_diagram_cm.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_cm.svg",
+      "originalFilename": "Wallpaper_group_diagram_cm.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "cm cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_pmm",
+      "group": "pmm",
+      "path": "./wallpaper/Wallpaper_group_diagram_pmm.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_pmm.svg",
+      "originalFilename": "Wallpaper_group_diagram_pmm.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "pmm cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_pmg",
+      "group": "pmg",
+      "path": "./wallpaper/Wallpaper_group_diagram_pmg.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_pmg.svg",
+      "originalFilename": "Wallpaper_group_diagram_pmg.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "pmg cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_pgg",
+      "group": "pgg",
+      "path": "./wallpaper/Wallpaper_group_diagram_pgg.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_pgg.svg",
+      "originalFilename": "Wallpaper_group_diagram_pgg.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "pgg cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_cmm",
+      "group": "cmm",
+      "path": "./wallpaper/Wallpaper_group_diagram_cmm.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_cmm.svg",
+      "originalFilename": "Wallpaper_group_diagram_cmm.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "cmm cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    },
+    {
+      "id": "Wallpaper_group_diagram_p4",
+      "group": "p4",
+      "path": "./wallpaper/Wallpaper_group_diagram_p4.svg",
+      "source": "https://commons.wikimedia.org/wiki/File:Wallpaper_group_diagram_p4.svg",
+      "originalFilename": "Wallpaper_group_diagram_p4.svg",
+      "author": "Martin von Gagern",
+      "license": "Public domain dedication",
+      "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-self",
+      "label": "p4 cell diagram",
+      "note": "Original annotations retained. Re-serialized with external resources and interactive markup removed. This is a reference diagram, not a seamless tile."
+    }
+  ],
+  "backlog": {
+    "photoGroups": [
+      "p1",
+      "cm",
+      "pmm",
+      "p4",
+      "p3m1",
+      "p31m",
+      "p6"
+    ],
+    "missingDiagrams": [
+      "p4m",
+      "p4g",
+      "p3",
+      "p3m1",
+      "p31m",
+      "p6",
+      "p6m"
+    ],
+    "note": "Missing annotated originals are linked in the gallery. Wikimedia returned HTTP 429 after a later batch. Every group has a local programmatic pattern and overlays. Source imagery is approximate and is never used to check exact classifications."
+  }
+}
