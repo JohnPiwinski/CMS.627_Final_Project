@@ -11,7 +11,7 @@ defineEmits<{ play: [] }>();
       <div class="title-screen-wash">
         <div class="title-card">
           <img class="title-logo" :src="iaaaLogo" alt="IAAA" draggable="false">
-          <h1><span>Interactive Accompaniment</span><span>to Art and Algebra</span></h1>
+          <h1><span>Interactive Accompaniment</span><span>to Artin Algebra</span></h1>
           <div class="title-play-target">
             <button class="title-play-hitbox" type="button" aria-label="Play" @click="$emit('play')"></button>
             <span class="title-play-visual" aria-hidden="true">Play <span>→</span></span>

@@ -1,5 +1,5 @@
 ---
-title: Interactive Accompaniment to Art and Algebra
+title: Interactive Accompaniment to Artin Algebra
 theme: default
 layout: workspace
 transition: none

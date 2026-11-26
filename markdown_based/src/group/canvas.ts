@@ -43,7 +43,7 @@ export function arrow(layer: Konva.Container, from: Point, to: Point, color = pa
 
 type Gesture = { move?: (point: Point) => void; end: (point: Point) => void; cancel?: () => void };
 
-export function useCanvas(draw: (layer: Konva.Layer) => void, begin: (point: Point) => Gesture | undefined, responsive = false) {
+export function useCanvas(draw: (layer: Konva.Layer) => void, begin: (point: Point) => Gesture | undefined, responsive = false, interactive = false) {
   const host = ref<HTMLDivElement>();
   let stage: Konva.Stage | undefined;
   let layer: Konva.Layer | undefined;
@@ -67,6 +67,7 @@ export function useCanvas(draw: (layer: Konva.Layer) => void, begin: (point: Poi
 
   function pointerdown(event: PointerEvent) {
     if (!event.isPrimary || event.button !== 0 || active) return;
+    if(interactive && stage?.getIntersection(location(event)))return;
     const gesture = begin(location(event));
     if (!gesture) return;
     active = { id: event.pointerId, gesture };
@@ -92,8 +93,8 @@ export function useCanvas(draw: (layer: Konva.Layer) => void, begin: (point: Poi
   onMounted(() => {
     if (!host.value) return;
     window.addEventListener('keydown', escape, true);
-    stage = new Konva.Stage({ container: host.value!, width, height, listening: false });
-    layer = new Konva.Layer({ listening: false });
+    stage = new Konva.Stage({ container: host.value!, width, height, listening: interactive });
+    layer = new Konva.Layer({ listening: interactive });
     stage.add(layer);
     observer = new ResizeObserver(() => {
       const box = host.value?.getBoundingClientRect();

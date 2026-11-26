@@ -1,5 +1,5 @@
 export const chapterScripts = ['content/chapter-0.md', 'content/group-theory.md', 'content/wallpaper.md', 'content/orbit-stabilizer.md'] as const;
-export const scenes = ['square', 'triangular', 'solids', 'clock', 'wallpaper-playground', 'wallpaper-gallery', 'wallpaper-matching'] as const;
+export const scenes = ['square', 'triangular', 'solids', 'clock', 'wallpaper-playground', 'wallpaper-overview', 'wallpaper-domain', 'wallpaper-dissection', 'wallpaper-explanation'] as const;
 export type SceneId = typeof scenes[number];
 export const tools = ['translate', 'rotate', 'reflect', 'glide', 'orbit', 'face', 'edge', 'vertex', 'choose-solid'] as const;
 export type Tool = typeof tools[number];
