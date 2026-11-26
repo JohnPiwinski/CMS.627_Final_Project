@@ -1,24 +1,24 @@
-export const chapterScripts = ['content/chapter-0.md', 'content/group-theory.md'] as const;
-export const scenes = ['square', 'triangular', 'solids', 'clock'] as const;
+export const chapterScripts = ['content/chapter-0.md', 'content/group-theory.md', 'content/wallpaper.md', 'content/orbit-stabilizer.md'] as const;
+export const scenes = ['square', 'triangular', 'solids', 'clock', 'wallpaper-playground', 'wallpaper-gallery', 'wallpaper-matching'] as const;
 export type SceneId = typeof scenes[number];
-export const tools = ['translate', 'rotate', 'reflect', 'orbit', 'face', 'edge', 'vertex', 'choose-solid'] as const;
+export const tools = ['translate', 'rotate', 'reflect', 'glide', 'orbit', 'face', 'edge', 'vertex', 'choose-solid'] as const;
 export type Tool = typeof tools[number];
-export const events = ['translated', 'rotated', 'reflected', 'matched', 'orbited', 'face-selected', 'edge-selected', 'vertex-selected'] as const;
+export const events = ['translated', 'rotated', 'reflected', 'glided', 'matched', 'orbited', 'face-selected', 'edge-selected', 'vertex-selected'] as const;
 export type SceneEvent = typeof events[number];
 export type Beat = {
   display?: string;
   narration?: { id: string; text: string; auto: boolean };
   tools: Tool[];
   wait?: SceneEvent;
-  cue?: 'translate' | 'rotate' | 'reflect';
+  cue?: 'translate' | 'rotate' | 'reflect' | 'glide';
 };
 export type Subsection = { id: string; title: string; scene: SceneId; beats: Beat[] };
 export type Chapter = { id: string; title: string; sections: { id: string; title: string; subsections: Subsection[] }[] };
 
-const latticeTools: Tool[] = ['translate', 'rotate', 'reflect'];
+const latticeTools: Tool[] = ['translate', 'rotate', 'reflect', 'glide'];
 const solidTools: Tool[] = ['orbit', 'face', 'edge', 'vertex', 'rotate', 'reflect', 'choose-solid'];
 const requiredTools: Partial<Record<SceneEvent, Tool>> = {
-  translated: 'translate', rotated: 'rotate', reflected: 'reflect', orbited: 'orbit',
+  translated: 'translate', rotated: 'rotate', reflected: 'reflect', glided: 'glide', orbited: 'orbit',
   'face-selected': 'face', 'edge-selected': 'edge', 'vertex-selected': 'vertex',
 };
 
@@ -112,9 +112,9 @@ export function parseChapter(markdown: string, file = 'content/chapter-0.md'): C
       pending = true;
       continue;
     }
-    const cue = /^::cue\[(translate|rotate|reflect)\]$/.exec(value)?.[1] as Beat['cue'];
+    const cue = /^::cue\[(translate|rotate|reflect|glide)\]$/.exec(value)?.[1] as Beat['cue'];
     if (cue) {
-      if (subsection.scene === 'solids' && cue === 'translate') fail('Tool is unsupported in this scene');
+      if (subsection.scene === 'solids' && (cue === 'translate' || cue === 'glide')) fail('Tool is unsupported in this scene');
       beat.cue = cue;
       pending = true;
       continue;

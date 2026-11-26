@@ -1,7 +1,7 @@
 /** Pure mathematical operations. The renderer never owns the underlying geometry. */
 export type Point = Readonly<{ x: number; y: number }>;
 export type LatticeType = 'square' | 'triangular';
-export type LatticeTool = 'translate' | 'rotate' | 'reflect';
+export type LatticeTool = 'translate' | 'rotate' | 'reflect' | 'glide';
 
 export const SQRT3 = Math.sqrt(3);
 export const add = (a: Point, b: Point): Point => ({ x: a.x + b.x, y: a.y + b.y });

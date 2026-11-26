@@ -1,10 +1,11 @@
 import Konva from 'konva';
 import type { LatticeTool } from '../lib/geometry';
 
-const labels: Record<LatticeTool, string> = { translate: 'Translate', rotate: 'Rotate', reflect: 'Reflect' };
+const labels: Record<LatticeTool, string> = { translate: 'Translate', rotate: 'Rotate', reflect: 'Reflect', glide: 'Glide' };
 const icons: Record<LatticeTool, string> = {
   translate: 'M12 3 L12 21 M3 12 L21 12 M8 7 L12 3 L16 7 M8 17 L12 21 L16 17 M7 8 L3 12 L7 16 M17 8 L21 12 L17 16',
   rotate: 'M20 9 A8 8 0 1 0 20 16 M20 3 L20 9 L14 9',
+  glide: 'M2 12 L22 12 M6 6 L14 6 M11 3 L14 6 L11 9 M15 16 L21 20 L15 20 Z',
   reflect: 'M12 2 L12 22 M8 5 L2 18 L8 18 Z M16 5 L22 18 L16 18 Z',
 };
 const stride = 54;

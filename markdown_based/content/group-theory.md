@@ -1,98 +1,341 @@
-# Introductory Group Theory {#group-theory}
+# Introduction to Group Theory {#group-theory}
+## Cyclic Groups and Modular Arithmetic {#additive-clock}
+### Definition of a group {#group-definition}
+::scene[clock]
+:::display
+Groups provide an algebraic language for describing symmetry.
 
-## Groups {#groups}
+A group is a set $G$ equipped with a binary operation $G\times G\to G$ satisfying three laws:
 
-### What is a group? {#group-definition}
+Associativity — $(ab)c=a(bc)$
+
+Identity — $ea=ae=a$
+
+Inverses — $aa^{-1}=a^{-1}a=e$
+:::
+:::narration[group-definition-intro]
+Groups give us an algebraic way of describing geometric transformations and symmetries of objects, such as Platonic solids, including cubes and tetrahedra, as well as wallpaper patterns.
+
+We give each transformation a symbol, typically a letter of the Latin or Greek alphabet. We compose transformations by writing their symbols next to one another, reading from right to left. For example, ab means that we perform b first and then a.
+
+The group operation satisfies three properties: associativity, the existence of an identity, and the existence of inverses. Groups give us a language for describing symmetry.
+:::
+::pause
+
+### Addition on a clock {#clock-addition}
 ::scene[clock]
 
 :::display
-A group is a set with a closed operation, an associative law, an identity, and an inverse for every element.
-Associativity — $(ab)c = a(bc)$
-Identity — $ea = ae = a$
-Inverse — $aa^{-1} = a^{-1}a = e$
+The additive cyclic group: integers modulo 12.
+
+$\mathbb{Z}/12\mathbb{Z}$
+
+Explore addition on a clock by dragging the hand.
 :::
+:::narration[clock-addition-intro]
+One of the simplest examples of a group is the additive cyclic group. We can describe it using modular arithmetic, which you are already familiar with from analog clocks. When a clock reaches the twelfth hour, it wraps back around to zero.
 
-:::narration[group-definition-voice]
-A group is a way to describe symmetries and transformations algebraically. Instead of holding up a physical object and turning it around, give each transformation a symbolic name. Write two symbols next to each other to compose their transformations. Read them from right to left: in R S, apply S first, then R. A group is closed under its operation. The operation is associative, so grouping three moves differently gives the same result. There is an identity that leaves things unchanged, and every element has an inverse that undoes it.
+We say that the clock has a modulus of twelve. We call this group the integers modulo twelve, written Z mod twelve. The letter Z comes from the German word Zahlen, meaning numbers. Integers are called ganze Zahlen in German.
 :::
-
-## Modular arithmetic {#modular-arithmetic}
-
-### Inverses {#clock-inverse}
-::scene[clock]
+::pause
 
 :::display
-The hand starts at 5. Drag it back to 12 / 0 to undo the five-hour shift.
+Click and drag either input clock hand to explore addition modulo 12.
 :::
+:::narration[clock-addition-operation]
+Let's try adding two numbers on a clock. Five plus eight is thirteen, but because our clock wraps around after twelve, we end up at one.
 
-:::narration[group-clock-inverse]
-A clock gives us a simple example of a group under addition. The hand has moved five hours forward. What move undoes that shift? Drag the hand back to twelve.
+Click and drag the hands on either of the first two clock faces to see the group operation of addition in action. Try several different combinations and observe the result on the third clock.
+
+Whenever we combine two elements of our group, we obtain another element of the same group. This rule for combining two group elements is called the group operation. In this example, the group operation is addition modulo twelve.
 :::
-
-### Identity {#clock-identity}
-::scene[clock]
-
-:::display
-Which move leaves the hand where it started? Drag it around the clock once.
-:::
-
-:::narration[group-clock-identity]
-The identity leaves the hand where it started. Doing nothing is the identity. So is any whole number of full turns, clockwise or counterclockwise.
-:::
+::pause
 
 ### Associativity {#clock-associativity}
 ::scene[clock]
 
 :::display
-(a + b) + c = a + (b + c). The same three shifts reach the same position regardless of how they are grouped.
-:::
+Drag the colored arcs on either clock to change their lengths.
 
-:::narration[group-clock-associativity]
-Associativity means regrouping three moves does not change their result. Add the first two shifts, then the third, or add the last two first. The final position is the same. Clock addition is also commutative, so the order of two shifts can be exchanged. This makes the clock group abelian.
-:::
+$(a+b)+c=a+(b+c)$
 
-### Around the clock {#around-the-clock}
+Does changing the grouping change the final position?
+:::
+:::narration[clock-associativity-intro]
+Each of these colored arcs represents a movement around the clock. You can drag the arcs on either clock to change their lengths.
+
+On the left, we combine the first two arcs before adding the third. On the right, we combine the last two arcs first. Both clocks use the same three values.
+
+Try a few different values and observe what happens to the final position of the clock hand on each clock. Does the way we group the arcs change the result?
+:::
+::pause
+
+### Identity {#clock-identity}
 ::scene[clock]
 
 :::display
-Start at 11. Drag the hand forward two ticks. Where does it land?
-:::
+$12\mathbb{Z}=\{\ldots,-24,-12,0,12,24,\ldots\}$
 
-:::narration[group-clock-around]
-Adding on a clock gives us one of the simplest examples of a group: modular arithmetic. You already use it when you read an analog clock. After twelve, the clock wraps around to one instead of counting to thirteen. That's because twelve and zero name the same position. Try moving the hand forward two hours from eleven and see where it lands.
-:::
+Drag the dot on the number line to make full rotations of the clock.
 
-### Two names for twelve {#two-names-for-twelve}
+$a+12k\equiv a\pmod{12}$
+:::
+:::narration[clock-identity-intro]
+Intuitively, making a full rotation around the clock, either clockwise or counterclockwise, doesn't change where the hand is. So all the numbers that are multiples of twelve are identified with zero, and they represent the identity.
+
+Drag the dot on the number line above to see that the reading of the clock below is unchanged after a full rotation.
+
+Now change the hour hand on the clock to any value, and then drag the dot on the number line above to go around a whole number of full rotations on the clock. Observe that the reading of the clock is unchanged.
+:::
+::pause
+
+### Additive inverses {#clock-inverses}
 ::scene[clock]
 
-:::display
-12 and 0 name the same tick. Drag the hand forward one tick from there.
-:::
+:::narration[clock-inverses-explore]
+Every element of a group has an inverse. In our additive clock group, the inverse of a number is the number we can add to it to get zero.
 
-:::narration[group-clock-zero]
-Look at the top tick. On a clock we call it twelve, and when we count remainders we call it zero. They name the same spot. Start there and move the hand forward one tick. Whether you start by saying twelve or zero, you land on one.
+The lines on this clock connect each number to its additive inverse. Change the number of positions on the clock. Use the View multiple clocks button to compare the additive inverses of many different clocks at once. What geometric pattern do you notice? Can you explain why it occurs?
 :::
+::pause
+:::narration[clock-inverses-explain]
+Notice that the lines are parallel. Each number and its inverse are reflections of one another across the vertical axis. Zero is its own inverse. When the modulus is even, the number halfway around the clock is also its own inverse.
+:::
+::pause
 
-### Multiply on the clock {#clock-multiply}
+### Commutativity {#clock-commutativity}
 ::scene[clock]
 
-:::display
-Modulo 8, drag 3 onto the clock. Then try 2. Which multiplier keeps every residue distinct?
+:::narration[clock-commutativity-intro]
+There is another property that our clock group has. We can add two numbers in either order and obtain the same result.
+
+On the first clock we add the red arc and then the blue arc. On the second clock we add them in the opposite order. Drag the arcs to change their lengths and compare the results.
+
+A group in which the order of two elements does not affect their product is called commutative, or abelian, in honor of the Norwegian mathematician Niels Henrik Abel. Abel made foundational contributions to the study of algebraic equations, but tragically died at the age of twenty-six. Many of the groups we will encounter are not abelian.
 :::
+::pause
 
-:::narration[group-clock-multiply]
-Multiplication also wraps around the clock. On this eight-position dial, drag three onto the face. Each residue has its own destination. Now drag two onto the dial. Some paths join at the same destination. Three is reversible modulo eight: multiply by three again and you get back to where you started. Two has no inverse modulo eight.
-:::
-
-## Investigation {#investigation}
-
-### Wilson’s theorem {#clock-wilson}
+## Modular multiplication {#modular-multiplication}
+### Multiplication and units {#clock-units}
 ::scene[clock]
 
-:::display
-Scrub to 6 factorial modulo 7. Then drag two factors together when their product leaves remainder 1.
-:::
+:::narration[clock-units-explore]
+Instead of adding numbers on our clock, what happens if we multiply them?
 
-:::narration[group-clock-wilson]
-Let’s see why six factorial is one less than seven, modulo seven. Pair two with four, and three with five: each pair has product one, modulo seven. One and six are left over. This works for every odd prime: each nonzero residue has an inverse, and only one and minus one are their own inverses. If a square is one modulo a prime, the prime divides either the number minus one or the number plus one. So all the other factors cancel in pairs, leaving minus one. For the prime two, one and minus one name the same residue. Conversely, if the modulus is composite, a proper divisor greater than one appears among the factors. It divides the factorial, so the remainder cannot be minus one.
+Each arrow connects a number to the result of multiplying it by the selected multiplier, modulo the number of positions on the clock. Change the multiplier and the modulus. Multiplication by a number is invertible exactly when no two arrows end at the same point.
+
+Use the View multiplication maps button to compare many clocks at once. Each row uses the same modulus, and each clock in that row uses a different multiplier.
+
+Remember that every element of a group must have an inverse. Can you tell which moduli have the property that every nonzero number is invertible under multiplication?
 :::
+::pause
+
+:::narration[clock-units-explain]
+When the multiplier and the modulus are relatively prime, every position receives exactly one arrow. In particular, exactly one number is sent to one. That number is the multiplicative inverse of our multiplier.
+
+When the modulus is prime, every nonzero number is invertible. For composite moduli, some nonzero numbers are not invertible.
+
+The numbers relatively prime to the modulus form a group under modular multiplication. We call these numbers units. The identity of this group is one.
+
+Euler's totient function counts the number of units for a given modulus. Change the modulus and observe how the number of units changes.
+:::
+::pause
+
+### Wilson's theorem {#wilson-theorem}
+::scene[clock]
+
+:::narration[wilson-explore]
+Now let's see an example of group theory in action. Let's calculate factorials in modular arithmetic.
+
+Remember that n factorial is the product of all the integers from one to n. Something interesting happens if we calculate p minus one factorial modulo a prime p, using the multiplicative group of nonzero residues.
+
+Can you explain why p minus one factorial is always congruent to minus one modulo p, using group theory?
+
+At first, p equals two might seem like an exception, because the answer is one rather than minus one. But modulo two, one and minus one are identified with each other. This is not really an exception, and it gives us a hint as to how to explain the result.
+
+When you are ready, click the card to reveal a hint. Once you feel confident in your answer, click to reveal the solution.
+:::
+::pause
+
+:::narration[wilson-explain]
+The key is to match each number with its multiplicative inverse. Every pair of distinct inverses has a product of one modulo p.
+
+For example, modulo seven, two pairs with four, and three pairs with five. That leaves one and six, which are their own inverses.
+
+For any odd prime, the only numbers that are their own inverses are one and minus one. To see why, if a number squared is one, then the product of that number minus one and that number plus one is zero modulo p. Since p is prime, one of those factors must be zero.
+
+All the other factors pair off to give one, leaving the product of one and minus one, which is minus one. For p equals two, one and minus one are the same residue, so the result still holds.
+
+This is Wilson's theorem.
+:::
+::pause
+
+## The Dihedral Group {#dihedral-group}
+### Symmetries of a square {#square-symmetries}
+::scene[square]
+
+:::narration[square-symmetries-intro]
+So far, we have explored groups using modular arithmetic. Let's return to our original motivation for group theory: describing geometric symmetries.
+
+Consider a square. Use the rotation and reflection tools to discover its symmetries. How many different transformations can you find?
+:::
+::pause
+:::narration[square-symmetries-reveal]
+There are eight transformations that preserve the square: four rotations, including the identity, and four reflections. Together, these transformations form a group called the dihedral group of the square, which we denote by D four.
+
+We use r to denote a quarter-turn and s to denote a reflection.
+:::
+::pause
+
+### Why order matters {#square-noncommutativity}
+::scene[square]
+
+:::narration[square-order-explore]
+Try rotating the square and then reflecting it. Now perform the same transformations in the opposite order.
+
+Unlike addition on a clock, changing the order of our transformations can change the result. The dihedral group is therefore an example of a non-abelian group.
+:::
+::pause
+
+## Subgroups and Quotient Groups {#subgroups-quotients}
+### Subgroups {#subgroups}
+::scene[square]
+
+:::narration[subgroups-intro]
+Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.
+
+For example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.
+
+This smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Try selecting other collections of symmetries and see whether they form subgroups.
+:::
+::pause
+
+### A subgroup on the clock {#clock-subgroup}
+::scene[clock]
+
+:::narration[clock-subgroup-intro]
+We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?
+:::
+::pause
+
+### Cosets {#cosets}
+::scene[square]
+
+:::narration[cosets-intro]
+What happens if we take every element of a subgroup and multiply it on the left by the same group element?
+
+We obtain a collection of elements called a left coset. Let's see what happens when we multiply all the rotations of our square by a reflection.
+
+Try choosing other multipliers. Can two different cosets partially overlap? How does the number of elements in a coset compare with the number in the original subgroup?
+:::
+::pause
+
+### Lagrange's theorem {#lagrange-theorem}
+::scene[square]
+
+:::narration[lagrange-intro]
+The left cosets partition our group into collections of equal size. Each collection has as many elements as the subgroup itself.
+
+Count the number of cosets and the number of elements in each coset. Multiply these two numbers together. Now try another subgroup.
+
+This is Lagrange's theorem: the order of a subgroup of a finite group divides the order of the group.
+:::
+::pause
+
+### Normal subgroups {#normal-subgroups}
+::scene[square]
+
+:::narration[normal-subgroups-intro]
+Because the dihedral group is not abelian, multiplying a subgroup on the left might produce a different collection of elements than multiplying it on the right.
+
+However, some subgroups have a remarkable property: their left and right cosets always agree. We call these normal subgroups.
+
+Soon we will define a notion of dividing one group by a subgroup. Normality is exactly the condition that allows a subgroup to serve as the denominator in this construction. We cannot divide a group by an arbitrary subgroup in this way.
+
+Try the rotation subgroup and then the subgroup consisting of the identity and a single reflection. Compare the left and right cosets for different multipliers.
+:::
+::pause
+
+:::narration[normal-subgroups-conjugation]
+Another way to describe normality is through conjugation. Multiply each element of the subgroup on the left by a group element and on the right by its inverse. A normal subgroup is unchanged as a set by every such conjugation.
+:::
+::pause
+
+### Quotient groups {#quotient-groups}
+::scene[square]
+
+:::narration[quotient-groups-intro]
+Imagine that we are no longer interested in distinguishing the individual rotations of a square. Instead, we only want to distinguish rotations from reflections.
+
+We can identify all the rotations with one another and all the reflections with one another. In doing so, we obtain a new group with only two elements. This is an example of a quotient group. Division here means forgetting certain information: we identify elements that belong to the same coset. A representative can name its coset, but it is the entire coset that is an element of the quotient.
+
+Collapse the cosets to see the two elements of our new group. Expand them again to see which original transformations they represent.
+:::
+::pause
+:::narration[quotient-groups-products]
+Choose two cosets and multiply a representative from each. Now change the representatives while keeping the same cosets. Does the product still belong to the same coset?
+
+For a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters.
+:::
+::pause
+
+## Bonus: Group Homomorphisms {#homomorphisms-bonus}
+### Homomorphisms and generators {#homomorphisms-generators}
+::scene[clock]
+
+:::narration[homomorphisms-generators-intro]
+A homomorphism is a map from one group to another that preserves the group operation. If f maps G to H, then f of a product is the product of the images. For additive groups, this means f of a sum is the sum of the images.
+
+A homomorphism is determined entirely by where it sends the generators of the input group. Once we know where one goes on an additive clock, we know where every other number goes. Not every choice of generator images is possible, because the relations in the input group must still hold.
+
+Choose the image of one on the output clock and watch the other images appear. Select two input numbers to compare mapping their sum with adding their images. Change the clock sizes to explore which choices are possible.
+:::
+::pause
+
+### The first isomorphism theorem: clocks {#first-isomorphism-clock}
+::scene[clock]
+
+:::narration[first-isomorphism-clock-intro]
+The kernel of a homomorphism consists of all the elements that are sent to the identity of the output group. On our additive clocks, that identity is zero. The image consists of all elements in the output group that occur as outputs of some element of the input group.
+
+Hover over a number on the output clock, or tap it, to see all the input numbers that are sent there. Notice that each nonempty collection is a coset of the kernel. Try changing the clock sizes and the image of the generator.
+
+Click Collapse cosets to identify the elements in each coset. The resulting quotient has exactly the same group structure as the image. This is the first isomorphism theorem. Click Expand cosets to recover the original diagram.
+:::
+::pause
+
+### The first isomorphism theorem: square symmetries {#first-isomorphism-square}
+::scene[square]
+
+:::narration[first-isomorphism-square-intro]
+We can do the same thing with the symmetries of a square. Send every rotation to zero and every reflection to one, using addition modulo two in the output group.
+
+Hover over zero or one to see the corresponding coset, or select a symmetry to see its output. The kernel is the rotation subgroup. When we divide the dihedral group by this subgroup, all rotations become the identity and all reflections become a single other element.
+
+Click Collapse cosets to see the quotient. Try composing two symmetries and compare their output with the sum of their individual outputs. We have forgotten the particular motion but retained whether it preserves or reverses orientation.
+:::
+::pause
+
+### The correspondence theorem: clocks {#correspondence-clock}
+::scene[clock]
+
+:::narration[correspondence-clock-intro]
+Dividing by a normal subgroup also gives us a way to understand the subgroups of the quotient. Every subgroup of the original group that contains the denominator corresponds to exactly one subgroup of the quotient, and every subgroup of the quotient arises this way.
+
+Choose the number of positions on the clock and then choose the subgroup you want to divide by. Select a subgroup containing it to see its boundary. Click Collapse to identify the elements of each coset. The denominator becomes the identity, and the selected subgroup becomes a subgroup of the quotient.
+
+Select another boundary, or select a subgroup on the quotient side to see its full preimage in the original group. Notice that containment relationships are preserved. This is the correspondence theorem.
+:::
+::pause
+
+### The correspondence theorem: square symmetries {#correspondence-square}
+::scene[square]
+
+:::narration[correspondence-square-intro]
+Now try the same experiment with the dihedral group. Choose a normal subgroup to divide by. Select a subgroup containing it, and click Collapse to see its corresponding subgroup in the quotient. The normal subgroup itself becomes the identity, which we can label one when using multiplicative notation.
+
+Try selecting subgroups on either side of the diagram. Expand the quotient to see which original elements each boundary represents. Notice that the subgroups need not form a single chain: several different subgroups can contain the same normal subgroup without containing one another.
+
+The correspondence theorem lets us study the subgroups above a normal subgroup by studying the smaller quotient group instead.
+:::
+::pause

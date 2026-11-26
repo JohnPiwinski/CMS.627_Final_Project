@@ -37,6 +37,8 @@ export class CubeLab {
   private currentTask: Feature = 'face';
   private tracked: { type: Feature; index: number } | null = null;
   private visited = new Set<number>();
+  private readonly investigation = new THREE.Group();
+  private marks: {type: Feature; index: number; color: number}[] = [];
   private trackingEnabled = false;
   private choosingFeature = false;
   private inspectionOnly = false;
@@ -75,6 +77,7 @@ export class CubeLab {
     fill.position.set(5,0,-5);
     this.scene.add(fill);
     this.scene.add(this.cube);
+    this.cube.add(this.investigation);
     this.cube.matrixAutoUpdate = false;
     this.makeSolid();
     this.overlay.className = 'symmetry-overlay';
@@ -147,6 +150,8 @@ export class CubeLab {
     this.closeDial();
     this.hovered = null;
     this.tracked = null;
+    this.marks = [];
+    this.setInvestigationLines([]);
     this.visited.clear();
     for (const mesh of this.pickables) {
       mesh.removeFromParent();
@@ -273,6 +278,7 @@ export class CubeLab {
   setTrialPose(matrix: THREE.Matrix4): void {
     this.motion = null;
     this.closeDial();
+    this.controls.enabled = this.orbitEnabled;
     this.cube.matrix.copy(matrix);
     this.cube.matrixWorldNeedsUpdate = true;
   }
@@ -310,10 +316,29 @@ export class CubeLab {
     this.pickables.forEach(mesh => this.paintFeature(mesh));
   }
 
+  setInvestigationMarks(marks: {type: Feature; index: number; color: number}[]): void {
+    this.marks = marks;
+    this.pickables.forEach(mesh => this.paintFeature(mesh));
+  }
+
+  setInvestigationLines(lines: {points: THREE.Vector3[]; color: number}[]): void {
+    for (const object of [...this.investigation.children]) {
+      const line = object as THREE.Line<THREE.BufferGeometry,THREE.LineBasicMaterial>;
+      line.geometry.dispose();
+      line.material.dispose();
+      line.removeFromParent();
+    }
+    for (const {points,color} of lines) {
+      this.investigation.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),
+        new THREE.LineBasicMaterial({color,depthTest:false,transparent:true,opacity:.85})));
+    }
+  }
+
   private paintFeature(mesh: Pickable): void {
     const { type, index } = mesh.userData;
     const tracked = type === this.tracked?.type;
-    mesh.material.emissive.setHex(mesh === this.selected ? COLORS[type as Feature]
+    const mark = this.marks.find(m => m.type === type && m.index === index);
+    mesh.material.emissive.setHex(mark ? mark.color : mesh === this.selected ? COLORS[type as Feature]
       : tracked && index === this.tracked?.index ? 0x138f77
       : mesh === this.hovered ? 0x4d3b12 : tracked && this.visited.has(index) ? 0x395e50 : 0);
   }
@@ -336,7 +361,7 @@ export class CubeLab {
     if (this.inspectionOnly) return;
     this.closeDial();
     this.selected = hit;
-    hit.material.emissive.setHex(COLORS[hit.userData.type as Feature]);
+    this.paintFeature(hit);
     if (this.canTransform) this.openDial(hit);
     this.onPick(hit.userData.type as Feature);
     if (!this.canTransform) this.onHint(`Selected ${hit.userData.type as Feature}.`);

@@ -31,3 +31,11 @@ export function isPrime(value: number): boolean {
   }
   return true;
 }
+
+export function additiveHomomorphism(source: number, target: number, generatorImage: number) {
+  if (residue(source * generatorImage, target) !== 0) return undefined;
+  const apply = (value: number) => residue(value * generatorImage, target);
+  const fibers: number[][] = Array.from({ length: target }, () => []);
+  for (let value = 0; value < source; value++) fibers[apply(value)].push(value);
+  return { apply, fibers, kernel: fibers[0], image: fibers.flatMap((fiber, value) => fiber.length ? [value] : []) };
+}

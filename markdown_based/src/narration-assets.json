@@ -15,6 +15,10 @@
     "file": "square-reflect-6f83f3acae74d097.mp3",
     "text": "Now select the highlighted Reflect tool. Press a lattice dot and drag horizontally or vertically to choose the mirror line. Release and watch the marked triangle flip across that line."
   },
+  "square-glide": {
+    "file": "square-glide-8f5f8850c7e39922.mp3",
+    "text": "A glide reflection flips across a line and then slides along that same line. Select the highlighted Glide icon, just to the right of Reflect in the bottom toolbar. Drag from a lattice dot to choose a mirror line. Then drag along that line to choose how far to slide."
+  },
   "square-match": {
     "file": "square-match-0a210b8d0dbfb7d5.mp3",
     "text": "Can you line up the two triangles? Use the bottom toolbar to switch between tools. Match A with A, B with B, and C with C on the dashed target. Once all three corners overlap, you can continue."
@@ -51,36 +55,172 @@
     "file": "solid-gallery-guide-d845a438bdb29f8a.mp3",
     "text": "Try any of the five Platonic solids. The cube and octahedron are duals, as are the dodecahedron and icosahedron. The tetrahedron is its own dual. Compare how their features move when you turn or reflect them."
   },
-  "group-definition-voice": {
-    "file": "group-definition-voice-901e6c1c7b7cc11e.mp3",
-    "text": "A group is a way to describe symmetries and transformations algebraically. Instead of holding up a physical object and turning it around, give each transformation a symbolic name. Write two symbols next to each other to compose their transformations. Read them from right to left: in R S, apply S first, then R. A group is closed under its operation. The operation is associative, so grouping three moves differently gives the same result. There is an identity that leaves things unchanged, and every element has an inverse that undoes it."
+  "group-definition-intro": {
+    "file": "group-definition-intro-b03cf8d6dc6a57bb.mp3",
+    "text": "Groups give us an algebraic way of describing geometric transformations and symmetries of objects, such as Platonic solids, including cubes and tetrahedra, as well as wallpaper patterns.\n\nWe give each transformation a symbol, typically a letter of the Latin or Greek alphabet. We compose transformations by writing their symbols next to one another, reading from right to left. For example, ab means that we perform b first and then a.\n\nThe group operation satisfies three properties: associativity, the existence of an identity, and the existence of inverses. Groups give us a language for describing symmetry."
   },
-  "group-clock-inverse": {
-    "file": "group-clock-inverse-18a0d6a0861123e5.mp3",
-    "text": "A clock gives us a simple example of a group under addition. The hand has moved five hours forward. What move undoes that shift? Drag the hand back to twelve."
+  "clock-addition-intro": {
+    "file": "clock-addition-intro-520d5fe058deffef.mp3",
+    "text": "One of the simplest examples of a group is the additive cyclic group. We can describe it using modular arithmetic, which you are already familiar with from analog clocks. When a clock reaches the twelfth hour, it wraps back around to zero.\n\nWe say that the clock has a modulus of twelve. We call this group the integers modulo twelve, written Z mod twelve. The letter Z comes from the German word Zahlen, meaning numbers. Integers are called ganze Zahlen in German."
   },
-  "group-clock-identity": {
-    "file": "group-clock-identity-f2488b6b9ab2b1ca.mp3",
-    "text": "The identity leaves the hand where it started. Doing nothing is the identity. So is any whole number of full turns, clockwise or counterclockwise."
+  "clock-addition-operation": {
+    "file": "clock-addition-operation-f1f01a9fc4698c19.mp3",
+    "text": "Let's try adding two numbers on a clock. Five plus eight is thirteen, but because our clock wraps around after twelve, we end up at one.\n\nClick and drag the hands on either of the first two clock faces to see the group operation of addition in action. Try several different combinations and observe the result on the third clock.\n\nWhenever we combine two elements of our group, we obtain another element of the same group. This rule for combining two group elements is called the group operation. In this example, the group operation is addition modulo twelve."
   },
-  "group-clock-associativity": {
-    "file": "group-clock-associativity-b05b5d635fd9bcd0.mp3",
-    "text": "Associativity means regrouping three moves does not change their result. Add the first two shifts, then the third, or add the last two first. The final position is the same. Clock addition is also commutative, so the order of two shifts can be exchanged. This makes the clock group abelian."
+  "clock-associativity-intro": {
+    "file": "clock-associativity-intro-81805fcff81072c3.mp3",
+    "text": "Each of these colored arcs represents a movement around the clock. You can drag the arcs on either clock to change their lengths.\n\nOn the left, we combine the first two arcs before adding the third. On the right, we combine the last two arcs first. Both clocks use the same three values.\n\nTry a few different values and observe what happens to the final position of the clock hand on each clock. Does the way we group the arcs change the result?"
   },
-  "group-clock-around": {
-    "file": "group-clock-around-00940729524ea97b.mp3",
-    "text": "Adding on a clock gives us one of the simplest examples of a group: modular arithmetic. You already use it when you read an analog clock. After twelve, the clock wraps around to one instead of counting to thirteen. That's because twelve and zero name the same position. Try moving the hand forward two hours from eleven and see where it lands."
+  "clock-identity-intro": {
+    "file": "clock-identity-intro-de6439db566e5645.mp3",
+    "text": "Intuitively, making a full rotation around the clock, either clockwise or counterclockwise, doesn't change where the hand is. So all the numbers that are multiples of twelve are identified with zero, and they represent the identity.\n\nDrag the dot on the number line above to see that the reading of the clock below is unchanged after a full rotation.\n\nNow change the hour hand on the clock to any value, and then drag the dot on the number line above to go around a whole number of full rotations on the clock. Observe that the reading of the clock is unchanged."
   },
-  "group-clock-zero": {
-    "file": "group-clock-zero-ca8796519f392685.mp3",
-    "text": "Look at the top tick. On a clock we call it twelve, and when we count remainders we call it zero. They name the same spot. Start there and move the hand forward one tick. Whether you start by saying twelve or zero, you land on one."
+  "clock-inverses-explore": {
+    "file": "clock-inverses-explore-8b30e4b8b4f5b44a.mp3",
+    "text": "Every element of a group has an inverse. In our additive clock group, the inverse of a number is the number we can add to it to get zero.\n\nThe lines on this clock connect each number to its additive inverse. Change the number of positions on the clock. Use the View multiple clocks button to compare the additive inverses of many different clocks at once. What geometric pattern do you notice? Can you explain why it occurs?"
   },
-  "group-clock-multiply": {
-    "file": "group-clock-multiply-6f02a3da6fc5e2e3.mp3",
-    "text": "Multiplication also wraps around the clock. On this eight-position dial, drag three onto the face. Each residue has its own destination. Now drag two onto the dial. Some paths join at the same destination. Three is reversible modulo eight: multiply by three again and you get back to where you started. Two has no inverse modulo eight."
+  "clock-inverses-explain": {
+    "file": "clock-inverses-explain-af75a1207ed4a1b4.mp3",
+    "text": "Notice that the lines are parallel. Each number and its inverse are reflections of one another across the vertical axis. Zero is its own inverse. When the modulus is even, the number halfway around the clock is also its own inverse."
   },
-  "group-clock-wilson": {
-    "file": "group-clock-wilson-e7cd371b6c78ac8f.mp3",
-    "text": "Let’s see why six factorial is one less than seven, modulo seven. Pair two with four, and three with five: each pair has product one, modulo seven. One and six are left over. This works for every odd prime: each nonzero residue has an inverse, and only one and minus one are their own inverses. If a square is one modulo a prime, the prime divides either the number minus one or the number plus one. So all the other factors cancel in pairs, leaving minus one. For the prime two, one and minus one name the same residue. Conversely, if the modulus is composite, a proper divisor greater than one appears among the factors. It divides the factorial, so the remainder cannot be minus one."
+  "clock-commutativity-intro": {
+    "file": "clock-commutativity-intro-02e7288c9c7052dc.mp3",
+    "text": "There is another property that our clock group has. We can add two numbers in either order and obtain the same result.\n\nOn the first clock we add the red arc and then the blue arc. On the second clock we add them in the opposite order. Drag the arcs to change their lengths and compare the results.\n\nA group in which the order of two elements does not affect their product is called commutative, or abelian, in honor of the Norwegian mathematician Niels Henrik Abel. Abel made foundational contributions to the study of algebraic equations, but tragically died at the age of twenty-six. Many of the groups we will encounter are not abelian."
+  },
+  "clock-units-explore": {
+    "file": "clock-units-explore-9bd42dd89d20261c.mp3",
+    "text": "Instead of adding numbers on our clock, what happens if we multiply them?\n\nEach arrow connects a number to the result of multiplying it by the selected multiplier, modulo the number of positions on the clock. Change the multiplier and the modulus. Multiplication by a number is invertible exactly when no two arrows end at the same point.\n\nUse the View multiplication maps button to compare many clocks at once. Each row uses the same modulus, and each clock in that row uses a different multiplier.\n\nRemember that every element of a group must have an inverse. Can you tell which moduli have the property that every nonzero number is invertible under multiplication?"
+  },
+  "clock-units-explain": {
+    "file": "clock-units-explain-ed7b13badee262aa.mp3",
+    "text": "When the multiplier and the modulus are relatively prime, every position receives exactly one arrow. In particular, exactly one number is sent to one. That number is the multiplicative inverse of our multiplier.\n\nWhen the modulus is prime, every nonzero number is invertible. For composite moduli, some nonzero numbers are not invertible.\n\nThe numbers relatively prime to the modulus form a group under modular multiplication. We call these numbers units. The identity of this group is one.\n\nEuler's totient function counts the number of units for a given modulus. Change the modulus and observe how the number of units changes."
+  },
+  "wilson-explore": {
+    "file": "wilson-explore-d143fa111b1dd1c7.mp3",
+    "text": "Now let's see an example of group theory in action. Let's calculate factorials in modular arithmetic.\n\nRemember that n factorial is the product of all the integers from one to n. Something interesting happens if we calculate p minus one factorial modulo a prime p, using the multiplicative group of nonzero residues.\n\nCan you explain why p minus one factorial is always congruent to minus one modulo p, using group theory?\n\nAt first, p equals two might seem like an exception, because the answer is one rather than minus one. But modulo two, one and minus one are identified with each other. This is not really an exception, and it gives us a hint as to how to explain the result.\n\nWhen you are ready, click the card to reveal a hint. Once you feel confident in your answer, click to reveal the solution."
+  },
+  "wilson-explain": {
+    "file": "wilson-explain-a98c738f5f778961.mp3",
+    "text": "The key is to match each number with its multiplicative inverse. Every pair of distinct inverses has a product of one modulo p.\n\nFor example, modulo seven, two pairs with four, and three pairs with five. That leaves one and six, which are their own inverses.\n\nFor any odd prime, the only numbers that are their own inverses are one and minus one. To see why, if a number squared is one, then the product of that number minus one and that number plus one is zero modulo p. Since p is prime, one of those factors must be zero.\n\nAll the other factors pair off to give one, leaving the product of one and minus one, which is minus one. For p equals two, one and minus one are the same residue, so the result still holds.\n\nThis is Wilson's theorem."
+  },
+  "square-symmetries-intro": {
+    "file": "square-symmetries-intro-0b8e109215b3805c.mp3",
+    "text": "So far, we have explored groups using modular arithmetic. Let's return to our original motivation for group theory: describing geometric symmetries.\n\nConsider a square. Use the rotation and reflection tools to discover its symmetries. How many different transformations can you find?"
+  },
+  "square-symmetries-reveal": {
+    "file": "square-symmetries-reveal-680fd3547799001c.mp3",
+    "text": "There are eight transformations that preserve the square: four rotations, including the identity, and four reflections. Together, these transformations form a group called the dihedral group of the square, which we denote by D four.\n\nWe use r to denote a quarter-turn and s to denote a reflection."
+  },
+  "square-order-explore": {
+    "file": "square-order-explore-02d61590694303f2.mp3",
+    "text": "Try rotating the square and then reflecting it. Now perform the same transformations in the opposite order.\n\nUnlike addition on a clock, changing the order of our transformations can change the result. The dihedral group is therefore an example of a non-abelian group."
+  },
+  "subgroups-intro": {
+    "file": "subgroups-intro-989e05fe3fa8a452.mp3",
+    "text": "Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.\n\nFor example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.\n\nThis smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Try selecting other collections of symmetries and see whether they form subgroups."
+  },
+  "clock-subgroup-intro": {
+    "file": "clock-subgroup-intro-c932d45a1b44a489.mp3",
+    "text": "We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?"
+  },
+  "cosets-intro": {
+    "file": "cosets-intro-622cd2471c341cc2.mp3",
+    "text": "What happens if we take every element of a subgroup and multiply it on the left by the same group element?\n\nWe obtain a collection of elements called a left coset. Let's see what happens when we multiply all the rotations of our square by a reflection.\n\nTry choosing other multipliers. Can two different cosets partially overlap? How does the number of elements in a coset compare with the number in the original subgroup?"
+  },
+  "lagrange-intro": {
+    "file": "lagrange-intro-cbef4417e60b8892.mp3",
+    "text": "The left cosets partition our group into collections of equal size. Each collection has as many elements as the subgroup itself.\n\nCount the number of cosets and the number of elements in each coset. Multiply these two numbers together. Now try another subgroup.\n\nThis is Lagrange's theorem: the order of a subgroup of a finite group divides the order of the group."
+  },
+  "normal-subgroups-intro": {
+    "file": "normal-subgroups-intro-a55bceb8db2726a2.mp3",
+    "text": "Because the dihedral group is not abelian, multiplying a subgroup on the left might produce a different collection of elements than multiplying it on the right.\n\nHowever, some subgroups have a remarkable property: their left and right cosets always agree. We call these normal subgroups.\n\nSoon we will define a notion of dividing one group by a subgroup. Normality is exactly the condition that allows a subgroup to serve as the denominator in this construction. We cannot divide a group by an arbitrary subgroup in this way.\n\nTry the rotation subgroup and then the subgroup consisting of the identity and a single reflection. Compare the left and right cosets for different multipliers."
+  },
+  "normal-subgroups-conjugation": {
+    "file": "normal-subgroups-conjugation-893405af25726747.mp3",
+    "text": "Another way to describe normality is through conjugation. Multiply each element of the subgroup on the left by a group element and on the right by its inverse. A normal subgroup is unchanged as a set by every such conjugation."
+  },
+  "quotient-groups-intro": {
+    "file": "quotient-groups-intro-1f5ce3375d5117e1.mp3",
+    "text": "Imagine that we are no longer interested in distinguishing the individual rotations of a square. Instead, we only want to distinguish rotations from reflections.\n\nWe can identify all the rotations with one another and all the reflections with one another. In doing so, we obtain a new group with only two elements. This is an example of a quotient group. Division here means forgetting certain information: we identify elements that belong to the same coset. A representative can name its coset, but it is the entire coset that is an element of the quotient.\n\nCollapse the cosets to see the two elements of our new group. Expand them again to see which original transformations they represent."
+  },
+  "quotient-groups-products": {
+    "file": "quotient-groups-products-897c3c6853fb99cb.mp3",
+    "text": "Choose two cosets and multiply a representative from each. Now change the representatives while keeping the same cosets. Does the product still belong to the same coset?\n\nFor a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters."
+  },
+  "homomorphisms-generators-intro": {
+    "file": "homomorphisms-generators-intro-38c2057d70c62f51.mp3",
+    "text": "A homomorphism is a map from one group to another that preserves the group operation. If f maps G to H, then f of a product is the product of the images. For additive groups, this means f of a sum is the sum of the images.\n\nA homomorphism is determined entirely by where it sends the generators of the input group. Once we know where one goes on an additive clock, we know where every other number goes. Not every choice of generator images is possible, because the relations in the input group must still hold.\n\nChoose the image of one on the output clock and watch the other images appear. Select two input numbers to compare mapping their sum with adding their images. Change the clock sizes to explore which choices are possible."
+  },
+  "first-isomorphism-clock-intro": {
+    "file": "first-isomorphism-clock-intro-5036bca194e91cb7.mp3",
+    "text": "The kernel of a homomorphism consists of all the elements that are sent to the identity of the output group. On our additive clocks, that identity is zero. The image consists of all elements in the output group that occur as outputs of some element of the input group.\n\nHover over a number on the output clock, or tap it, to see all the input numbers that are sent there. Notice that each nonempty collection is a coset of the kernel. Try changing the clock sizes and the image of the generator.\n\nClick Collapse cosets to identify the elements in each coset. The resulting quotient has exactly the same group structure as the image. This is the first isomorphism theorem. Click Expand cosets to recover the original diagram."
+  },
+  "first-isomorphism-square-intro": {
+    "file": "first-isomorphism-square-intro-f8448cc5a4d6018e.mp3",
+    "text": "We can do the same thing with the symmetries of a square. Send every rotation to zero and every reflection to one, using addition modulo two in the output group.\n\nHover over zero or one to see the corresponding coset, or select a symmetry to see its output. The kernel is the rotation subgroup. When we divide the dihedral group by this subgroup, all rotations become the identity and all reflections become a single other element.\n\nClick Collapse cosets to see the quotient. Try composing two symmetries and compare their output with the sum of their individual outputs. We have forgotten the particular motion but retained whether it preserves or reverses orientation."
+  },
+  "correspondence-clock-intro": {
+    "file": "correspondence-clock-intro-fb5f620b3451b937.mp3",
+    "text": "Dividing by a normal subgroup also gives us a way to understand the subgroups of the quotient. Every subgroup of the original group that contains the denominator corresponds to exactly one subgroup of the quotient, and every subgroup of the quotient arises this way.\n\nChoose the number of positions on the clock and then choose the subgroup you want to divide by. Select a subgroup containing it to see its boundary. Click Collapse to identify the elements of each coset. The denominator becomes the identity, and the selected subgroup becomes a subgroup of the quotient.\n\nSelect another boundary, or select a subgroup on the quotient side to see its full preimage in the original group. Notice that containment relationships are preserved. This is the correspondence theorem."
+  },
+  "correspondence-square-intro": {
+    "file": "correspondence-square-intro-560cf6291bf05aad.mp3",
+    "text": "Now try the same experiment with the dihedral group. Choose a normal subgroup to divide by. Select a subgroup containing it, and click Collapse to see its corresponding subgroup in the quotient. The normal subgroup itself becomes the identity, which we can label one when using multiplicative notation.\n\nTry selecting subgroups on either side of the diagram. Expand the quotient to see which original elements each boundary represents. Notice that the subgroups need not form a single chain: several different subgroups can contain the same normal subgroup without containing one another.\n\nThe correspondence theorem lets us study the subgroups above a normal subgroup by studying the smaller quotient group instead."
+  },
+  "wallpaper-translation-intro": {
+    "file": "wallpaper-translation-intro-092431736f6a768e.mp3",
+    "text": "A wallpaper pattern repeats in two independent directions. Try using the translation tool from our lattice tutorial. Choose two lattice points and watch the pattern move. What changes, and what stays the same?"
+  },
+  "wallpaper-rotation-reflection-intro": {
+    "file": "wallpaper-rotation-reflection-intro-81ce827c60bed047.mp3",
+    "text": "Translations are not the only symmetries a wallpaper can have. Try rotating the pattern around different points. Then try reflecting it across different lines. Can you find transformations that leave the entire colored pattern unchanged?"
+  },
+  "wallpaper-glide-intro": {
+    "file": "wallpaper-glide-intro-caecc083a3ad993c.mp3",
+    "text": "Sometimes reflecting a wallpaper does not give us the original pattern. But what happens if we reflect it and then slide it along the reflection line? This combination is called a glide reflection. Try to find one that preserves this wallpaper."
+  },
+  "wallpaper-orbits-intro": {
+    "file": "wallpaper-orbits-intro-95e9e6cf80d80fa0.mp3",
+    "text": "Choose a point on the wallpaper. Where can the symmetries of the wallpaper move that point? All the points we can reach form its orbit. Try reaching some of them using translations, rotations and reflections."
+  },
+  "wallpaper-gallery-intro": {
+    "file": "wallpaper-gallery-intro-47f79c15862e8589.mp3",
+    "text": "There are seventeen types of wallpaper symmetry groups. Each is distinguished by the kinds of symmetries it has and how those symmetries are arranged. Explore these examples using the tools you already know. Look for differences between patterns that seem similar at first."
+  },
+  "wallpaper-matching-intro": {
+    "file": "wallpaper-matching-intro-cdf21b476532f16d.mp3",
+    "text": "Wallpaper groups appear in many different decorative designs. Two patterns can look quite different and still have the same type of symmetry. Match each decorative wallpaper to the abstract pattern with the same wallpaper group. You can return to the symmetry tools whenever you need to investigate a pattern."
+  },
+  "action-introduction": {
+    "file": "action-introduction-807653f48acafd9c.mp3",
+    "text": "So far, we have studied groups as collections of\ntransformations. Now we are going to study what those\ntransformations actually do to geometric objects.\n\nSelect a vertex of the cube and then use the rotation\nand reflection tools to move it around.\n\nWhen a group transforms the elements of a set in this\nway, we say that the group acts on that set."
+  },
+  "orbit-introduction": {
+    "file": "orbit-introduction-e8f603b62fb3e3a2.mp3",
+    "text": "Select a vertex of the cube. How many different positions\ncan you move this vertex to using rotations of the cube?\n\nThe collection of all positions to which we can move\na particular object using elements of a group is called\nits orbit.\n\nTry the same experiment with an edge or a face."
+  },
+  "stabilizer-introduction": {
+    "file": "stabilizer-introduction-1b42e23d0e25b172.mp3",
+    "text": "Now let's ask a slightly different question.\n\nHow many transformations can we perform without\nchanging the position of our selected feature?\n\nClick a face and explore rotations around the axis\npassing through its center.\n\nThe elements of a group that leave a particular object\nunchanged form a subgroup called its stabilizer."
+  },
+  "rotation-table": {
+    "file": "rotation-table-52a6c67d5c886a30.mp3",
+    "text": "Let's investigate whether there is a relationship\nbetween the size of an orbit, the size of its stabilizer,\nand the number of elements in the group.\n\nUse the solid selector to explore the five Platonic\nsolids. Click vertices, edges, and faces to investigate\ntheir orbits and stabilizers.\n\nRecord your observations in the table."
+  },
+  "reflection-table": {
+    "file": "reflection-table-73a57f51d5e7851e.mp3",
+    "text": "Now let's include reflections as well as rotations.\n\nUse the reflection tool and click a vertex, edge, or\nface to reveal the available reflection planes.\n\nHow does including reflections change the size of\nthe orbit? How does it change the size of the stabilizer?\n\nRecord these new observations in the table."
+  },
+  "theorem-discovery": {
+    "file": "theorem-discovery-ad3246ae5ef0aa51.mp3",
+    "text": "Examine the numbers that you have collected.\n\nCan you find a relationship between the size of a\ngroup, the size of an orbit, and the size of its\nstabilizer?\n\nDoes the same relationship hold for every Platonic\nsolid that you investigated?"
+  },
+  "cube-s3-challenge": {
+    "file": "cube-s3-challenge-6944f581f628a6fd.mp3",
+    "text": "The rotational symmetry group of the cube contains\na subgroup isomorphic to the symmetry group of\nan equilateral triangle.\n\nCan you discover where this subgroup comes from\ngeometrically?\n\nExplore the vertices, edges, and diagonals of the cube.\nUse the hint card if you would like some help."
+  },
+  "multiple-feature-challenge": {
+    "file": "multiple-feature-challenge-0075949eb312f76a.mp3",
+    "text": "What happens when we require a transformation to\npreserve more than one geometric object?\n\nConsider the highlighted edge and vertex of the cube.\n\nCan you determine the subgroup consisting of all\nrotations that preserve both of these features?"
   }
 }

@@ -10,26 +10,25 @@ it('derives tutorial sections, beats, and narration from one document', () => {
   const square = chapter.sections.flatMap(section => section.subsections).find(item => item.id === 'square-lattice');
   expect(square?.beats.some(beat => beat.narration?.id === 'square-intro' && beat.narration.auto)).toBe(true);
   expect(square?.beats).toContainEqual(expect.objectContaining({ wait: 'translated', cue: 'translate' }));
-  expect(narrationEntries(chapter)).toHaveLength(13);
+  expect(narrationEntries(chapter)).toHaveLength(14);
 });
 
 it('reports invalid content at its source location', () => {
   expect(() => parseChapter(source.replace('::scene[square]', '::scene[missing]'), 'tutorial.md'))
     .toThrow(/tutorial.md:\d+: Expected ::scene/);
-  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect]', '::enable[orbit]'))).toThrow(/unsupported/);
-  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect]', '::enable[translate]'))).toThrow(/disabled/);
+  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect,glide]', '::enable[orbit]'))).toThrow(/unsupported/);
+  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect,glide]', '::enable[translate]'))).toThrow(/disabled/);
   expect(() => parseChapter(source.replace('square-reflect]', 'square-intro]'))).toThrow(/Duplicate ID/);
 });
 
-it('loads both guided clock subsections and their exact narration from Markdown', () => {
-  const clockFile = 'content/group-theory.md';
-  const clock = parseChapter(readFileSync(new URL('../' + clockFile, import.meta.url), 'utf8'), clockFile);
-  expect(clock.sections.map(section => section.title)).toEqual(['Groups', 'Modular arithmetic', 'Investigation']);
-  expect(clock.sections[1].subsections.slice(3, 5).map(page => [page.title, page.scene])).toEqual([
-    ['Around the clock', 'clock'], ['Two names for twelve', 'clock'],
-  ]);
-  expect(narrationEntries(clock).slice(4, 6)).toEqual([
-    expect.objectContaining({ id: 'group-clock-around', text: expect.stringContaining('twelve and zero name the same position') }),
-    expect.objectContaining({ id: 'group-clock-zero', text: expect.stringContaining('They name the same spot.') }),
-  ]);
+
+it('uses the outline order and exact narration for all guided subsections', () => {
+  const load = (name: string) => parseChapter(readFileSync(new URL('../' + name, import.meta.url), 'utf8'), name);
+  const chapter = load('content/group-theory.md');
+  const outline = load('outlines/chapter-1-outline.md');
+  const ids = (value: typeof chapter) => value.sections.flatMap(section => section.subsections.map(page => page.id));
+  expect(ids(chapter)).toEqual(ids(outline));
+  expect(ids(chapter)).toHaveLength(21);
+  expect(chapter.sections.map(section => section.subsections.length)).toEqual([6, 2, 2, 6, 5]);
+  expect(narrationEntries(chapter)).toEqual(narrationEntries(outline));
 });

@@ -43,7 +43,7 @@ test('plays the M2 asset and advances the tutorial when playback ends', async ({
   await expect(page.locator('.transcript')).toContainText('Welcome to Chapter Zero');
   const audio = page.locator('audio');
   await expect(audio).toHaveAttribute('src', /square-intro-.*\.mp3$/);
-  await page.getByRole('button', { name: 'Play voiceover' }).click();
+  await page.getByRole('button', { name: 'Replay', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pause voiceover' })).toBeVisible();
   await expect.poll(() => audio.evaluate(node => (node as HTMLAudioElement).currentTime)).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Pause voiceover' }).click();
@@ -76,6 +76,8 @@ test('requires a labeled triangle match to unlock later tutorial sections', asyn
   await expect(page.locator('.prompt')).toContainText('Reflect');
   await chooseTool(page, 2);
   await drag(page, x, y, unit, 0);
+  await expect(page.locator('.prompt')).toContainText('Glide');
+  await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.locator('.prompt')).toContainText('line up A, B, and C');
   await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled();
   await chooseTool(page, 0);
@@ -135,7 +137,7 @@ test('keeps navigation and scene usable on a narrow screen during repeated jumps
   await unlockLattices(page);
   await page.setViewportSize({ width: 390, height: 740 });
   await page.goto('/2');
-  await page.getByRole('button', { name: 'Play voiceover' }).click();
+  await page.getByRole('button', { name: 'Replay', exact: true }).click();
   const audio = await page.locator('audio').elementHandle();
   for (let index = 0; index < 3; index++) {
     await page.getByRole('button', { name: 'Orbit the cube' }).click();

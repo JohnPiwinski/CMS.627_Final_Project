@@ -43,8 +43,8 @@ test('keyboard focus and room hover select the same objects', async ({ page }) =
   await page.mouse.move(desk.x, desk.y);
   await expect(page.getByRole('button', { name: /Tutorial/ })).toHaveClass(/active/);
   await clock.press('Enter');
-  await expect(page.getByRole('heading', { name: 'Introductory Group Theory' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'What is a group?' })).toBeAttached();
+  await expect(page.getByRole('heading', { name: 'Introduction to Group Theory' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Definition of a group' })).toBeAttached();
 });
 
 test('opens all four activities from their illustrated objects', async ({ page }) => {
@@ -56,18 +56,17 @@ test('opens all four activities from their illustrated objects', async ({ page }
 
   await expect(page.locator('.adventure-room.ready')).toBeVisible();
   await clickObject(page, 160, 200);
-  await expect(page.getByRole('heading', { name: 'What is a group?' })).toBeAttached();
-  await page.getByRole('button', { name: 'Office' }).press('Enter');
+  await expect(page.getByRole('heading', { name: 'Definition of a group' })).toBeAttached();
+  await page.getByRole('button', { name: /Office/ }).press('Enter');
 
   await expect(page.locator('.adventure-room.ready')).toBeVisible();
   await clickObject(page, 1470, 460);
-  await expect(page.getByRole('heading', { name: 'Orbit Stabilizer' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'The Orbit-Stabilizer Theorem' })).toBeVisible();
   await expect(page.locator('#orbit-view .three-canvas')).toBeVisible();
   await page.getByRole('button', { name: 'Office' }).click();
 
   await expect(page.locator('.adventure-room.ready')).toBeVisible();
   await clickObject(page, 675, 205);
-  await expect(page.getByRole('heading', { name: 'Wallpaper Groups' })).toBeVisible();
-  await expect(page.getByRole('img', { name: /Gold fleur-de-lis/ })).toBeVisible();
-  await expect(page.locator('.wallpaper-canvas')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Wallpaper Symmetries' })).toBeVisible();
+  await expect(page.locator('.wallpaper-konva canvas')).toBeVisible();
 });

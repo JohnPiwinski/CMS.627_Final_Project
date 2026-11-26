@@ -14,16 +14,12 @@ export default definePreparserSetup(({ filepath }) => [{
     const group = parseChapter(readFileSync(groupFile, 'utf8'), groupFile);
     const definition = group.sections.flatMap(section => section.subsections)
       .find(page => page.id === 'group-definition')?.beats[0].display ?? '';
-    const [summary, ...laws] = definition.split('\n');
-    const body = [
-      '<div class="group-definition-slide">',
-      '', '# $RS$', '', 'Apply $S$ first, then $R$.', '',
-      ...laws.flatMap(line => {
-        const [name, formula] = line.split(' — ');
-        return [`<div class="group-law">`, '', `**${name}**`, '', formula, '', '</div>', ''];
+    const body = ['<div class="group-definition-slide">', '',
+      ...definition.split('\n').flatMap(line => {
+        const [law, formula] = line.split(' — ');
+        return formula ? ['<div class="group-law">', '', '**' + law + '**', '', formula, '', '</div>', ''] : [line];
       }),
-      `<p class="group-summary">${summary}</p>`,
-      '</div>',
+      '', '</div>',
     ];
     const slides = pageIds.flatMap(id => ['---', 'layout: workspace', '---',
       ...(id === 'intro' ? body : [`<!-- ${id} -->`]), '']);

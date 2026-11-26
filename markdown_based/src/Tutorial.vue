@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNarration } from './useNarration';
 import { useNav } from '@slidev/client';
 import MarkdownIt from 'markdown-it';
 import { katex } from '@mdit/plugin-katex';
@@ -38,20 +39,16 @@ const audioUrl = computed(() => {
   return clip && clip.text === narration.text ? `${import.meta.env.BASE_URL}narration/${clip.file}` : undefined;
 });
 const panel = ref<HTMLDivElement>();
-const audio = ref<HTMLAudioElement>();
+const { audio, playing, muted, failed: audioFailed, play, stop: stopAudio } = useNarration();
 const tool = ref<LatticeTool>();
 const solid = ref<Solid>('Cube');
 const hint = ref('');
-const playing = ref(false);
-const muted = ref(false);
 const subtitles = ref(false);
 const transcript = ref(false);
-const audioFailed = ref(false);
 let host: SceneHost | undefined;
 let controls: SceneControls | undefined;
 let generation = 0;
 let dock: ToolDock | undefined;
-let followNarration = false;
 
 function chooseTool(value: LatticeTool) {
   tool.value = value;
@@ -70,7 +67,6 @@ function syncBeat() {
     advance();
     return;
   }
-  if (followNarration && audio.value && !muted.value) void play();
 }
 
 function loadPage() {
@@ -106,13 +102,6 @@ function onSceneEvent(event: SceneEvent) {
   advance();
 }
 
-function stopAudio() {
-  audio.value?.pause();
-  if (audio.value) audio.value.currentTime = 0;
-  playing.value = false;
-  audioFailed.value = false;
-}
-
 function advance() {
   if (step.value + 1 < page.value.beats.length) {
     stopAudio();
@@ -125,22 +114,6 @@ function advance() {
   }
 }
 
-async function play(replay = false) {
-  const element = audio.value;
-  if (!element) return;
-  if (replay) element.currentTime = 0;
-  try {
-    await element.play();
-    if (audio.value === element) followNarration = true;
-  }
-  catch { if (audio.value === element) audioFailed.value = true; }
-}
-
-function pauseNarration() {
-  followNarration = false;
-  audio.value?.pause();
-}
-
 function ended(event: Event) {
   if (event.target !== audio.value) return;
   playing.value = false;
@@ -150,8 +123,11 @@ function ended(event: Event) {
 function jump(id: string) {
   const destination = pages.findIndex(item => item.id === id) + tutorialStart;
   if (locked(destination)) return;
-  if (destination === currentPage.value) loadPage();
-  else go(destination);
+  if (destination === currentPage.value) {
+    const previous = audio.value;
+    loadPage();
+    void nextTick(() => { if (audio.value === previous) void play(); });
+  } else go(destination);
 }
 
 function changeSolid(event: Event) {
@@ -167,7 +143,6 @@ onMounted(() => {
 watch(currentPage, loadPage, { flush: 'sync' });
 onBeforeUnmount(() => {
   generation++;
-  stopAudio();
   dock?.destroy();
   host?.dispose();
 });
@@ -230,9 +205,9 @@ onBeforeUnmount(() => {
         <div v-if="beat.narration" class="audio-actions" aria-label="Narration">
           <audio v-if="audioUrl" :key="audioUrl" ref="audio" :src="audioUrl" :muted="muted" preload="metadata"
             @playing="playing = true" @pause="playing = false" @ended="ended" @error="audioFailed = true"></audio>
-          <button v-if="audioUrl" @click="playing ? pauseNarration() : play()">{{ playing ? 'Pause voiceover' : 'Play voiceover' }}</button>
+          <button v-if="audioUrl" @click="playing ? audio?.pause() : play()">{{ playing ? 'Pause voiceover' : 'Play voiceover' }}</button>
           <button v-if="audioUrl" @click="play(true)">Replay</button>
-          <button v-if="audioUrl" :aria-pressed="muted" @click="muted = !muted">Mute</button>
+          <button v-if="audioUrl" :aria-pressed="muted" @click="muted = !muted">{{ muted ? 'Unmute' : 'Mute' }}</button>
           <button :aria-pressed="subtitles" @click="subtitles = !subtitles">Subtitles</button>
           <button :aria-pressed="transcript" @click="transcript = !transcript">Transcript</button>
           <span v-if="audioFailed || !audioUrl" role="status">Voiceover unavailable</span>

@@ -3,9 +3,9 @@ import { expect, test, type Page } from '@playwright/test';
 async function open(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: /Introductory Group Theory/ }).click();
-  await expect(page.getByRole('heading', { name: 'What is a group?' })).toBeAttached();
-  await page.getByRole('button', { name: 'Wilson’s theorem' }).press('Enter');
-  await page.getByRole('button', { name: 'Explore more' }).press('Enter');
+  await page.getByRole('button', { name: 'Quotient groups', exact: true }).click();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore more', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'What is a group?' })).toBeVisible();
 }
 

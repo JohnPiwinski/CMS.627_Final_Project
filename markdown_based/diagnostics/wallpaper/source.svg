@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600">
+  <g>
+    <path d="M 48,168 72,72 h 120 l -24,96 z" fill="#b7f0ce"/>
+    <path d="M 120,120 72,72 48,168 Z" fill="#547fa6"/>
+    <path d="M 48,168 72,72 h 120 l -24,96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="48" y="48" font-size="24px" font-family="'Liberation Sans'">p1</text>
+  </g>
+  <g>
+    <path d="m 240,168 24,-96 h 120 l -24,96 z" fill="#b7f0ce" stroke="#000" stroke-width="2"/>
+    <text x="240" y="48" font-size="24px" font-family="'Liberation Sans'">p2</text>
+  </g>
+  <g>
+    <path d="m 48,360 v -96 h 144 v 96 z" fill="#b7f0ce"/>
+    <path d="m 48,264 72,48 -72,48 z" fill="#547fa6"/>
+    <path d="m 48,360 v -96 h 144 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="48" y="240" font-size="24px" font-family="'Liberation Sans'">pm</text>
+  </g>
+  <g>
+    <path d="m 240,360 v -96 h 144 v 96 z" fill="#b7f0ce"/>
+    <path d="m 240,264 72,48 v 48 l 72,-48 H 240 Z" fill="#547fa6"/>
+    <path d="m 240,360 v -96 h 144 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="240" y="240" font-size="24px" font-family="'Liberation Sans'">pg</text>
+  </g>
+  <g>
+    <path d="m 432,312 72,-48 72,48 -72,48 z" fill="#b7f0ce"/>
+    <path d="m 504,264 v 96 l 72,-48 z" fill="#547fa6"/>
+    <path d="m 432,312 72,-48 72,48 -72,48 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="432" y="240" font-size="24px" font-family="'Liberation Sans'">cm</text>
+  </g>
+  <g>
+    <path d="m 48,552 v -96 h 144 v 96 z" fill="#b7f0ce" stroke="#000" stroke-width="2"/>
+    <text x="48" y="432" font-size="24px" font-family="'Liberation Sans'">pmm</text>
+  </g>
+  <g>
+    <path d="m 240,552 v -96 h 144 v 96 z" fill="#b7f0ce"/>
+    <path d="m 240,456 h 72 l 72,48 -72,48 h -72 l 72,-48 z" fill="#547fa6"/>
+    <path d="m 240,552 v -96 h 144 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="240" y="432" font-size="24px" font-family="'Liberation Sans'">pmg</text>
+  </g>
+  <g>
+    <path d="m 432,552 v -96 h 144 v 96 z" fill="#b7f0ce"/>
+    <path d="m 432,552 h 72 l 72,-48 v -48 h -72 l 72,48 H 432 v -48 l 72,48 z" fill="#547fa6"/>
+    <path d="m 432,552 v -96 h 144 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="432" y="432" font-size="24px" font-family="'Liberation Sans'">pgg</text>
+  </g>
+  <g>
+    <path d="m 624,504 72,-48 72,48 -72,48 z" fill="#b7f0ce" stroke="#000" stroke-width="2"/>
+    <text x="624" y="432" font-size="24px" font-family="'Liberation Sans'">cmm</text>
+  </g>
+  <g>
+    <path d="M 648,168 V 72 h 96 v 96 z" fill="#b7f0ce"/>
+    <path d="m 648,144 24,-72 72,24 -24,72 z" fill="#547fa6"/>
+    <path d="M 648,168 V 72 h 96 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="624" y="48" font-size="24px" font-family="'Liberation Sans'">p4</text>
+  </g>
+  <g>
+    <path d="M 840,168 V 72 h 96 v 96 z" fill="#b7f0ce" stroke="#000" stroke-width="2"/>
+    <text x="816" y="48" font-size="24px" font-family="'Liberation Sans'">p4m</text>
+  </g>
+  <g>
+    <path d="M 1032,168 V 72 h 96 v 96 z" fill="#b7f0ce"/>
+    <path d="m 1032,168 h 48 V 72 h 48 z m 0,-96 v 48 h 96 v 48 z" fill="#547fa6"/>
+    <path d="M 1032,168 V 72 h 96 v 96 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="1008" y="48" font-size="24px" font-family="'Liberation Sans'">p4g</text>
+  </g>
+  <g>
+    <path d="M 758.35382,276 696,240 633.64618,276 v 72 L 696,384 758.35382,348 Z" fill="#b7f0ce"/>
+    <path d="m 633.6462 330 77.94225 -81 31.1769 108 z" fill="#547fa6"/>
+    <path d="M 758.3538,276 696,240 633.6462,276 v 72 L 696,384 758.3538,348 Z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="624" y="240" font-size="24px" font-family="'Liberation Sans'">p3</text>
+  </g>
+  <g>
+    <path d="M 950.35382,276 888,240 825.64618,276 v 72 L 888,384 950.35382,348 Z" fill="#b7f0ce"/>
+    <path d="M 825.6462,348 H 950.35382 L 888,240 Z" fill="#547fa6"/>
+    <path d="M 950.3538,276 888,240 825.6462,276 v 72 L 888,384 950.3538,348 Z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="816" y="240" font-size="24px" font-family="'Liberation Sans'">p3m1</text>
+  </g>
+  <g>
+    <path d="M 1142.3538,276 1080,240 l -62.3538,36 v 72 l 62.3538,36 62.3538,-36 z" fill="#b7f0ce"/>
+    <path d="m 1048.8231,258 v 108 l 93.5307,-54 z" fill="#547fa6"/>
+    <path d="M 1142.3538,276 1080,240 l -62.3538,36 v 72 l 62.3538,36 62.3538,-36 z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="1008" y="240" font-size="24px" font-family="'Liberation Sans'">p31m</text>
+  </g>
+  <g>
+    <path d="M 950.35382,468 888,432 825.64618,468 v 72 L 888,576 950.35382,540 Z" fill="#b7f0ce"/>
+    <path d="m 903.58845 441 -62.3538 18 -15.58845 63 46.76535 45 62.3538 -18 15.58845 -63 z" fill="#547fa6"/>
+    <path d="M 950.3538,468 888,432 825.6462,468 v 72 L 888,576 950.3538,540 Z" fill="none" stroke="#000" stroke-width="2"/>
+    <text x="816" y="432" font-size="24px" font-family="'Liberation Sans'">p6</text>
+  </g>
+  <g>
+    <path d="M 1142.3538,468 1080,432 l -62.3538,36 v 72 l 62.3538,36 62.3538,-36 z" fill="#b7f0ce" stroke="#000" stroke-width="2"/>
+    <text x="1008" y="432" font-size="24px" font-family="'Liberation Sans'">p6m</text>
+  </g>
+</svg>

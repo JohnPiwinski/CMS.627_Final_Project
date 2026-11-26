@@ -7,10 +7,10 @@ import type { LatticeTool } from './lib/geometry';
 import type { Solid } from './lib/solids';
 import type { SceneEvent, SceneId, Tool } from './content';
 
-const latticeEvents = { translate: 'translated', rotate: 'rotated', reflect: 'reflected' } as const;
+const latticeEvents = { translate: 'translated', rotate: 'rotated', reflect: 'reflected', glide: 'glided' } as const;
 const featureEvents = { face: 'face-selected', edge: 'edge-selected', vertex: 'vertex-selected' } as const;
 export const features = ['face', 'edge', 'vertex'] as const;
-export const latticeTools = ['translate', 'rotate', 'reflect'] as const;
+export const latticeTools = ['translate', 'rotate', 'reflect', 'glide'] as const;
 
 export type SceneControls = {
   configure(tools: Tool[]): void;
@@ -21,7 +21,7 @@ export type SceneControls = {
   resetView(): void;
 };
 
-function createRenderer() {
+export function createRenderer() {
   try {
     const renderer = new WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -62,7 +62,7 @@ export class SceneHost {
           lab.configure([...features], true, false);
         },
         use: tool => {
-          if (tool === 'translate') return;
+          if (tool === 'translate' || tool === 'glide') return;
           if (!transformChosen) {
             transformChosen = true;
             lab.configure([...features], true, true);
@@ -75,7 +75,7 @@ export class SceneHost {
         resetView: () => lab.resetView(),
       };
     }
-    if (id === 'clock') throw new Error('Clock scenes use the guided clock workspace');
+    if (id !== 'square' && id !== 'triangular') throw new Error('Scene requires its own workspace: ' + id);
     const lab = new LatticeLab(this.element);
     lab.setLattice(id);
     lab.onHint = hint;

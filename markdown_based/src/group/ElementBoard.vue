@@ -5,7 +5,7 @@ import { allMoves, conjugate, cornerImage, coset, elements, inverse, mirrorSubgr
   product, rotations, sameSet } from '../lib/square-group';
 import { angle, arrow, chip, distance, label, lerp, palette, useCanvas, useMotion, type Point } from './canvas';
 
-const props = defineProps<{ mode: 'subgroups' | 'cosets' | 'normality' | 'quotient' }>();
+const props = defineProps<{ embedded?: boolean; mode: 'subgroups' | 'cosets' | 'normality' | 'quotient' }>();
 const subset = ref<number[]>([...(props.mode === 'normality' ? mirrorSubgroup : rotations)]);
 const representative = ref(0);
 const chosen = ref(1);
@@ -156,7 +156,7 @@ function composeToken(value: number) {
   else quotientMoves.value = [...quotientMoves.value, value];
 }
 
-function drawFrame(layer: Konva.Layer) {
+function drawFrame(layer: Konva.Container) {
   const side = 41;
   const corners = [
     { x: frame.x - side, y: frame.y - side }, { x: frame.x + side, y: frame.y - side },
@@ -183,7 +183,7 @@ function drawFrame(layer: Konva.Layer) {
   label(layer, { x: frame.x, y: 211 }, 'Drag the frame · g = ' + elements[g], { width: 220, size: 15, fill: palette.soft });
 }
 
-function draw(layer: Konva.Layer) {
+function draw(layer: Konva.Container) {
   layer.add(new Konva.Rect({ ...tray, cornerRadius: 19, stroke: palette.gold, strokeWidth: 2, fill: '#28382c' }));
   label(layer, { x: 251, y: 64 }, props.mode === 'subgroups' ? 'Candidate subset' : 'Subgroup H', { width: 220 });
   if (!subset.value.length) label(layer, { x: 250, y: 139 }, 'Drop elements here', { width: 225, fill: palette.soft });
@@ -351,10 +351,25 @@ function begin(point: Point) {
 }
 
 const { host, pointerdown, pointermove, pointerup, pointercancel, cancel } = useCanvas(draw, begin);
+defineExpose({ draw, begin, choosePreset, message, actions: computed(() => allMoves.map(move => ({
+  name: elements[move],
+  run: () => {
+    if (props.mode === 'subgroups') { chosen.value = move; toggle(move); }
+    else if (props.mode === 'quotient') {
+      const tile = Number(move >= 4);
+      if (!collapsed.value.includes(tile)) collapseTiles([...collapsed.value, tile]);
+      else composeToken(tile);
+    } else if (props.mode === 'cosets') build(move);
+    else { changeFrame(move); setPhase(3); }
+  },
+}))), testProduct: () => tryMove(chosen.value), testInverse: () => tryInverse(chosen.value),
+  nextPhase: () => setPhase((phase.value + 1) % 4), clear,
+  toggleCollapse: () => collapseTiles(collapsed.value.length === 2 ? [] : [0, 1]),
+});
 </script>
 
 <template>
-  <section class="group-workbench" aria-label="Square group element board">
+  <section v-if="!embedded" class="group-workbench" aria-label="Square group element board">
     <div class="group-topline">
       <h2>{{ mode === 'subgroups' ? 'Build a subgroup' : mode === 'cosets' ? 'Collect the cosets' :
         mode === 'normality' ? 'Change the frame' : 'Collapse the cosets' }}</h2>

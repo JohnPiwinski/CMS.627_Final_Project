@@ -127,7 +127,7 @@ export function useMotion() {
   const progress = ref(1);
   let frame = 0;
   function stop() { cancelAnimationFrame(frame); }
-  function play() {
+  function play(duration = 740) {
     stop();
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       progress.value = 1;
@@ -136,7 +136,7 @@ export function useMotion() {
     progress.value = 0;
     const start = performance.now();
     function tick(now: number) {
-      const time = Math.min(1, (now - start) / 740);
+      const time = Math.min(1, (now - start) / duration);
       progress.value = 1 - (1 - time) ** 3;
       if (time < 1) frame = requestAnimationFrame(tick);
     }

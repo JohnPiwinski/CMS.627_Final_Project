@@ -1,3 +1,4 @@
+import { axisComponent, createLatticeGestures, drawLatticeGesture, glideFrame } from './latticeGestures';
 import Konva from 'konva';
 import {
   add, distance, ease, latticePoint, lerp, matchesMotif, nearestLatticePoint, reflectAcross,
@@ -20,13 +21,6 @@ export class LatticeLab {
   private points: Point[] = startingMotif('square');
   private target = targetMotif('square');
   private ghost: Point[] | null = null;
-  private translationFrom: Point | null = null;
-  private rotationCenter: Point | null = null;
-  private rotationDrag: { previous: number; travel: number } | null = null;
-  private reflectionAnchor: Point | null = null;
-  private dragging = false;
-  private previewAngle = 0;
-  private cursor: Point | null = null;
   private gridMotion: ((point: Point) => Point) | null = null;
   private animationFrame: number | null = null;
   private generation = 0;
@@ -39,24 +33,20 @@ export class LatticeLab {
     this.stage.add(this.gridLayer, this.activeLayer);
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(host);
-    this.stage.on('pointerdown', () => this.pointerDown());
-    this.stage.on('pointermove', () => this.pointerMove());
-    this.stage.on('pointerup', () => this.pointerUp());
-    const cancelGesture = () => {
-      this.rotationDrag = null;
-      this.cancelReflection();
-    };
-    this.stage.on('pointerleave pointercancel', cancelGesture);
+    this.stage.on('pointerdown', () => this.pointer('down'));
+    this.stage.on('pointermove', () => this.pointer('move'));
+    this.stage.on('pointerup', () => this.pointer('up'));
+    this.stage.on('pointerleave pointercancel', () => this.gestures.cancel());
+    host.tabIndex = 0;
+    host.setAttribute('aria-label','Lattice workspace. Use arrow keys to move, Enter to choose, and Escape to cancel.');
+    host.addEventListener('keydown',this.key);
+    host.addEventListener('blur',this.blur);
     this.resize();
   }
 
   setTool(tool: LatticeTool): void {
     this.tool = tool;
-    this.translationFrom = null;
-    this.rotationCenter = null;
-    this.rotationDrag = null;
-    this.cancelReflection();
-    this.renderActive();
+    this.gestures.select(tool);
     this.onHint(this.instructions());
   }
 
@@ -78,20 +68,15 @@ export class LatticeLab {
     this.points = startingMotif(this.lattice);
     this.target = targetMotif(this.lattice);
     this.ghost = null;
-    this.translationFrom = null;
-    this.rotationCenter = null;
-    this.rotationDrag = null;
-    this.reflectionAnchor = null;
-    this.dragging = false;
-    this.previewAngle = 0;
-    this.cursor = null;
-    this.renderActive();
+    this.gestures.reset();
     this.onHint(this.instructions());
   }
 
   destroy(): void {
     this.generation++;
     if (this.animationFrame !== null) cancelAnimationFrame(this.animationFrame);
+    this.host.removeEventListener('keydown',this.key);
+    this.host.removeEventListener('blur',this.blur);
     this.observer.disconnect();
     this.stage.destroy();
   }
@@ -99,6 +84,7 @@ export class LatticeLab {
   private instructions(): string {
     if (this.tool === 'translate') return 'Drag between lattice dots, or click two dots, to move the marked triangle.';
     if (this.tool === 'rotate') return 'Click a lattice dot to open the rotation dial. Drag around it in either direction, then release.';
+    if (this.tool === 'glide') return 'Drag to set a mirror line, then drag along it to choose the slide.';
     return `Press a lattice point, drag to select one of ${this.lattice === 'square' ? 'two' : 'three'} mirror directions, then release.`;
   }
 
@@ -198,39 +184,6 @@ export class LatticeLab {
     });
   }
 
-  private get rotationSegments(): number {
-    return this.lattice === 'square' ? 4 : 6;
-  }
-
-  private get rotationSteps(): number {
-    return Math.sign(this.rotationDrag?.travel ?? 0) *
-      Math.round(Math.abs(this.rotationDrag?.travel ?? 0) * this.rotationSegments / (2 * Math.PI));
-  }
-
-  private drawRotationDial(center: Point): void {
-    const a = this.screen(center);
-    const count = this.rotationSegments;
-    const steps = this.rotationSteps;
-    const selected = ((steps % count) + count) % count;
-    this.activeLayer.add(new Konva.Circle({ ...a, radius: 52, fill: 'rgba(250,247,239,.92)', listening: false }));
-    for (let i = 0; i < count; i++) {
-      this.activeLayer.add(new Konva.Wedge({
-        ...a, radius: 52, angle: 360 / count, rotation: -(i + .5) * 360 / count,
-        fill: i === selected ? 'rgba(118,99,175,.28)' : 'rgba(118,99,175,.06)',
-        stroke: '#7663af', strokeWidth: 1, listening: false,
-      }));
-    }
-    const angle = steps * 2 * Math.PI / count;
-    this.activeLayer.add(new Konva.Arrow({
-      points: [a.x, a.y, a.x + 45 * Math.cos(angle), a.y - 45 * Math.sin(angle)],
-      stroke: '#59428e', fill: '#59428e', strokeWidth: 2, pointerLength: 7, pointerWidth: 7, listening: false,
-    }));
-    this.activeLayer.add(new Konva.Text({
-      x: a.x - 30, y: a.y + 55, width: 60, align: 'center',
-      text: `${steps > 0 ? '+' : ''}${steps * 360 / count}°`, fill: '#59428e', fontSize: 14, listening: false,
-    }));
-  }
-
   private drawTarget(): void {
     const corners = this.target.map(point => this.screen(point));
     this.activeLayer.add(new Konva.Line({
@@ -254,135 +207,58 @@ export class LatticeLab {
     if (this.ghost) this.addPolygon(this.ghost,true);
     this.drawTarget();
     this.addPolygon(this.points);
-    if (this.translationFrom) {
-      const a=this.screen(this.translationFrom);
-      this.activeLayer.add(new Konva.Circle({x:a.x,y:a.y,radius:15,stroke:'#bf9149',strokeWidth:2,dash:[5,3],listening:false}));
-      if(this.cursor) {
-        const c=this.screen(this.cursor);
-        this.activeLayer.add(new Konva.Arrow({points:[a.x,a.y,c.x,c.y],stroke:'#b58b4d',fill:'#b58b4d',strokeWidth:1.7,pointerLength:7,pointerWidth:7,dash:[5,5],listening:false}));
-      }
-    }
-    if (this.rotationCenter) this.drawRotationDial(this.rotationCenter);
-    if (this.reflectionAnchor && this.dragging) {
-      const a=this.screen(this.reflectionAnchor);
-      const count=this.lattice==='square'?4:6;
-      for(let i=0;i<count;i++) {
-        const centerAngle=i*2*Math.PI/count;
-        this.activeLayer.add(new Konva.Wedge({x:a.x,y:a.y,radius:51,
-          angle:360/count,rotation:-centerAngle*180/Math.PI-180/count,
-          fill: Math.abs(Math.sin((centerAngle-this.previewAngle)/2))<.005?'rgba(200,163,94,.25)':'rgba(110,127,174,.075)',
-          stroke:'#b8b6bc',strokeWidth:.8,listening:false}));
-      }
-      const e=scale({x:Math.cos(this.previewAngle),y:Math.sin(this.previewAngle)},1200);
-      const p=this.screen(add(this.reflectionAnchor,e));
-      const q=this.screen(sub(this.reflectionAnchor,e));
-      this.activeLayer.add(new Konva.Line({points:[p.x,p.y,q.x,q.y],stroke:'#ad7b36',strokeWidth:2.5,dash:[10,7],listening:false}));
-      this.activeLayer.add(new Konva.Circle({x:a.x,y:a.y,radius:5.5,fill:'#a46d32',listening:false}));
-    }
+    drawLatticeGesture(this.activeLayer,this.gestures.state,p=>this.screen(p),true);
+    if (document.activeElement === this.host) this.activeLayer.add(new Konva.Circle({
+      ...this.screen(this.gestures.state.cursor),radius:7,stroke:'#a46d32',strokeWidth:2,listening:false,
+    }));
     this.activeLayer.batchDraw();
   }
 
-  private pointerDown(): void {
-    if (this.animationFrame !== null) return;
-    const p=this.currentPointer(); if(!p) return;
-    if (this.tool === 'rotate' && this.rotationCenter) {
-      const delta = sub(p, this.rotationCenter);
-      const radius = distance(p, this.rotationCenter) * this.unit;
-      if (radius >= 8 && radius <= 62) {
-        this.rotationDrag = { previous: Math.atan2(delta.y, delta.x), travel: 0 };
-        return;
-      }
-    }
-    const anchor=nearestLatticePoint(p,this.lattice);
-    if(distance(p,anchor) > 0.46) {
-      this.onHint('Start close to one of the lattice dots.'); return;
-    }
-    if(this.tool==='translate') {
-      this.cursor = anchor;
-      if (this.translationFrom) this.finishTranslation(anchor);
-      else {
-        this.translationFrom = anchor;
-        this.onHint('Drag to a destination dot, or click it.');
-      }
-    } else if(this.tool==='rotate') {
-      this.rotationCenter = anchor;
-      this.rotationDrag = { previous: 0, travel: 0 };
-      this.onHint('Drag around the dial. Positive angles turn counterclockwise.');
-    } else {
-      this.reflectionAnchor=anchor;
-      this.dragging=true;
-      this.previewAngle=0;
-      this.onHint('Drag outward to select a mirror line. Opposite directions count as the same line.');
-    }
-    this.renderActive();
+  private readonly gestures = createLatticeGestures({
+    yUp:true,
+    clickTranslation:true,
+    unit:()=>this.unit,
+    translationNode:(p,end) => {
+      const node=nearestLatticePoint(p,this.lattice);
+      return end || distance(p,node)<=.46 ? node : undefined;
+    },
+    rotationCenter:p => {
+      const point=nearestLatticePoint(p,this.lattice);
+      return distance(p,point)<=.46 ? {point,count:this.lattice==='square'?4:6} : undefined;
+    },
+    axisAnchor:p => {
+      const point = nearestLatticePoint(p,this.lattice);
+      if (distance(p,point)>.46) return;
+      const count=this.lattice==='square'?4:6;
+      return {point,angles:Array.from({length:count},(_,i)=>i*2*Math.PI/count)};
+    },
+    chooseAxis:(point,angle)=>({point,angle:snappedAxisAngle(angle,this.lattice)}),
+    glideAmount:(axis,_,end)=>{
+      const d={x:Math.cos(axis.angle),y:Math.sin(axis.angle)};
+      const step=distance(axis.point,nearestLatticePoint(add(axis.point,d),this.lattice)) || 1;
+      return Math.round(axisComponent(sub(end,axis.point),axis.angle)/step)*step;
+    },
+    cursorStep:(p,x,y)=>add(p,latticePoint(x,-y,this.lattice)),
+    commit:({tool,point,angle,amount})=>{
+      if (tool==='translate') this.animate(tool,p=>add(p,point));
+      else if (tool==='rotate') this.animate(tool,(p,t)=>rotateAbout(p,point,angle*t),true);
+      else if (tool==='reflect') this.animate(tool,p=>reflectAcross(p,point,angle));
+      else this.animate(tool,(p,t)=>glideFrame(point,angle,amount,t)(p),true);
+      this.onHint(tool==='glide' ? 'Glided. The triangle flipped, then slid along the line.' : 'Move complete.');
+    },
+    hint:message=>this.onHint(message),
+    changed:()=>this.renderActive(),
+  });
+
+  private pointer(phase: 'down'|'move'|'up') {
+    const point=this.currentPointer();
+    if (point && this.animationFrame===null) this.gestures[phase](point);
   }
 
-  private pointerMove(): void {
-    const p=this.currentPointer(); if(!p) return;
-    this.cursor = nearestLatticePoint(p, this.lattice);
-    if (this.rotationCenter && this.rotationDrag && distance(p, this.rotationCenter) * this.unit >= 8) {
-      const delta = sub(p, this.rotationCenter);
-      const angle = Math.atan2(delta.y, delta.x);
-      const change = angle - this.rotationDrag.previous;
-      this.rotationDrag.travel += Math.atan2(Math.sin(change), Math.cos(change));
-      this.rotationDrag.previous = angle;
-      this.renderActive();
-    }
-    if(this.dragging && this.reflectionAnchor) {
-      const delta=sub(p,this.reflectionAnchor);
-      if(distance(delta,{x:0,y:0}) > .15) this.previewAngle=snappedAxisAngle(Math.atan2(delta.y,delta.x),this.lattice);
-    }
-    if(this.dragging || this.translationFrom) this.renderActive();
-  }
-
-  private finishTranslation(target: Point): void {
-    if (!this.translationFrom) return;
-    const delta = sub(target, this.translationFrom);
-    if (distance(delta, { x: 0, y: 0 }) < .01) return;
-    this.translationFrom = null;
-    this.animate('translate', p => add(p, delta));
-    this.onHint('Translation complete. Every point moved by the same vector.');
-  }
-
-  private pointerUp(): void {
-    const pointer = this.currentPointer();
-    if (this.translationFrom && pointer) {
-      this.finishTranslation(nearestLatticePoint(pointer, this.lattice));
-    }
-    if (this.rotationCenter && this.rotationDrag) {
-      this.pointerMove();
-      const steps = this.rotationSteps;
-      const center = this.rotationCenter;
-      this.rotationDrag = null;
-      if (steps !== 0) {
-        const degrees = steps * 360 / this.rotationSegments;
-        const angle = degrees * Math.PI / 180;
-        this.rotationCenter = null;
-        this.animate('rotate', (point, progress) => rotateAbout(point, center, angle * progress), true);
-        this.onHint(`Rotated ${Math.abs(degrees)}° ${degrees > 0 ? 'counterclockwise' : 'clockwise'} around your chosen center.`);
-      }
-      this.renderActive();
-    }
-    if(!this.dragging || !this.reflectionAnchor) return;
-    const p=this.currentPointer();
-    if(!p || distance(p,this.reflectionAnchor)<.48) {
-      this.cancelReflection();
-      this.onHint('Reflection cancelled. Drag farther out from the selected dot.');
-      return;
-    }
-    const anchor=this.reflectionAnchor;
-    const angle=this.previewAngle;
-    this.reflectionAnchor=null;
-    this.dragging=false;
-    this.animate('reflect', point=>reflectAcross(point,anchor,angle));
-    this.onHint('Reflected. The grid and the triangle flipped across the same mirror line.');
-  }
-
-  private cancelReflection(): void {
-    this.reflectionAnchor=null;
-    this.dragging=false;
-    this.renderActive();
-  }
+  private readonly blur = () => this.renderActive();
+  private readonly key = (event: KeyboardEvent) => {
+    if (this.animationFrame===null) this.gestures.key(event);
+  };
 
   private animate(tool: LatticeTool, transform: (point: Point, progress: number) => Point, followArc = false): void {
     this.generation++;
