@@ -37,7 +37,6 @@ export class CubeLab {
   private currentTask: Feature = 'face';
   private tracked: { type: Feature; index: number } | null = null;
   private visited = new Set<number>();
-  private readonly investigation = new THREE.Group();
   private focusPalette = false;
   private readonly baseColors = new WeakMap<Pickable, THREE.Color>();
   private marks: {type: Feature; index: number; color: number}[] = [];
@@ -82,7 +81,6 @@ export class CubeLab {
     fill.position.set(5,0,-5);
     this.scene.add(fill);
     this.scene.add(this.cube);
-    this.cube.add(this.investigation);
     this.cube.matrixAutoUpdate = false;
     this.makeSolid();
     this.overlay.className = 'symmetry-overlay';
@@ -158,7 +156,6 @@ export class CubeLab {
     this.hovered = null;
     this.tracked = null;
     this.marks = [];
-    this.setInvestigationLines([]);
     this.visited.clear();
     for (const mesh of this.pickables) {
       mesh.removeFromParent();
@@ -348,19 +345,6 @@ export class CubeLab {
       const p = point.clone().project(this.camera);
       element.style.left = ((p.x+1)*width/2) + 'px';
       element.style.top = ((1-p.y)*height/2) + 'px';
-    }
-  }
-
-  setInvestigationLines(lines: {points: THREE.Vector3[]; color: number}[]): void {
-    for (const object of [...this.investigation.children]) {
-      const line = object as THREE.Line<THREE.BufferGeometry,THREE.LineBasicMaterial>;
-      line.geometry.dispose();
-      line.material.dispose();
-      line.removeFromParent();
-    }
-    for (const {points,color} of lines) {
-      this.investigation.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),
-        new THREE.LineBasicMaterial({color,depthTest:false,transparent:true,opacity:.85})));
     }
   }
 

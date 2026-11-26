@@ -4,7 +4,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { levels, type LevelId } from './levels';
 import { officeImage, officeOutlines, officeSize } from './office-art';
 
-const emit = defineEmits<{ open: [LevelId] }>();
+const emit = defineEmits<{ open: [LevelId]; hallway: [] }>();
 const room = ref<HTMLDivElement>();
 const canvas = ref<HTMLDivElement>();
 const status = ref<'loading' | 'ready' | 'error'>('loading');
@@ -28,11 +28,14 @@ function clear(id: LevelId) {
 function resize() {
   if (!stage || !room.value) return;
   const { clientWidth: width, clientHeight: height } = room.value;
+  if (!width || !height) return;
+  const scale = Math.min(width / officeSize.width, height / officeSize.height);
+  const offsetX = (width - officeSize.width * scale) / 2;
+  const offsetY = (height - officeSize.height * scale) / 2;
   stage.size({ width, height });
-  stage.scale({ x: width / officeSize.width, y: height / officeSize.height });
-  if (width > 0) {
-    for (const outline of outlines.values()) outline.strokeWidth(2.5 * officeSize.width / width);
-  }
+  stage.scale({ x: scale, y: scale });
+  stage.position({ x: offsetX, y: offsetY });
+  for (const outline of outlines.values()) outline.strokeWidth(2.5 / scale);
   stage.draw();
 }
 
@@ -94,12 +97,11 @@ onBeforeUnmount(() => { generation++; dispose(); });
   <Teleport to="body">
     <main class="adventure">
       <header class="adventure-header">
-        <h1>Emmy Noether’s Office</h1>
-        <p>Choose an object in the room or a level below.</p>
+        <button class="adventure-back" type="button" @click="$emit('hallway')">← Hallway</button>
+        <h1 class="adventure-heading">Emmy Noether’s Office</h1>
       </header>
       <div class="adventure-view">
-        <div ref="room" class="adventure-room" :class="{ ready: status === 'ready' }"
-          :style="{ aspectRatio: officeSize.width + ' / ' + officeSize.height }">
+        <div ref="room" class="adventure-room" :class="{ ready: status === 'ready' }">
           <img :key="imageKey" :src="officeImage" alt="" fetchpriority="high" draggable="false">
           <div ref="canvas" class="adventure-canvas" aria-hidden="true"></div>
         </div>

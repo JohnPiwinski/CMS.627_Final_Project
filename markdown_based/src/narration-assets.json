@@ -214,13 +214,5 @@
   "theorem-discovery": {
     "file": "theorem-discovery-ad3246ae5ef0aa51.mp3",
     "text": "Examine the numbers that you have collected.\n\nCan you find a relationship between the size of a\ngroup, the size of an orbit, and the size of its\nstabilizer?\n\nDoes the same relationship hold for every Platonic\nsolid that you investigated?"
-  },
-  "cube-s3-challenge": {
-    "file": "cube-s3-challenge-6944f581f628a6fd.mp3",
-    "text": "The rotational symmetry group of the cube contains\na subgroup isomorphic to the symmetry group of\nan equilateral triangle.\n\nCan you discover where this subgroup comes from\ngeometrically?\n\nExplore the vertices, edges, and diagonals of the cube.\nUse the hint card if you would like some help."
-  },
-  "multiple-feature-challenge": {
-    "file": "multiple-feature-challenge-0075949eb312f76a.mp3",
-    "text": "What happens when we require a transformation to\npreserve more than one geometric object?\n\nConsider the highlighted edge and vertex of the cube.\n\nCan you determine the subgroup consisting of all\nrotations that preserve both of these features?"
   }
 }

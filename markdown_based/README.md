@@ -1,6 +1,6 @@
-# Interactive Artin Algebra · Chapter Zero
+# Interactive Accompaniment to Art and Algebra · Chapter Zero
 
-The game opens in Emmy Noether’s Office. Choose the desk for the Chapter Zero lattice and solids tutorial, the grandfather clock for Introductory Group Theory, the windowsill dodecahedron for Orbit Stabilizer, or the fleur-de-lis shield for Wallpaper Groups. The bottom level list offers the same choices and highlights the corresponding object on hover or keyboard focus.
+The game opens at the IAAA title screen. Choose Play to enter the hallway, then enter Emmy Noether’s office to select a level. Choose the desk for the Chapter Zero lattice and solids tutorial, the grandfather clock for Introductory Group Theory, the windowsill dodecahedron for Orbit Stabilizer, or the fleur-de-lis shield for Wallpaper Groups.
 
 ## Run
 
@@ -12,6 +12,15 @@ npm run dev
 ```
 
 Open the URL printed by Slidev. Build the static game with `npm run build` and serve the output in `dist/`. The bundled lesson MP3s work with standard browser audio playback.
+
+## Update hallway portraits
+
+The separate portrait sources live in `assets/menu-source/portraits/`. Replace a portrait and rerun the compositor to rebuild the single hallway image used by the game:
+
+```sh
+python3 -m pip install Pillow
+python3 scripts/compose_hallway.py
+```
 
 ```sh
 npm run typecheck

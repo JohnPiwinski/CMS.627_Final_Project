@@ -25,7 +25,7 @@ Review each slide with the user before implementation. `Needs user review` means
 | Multiplication and units | `clock-units` | Not started | — |
 | Wilson's theorem | `wilson-theorem` | Not started | — |
 | Symmetries of a square | `square-symmetries` | Needs user review | [Review](symmetries-of-a-square.md) |
-| Why order matters | `square-noncommutativity` | Needs user review | [Review](why-order-matters.md) |
+| Why order matters | `square-noncommutativity` | Implemented | [Review](why-order-matters.md) |
 | Subgroups | `subgroups` | Not started | — |
 | A subgroup on the clock | `clock-subgroup` | Not started | — |
 | Cosets | `cosets` | Not started | — |
@@ -59,5 +59,3 @@ Review each slide with the user before implementation. `Needs user review` means
 | Counting rotational symmetries | `rotation-counting` | Not started | — |
 | Including reflections | `full-symmetry-counting` | Not started | — |
 | Discovering the relationship | `orbit-stabilizer-discovery` | Not started | — |
-| Finding a triangle inside a cube | `cube-s3` | Not started | — |
-| Stabilizing multiple features | `multiple-feature-stabilizer` | Not started | — |

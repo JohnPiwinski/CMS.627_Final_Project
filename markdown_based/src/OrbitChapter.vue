@@ -41,12 +41,11 @@ const marking = ref(false);
 const mode = computed(()=>page.value.id);
 const cosets = computed(()=>mode.value==='moving-cosets');
 const cosetFull = ref(false);
-const rotationsOnly = computed(()=>cosets.value ? !cosetFull.value : ['discover-orbits','discover-stabilizers','rotation-counting','cube-s3','multiple-feature-stabilizer'].includes(mode.value));
+const rotationsOnly = computed(()=>cosets.value ? !cosetFull.value : ['discover-orbits','discover-stabilizers','rotation-counting'].includes(mode.value));
 const counting = computed(()=>['rotation-counting','full-symmetry-counting'].includes(mode.value));
 const guidedFeature = computed(()=>mode.value==='discover-orbits'||mode.value==='discover-stabilizers');
 const focusPalette = computed(()=>guidedFeature.value||counting.value||cosets.value);
 const discovery = computed(()=>mode.value==='orbit-stabilizer-discovery');
-const bonus = computed(()=>mode.value==='cube-s3'||mode.value==='multiple-feature-stabilizer');
 const fullTable = ref(false);
 const hints = ref(0);
 const revealed = ref(false);
@@ -61,10 +60,6 @@ let pose = new Matrix4();
 const group = computed(()=>symmetryGroup(solid.value));
 type Mark = { type: Feature; index: number };
 const tracked = ref<Mark>();
-const extraMark = ref<Mark>();
-const diagonal = ref<number[]>();
-const showDiagonals = ref(false);
-const showTriangles = ref(false);
 const positions = ref(new Set<number>());
 const fixing = ref(new Set<string>());
 const moves = ref(new Set<string>());
@@ -154,12 +149,10 @@ function paint(sym=group.value.identity) {
       }
     });
   }
-  if (extraMark.value) marks.push({...extraMark.value,color:0xa45cca});
   lab?.setInvestigationMarks(marks,focusPalette.value);
 }
 function mark(item: Mark) {
   tracked.value = item;
-  diagonal.value = undefined;
   marking.value = false;
   lab?.setInspectionOnly(false);
   if (cosets.value) {
@@ -169,7 +162,6 @@ function mark(item: Mark) {
   }
   clearObservations();
   paint();
-  drawOverlays();
   hint.value = focusPalette.value
     ? 'Follow the yellow feature. Select a face, edge, or vertex to set a rotation axis.'
     : 'Gold is the feature you’re following. Select a separate feature to set the axis or mirror.';
@@ -188,12 +180,10 @@ function record(matrix: Matrix4) {
   moves.value.add(sym.key);
   const item = tracked.value;
   if (item) positions.value.add(group.value.image(item.type,item.index,sym));
-  const endpoints = diagonal.value;
-  const fixes = endpoints ? endpoints.every(i=>endpoints.includes(sym.permutation[i])) :
-    item && fixedBy(sym,item) && (!extraMark.value || fixedBy(sym,extraMark.value));
+  const fixes = item && fixedBy(sym,item);
   if (fixes) fixing.value.add(sym.key);
   paint(sym);
-  hint.value = item || endpoints ? fixes ? 'This transformation preserves the chosen feature set.' :
+  hint.value = item ? fixes ? 'This transformation preserves the chosen feature.' :
     'The chosen feature moved to a different position.' : 'Mark a feature to follow it through a move.';
 }
 function setTool(next: 'rotate'|'reflect') {
@@ -216,60 +206,14 @@ function chooseMark() {
   marking.value = true;
   lab?.chooseTrackedFeature();
 }
-function vertexIndex(x:number,y:number,z:number) {
-  return group.value.vertices.findIndex(v=>Math.abs(v.x-x)+Math.abs(v.y-y)+Math.abs(v.z-z)<1e-8);
-}
-function cubeDiagonals() {
-  return group.value.vertices.flatMap((v,i)=>{
-    const j=vertexIndex(-v.x,-v.y,-v.z);
-    return i<j?[[i,j]]:[];
-  });
-}
-function drawOverlays() {
-  if (!lab) return;
-  const vertices=group.value.vertices;
-  const lines: Parameters<CubeLab['setInvestigationLines']>[0]=[];
-  if (solid.value==='Cube' && showDiagonals.value) for (const pair of cubeDiagonals()) {
-    lines.push({points:pair.map(i=>vertices[i]),color:diagonal.value?.[0]===pair[0]?0xd79520:0x709bb4});
-  }
-  if (solid.value==='Cube' && showTriangles.value) {
-    const v=vertices[diagonal.value?.[0]??0];
-    for (const sign of [-1,1]) {
-      const triangle=vertices.filter(p=>Math.abs(v.dot(p)-sign)<1e-8);
-      lines.push({points:[...triangle,triangle[0]],color:0x9361ac});
-    }
-  }
-  lab.setInvestigationLines(lines);
-}
-function markDiagonal(pair: number[]) {
-  tracked.value=undefined;
-  diagonal.value=pair;
-  showDiagonals.value=true;
-  clearObservations();
-  paint();
-  drawOverlays();
-  hint.value='The gold diagonal is an unoriented line. Its endpoints may swap.';
-}
 function changeSolid(value: Solid) {
   const trackedType=tracked.value?.type ?? 'vertex';
   solid.value=value;
   lab?.setSolid(value);
-  tracked.value=extraMark.value=diagonal.value=undefined;
-  showDiagonals.value=showTriangles.value=false;
+  tracked.value=undefined;
   if (cosets.value) mark({type:trackedType,index:0});
   else if (guidedFeature.value) mark({type:mode.value==='discover-orbits'?'vertex':'face',index:0});
   else { clearObservations(); paint(); chooseMark(); }
-}
-function setExample() {
-  if (mode.value==='multiple-feature-stabilizer') {
-    const a=vertexIndex(1,1,1), b=vertexIndex(-1,1,1), c=vertexIndex(1,-1,-1);
-    const edge=group.value.features.edge.findIndex(set=>set.includes(a)&&set.includes(b));
-    tracked.value={type:'edge',index:edge};
-    extraMark.value={type:'vertex',index:c};
-    clearObservations();
-    paint();
-    hint.value='Gold marks the edge. Purple marks the separate vertex.';
-  }
 }
 async function jump(next: number) {
   if (next<0||next>=pages.length) return;
@@ -290,12 +234,6 @@ async function jump(next: number) {
   tool.value='rotate';
   lab?.setInspectionOnly(false, !tracked.value && !discovery.value);
   lab?.setMode('rotate');
-  setExample();
-  if (mode.value==='multiple-feature-stabilizer') {
-    marking.value=false;
-    lab?.setInspectionOnly(false);
-    hint.value='Gold marks the edge. Purple marks the separate vertex.';
-  }
   await nextTick();
   mountDock();
   if (previous===next) void play();
@@ -371,7 +309,7 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
               <button :aria-pressed="!cosetFull" :disabled="!!pendingBlocks" @click="chooseCosetMode(false)">Rotations</button>
               <button :aria-pressed="cosetFull" :disabled="!!pendingBlocks" @click="chooseCosetMode(true)">Full group</button>
             </template>
-            <button v-if="mode!=='multiple-feature-stabilizer'" :disabled="!!pendingBlocks"  :aria-pressed="marking" @click="chooseMark">Mark a feature</button>
+            <button :disabled="!!pendingBlocks" :aria-pressed="marking" @click="chooseMark">Mark a feature</button>
             <button v-for="type in features" :key="type" :disabled="!!pendingBlocks" @click="lab?.selectFeatureByType(type,marking)">
               {{ marking ? 'Mark' : 'Select' }} {{ type }}
             </button>
@@ -379,14 +317,14 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
             <button @click="cosets ? resetCosets() : (clearObservations(),paint())">Reset experiment</button>
           </div>
         </div>
-        <div class="orbit-workspace-new" :class="{split:counting||bonus||cosets,'coset-workspace':cosets}">
+        <div class="orbit-workspace-new" :class="{split:counting||cosets,'coset-workspace':cosets}">
           <div v-show="!discovery" class="scene-frame">
             <div id="orbit-view" ref="surface" class="scene" data-scene="solids"></div>
             <div v-show="!discovery" ref="dockHost" class="transform-dock"></div>
             <p v-if="hint" class="scene-hint" role="status">{{ hint }}</p>
             <div v-if="mode!=='geometric-actions' && !cosets" class="orbit-counts" aria-live="polite">
-              <span v-if="tracked && mode!=='cube-s3' && mode!=='multiple-feature-stabilizer'">{{ positions.size }} positions reached</span>
-              <span v-if="(tracked||diagonal) && mode!=='discover-orbits'">{{ fixing.size }} fixing moves found</span>
+              <span v-if="tracked">{{ positions.size }} positions reached</span>
+              <span v-if="tracked && mode!=='discover-orbits'">{{ fixing.size }} fixing moves found</span>
               <span v-if="counting">{{ moves.size }} distinct moves tried</span>
             </div>
           </div>
@@ -433,31 +371,6 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
               </div>
             </div>
           </aside>
-          <aside v-if="bonus" class="orbit-notebook" aria-label="Challenge">
-            <template v-if="mode==='cube-s3'">
-              <h3>Find a six-move stabilizer</h3>
-              <div class="tools"><button :aria-pressed="showDiagonals" @click="showDiagonals=!showDiagonals;drawOverlays()">Body diagonals</button>
-                <button :aria-pressed="showTriangles" @click="showTriangles=!showTriangles;drawOverlays()">Equilateral triangles</button></div>
-              <button @click="hints=Math.min(2,hints+1)">Hint</button>
-              <p v-if="hints">Try preserving a line through two opposite vertices. The endpoints can swap.</p>
-              <p v-if="hints>1">Mark a body diagonal, then try rotations that fix it or reverse it.</p>
-              <div v-if="showDiagonals || hints>1" class="tools">
-                <button v-for="(pair,i) in cubeDiagonals()" :key="i" :aria-pressed="diagonal?.[0]===pair[0]"
-                  @click="markDiagonal(pair)">Mark diagonal {{ i+1 }}</button>
-              </div>
-              <button @click="revealed=true">Reveal solution</button>
-              <p v-if="revealed">The unoriented body diagonal has six stabilizing rotations. These permute the three other body diagonals in all six ways, giving <span v-html="formula('S_3')"></span>.</p>
-            </template>
-            <template v-else>
-              <h3>Preserve both marked features</h3>
-              <p>Gold edge <span v-html="formula('(1,1,1)\\text{ to }(-1,1,1)')"></span>. Purple vertex <span v-html="formula('(1,-1,-1)')"></span>.</p>
-              <button @click="hints=Math.min(2,hints+1)">Hint</button>
-              <p v-if="hints">A move may swap the ends of the edge. The purple vertex must stay fixed.</p>
-              <p v-if="hints>1">Try the two nonidentity rotations about the purple vertex’s body diagonal.</p>
-              <button @click="revealed=true">Reveal solution</button>
-              <p v-if="revealed">Only the identity fixes the purple vertex and preserves the gold edge as a set.</p>
-            </template>
-          </aside>
         </div>
         <div v-if="cosetModel" class="coset-caption">
           {{ page.beats[0].display }} {{ cosetBlocks.length }} destinations. {{ cosetBlocks[0]?.moves.length }} moves per destination.
@@ -477,7 +390,7 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
           </div>
           <button v-if="cosets" @click="emit('office')">Finish chapter</button>
           <button class="continue" @click="index===pages.length-1 ? emit('office') : jump(index+1)">
-            {{ index===pages.length-1 ? 'Finish chapter' : cosets ? 'Bonus challenges' : 'Continue' }}
+            {{ index===pages.length-1 ? 'Finish chapter' : 'Continue' }}
           </button>
         </div>
       </footer>

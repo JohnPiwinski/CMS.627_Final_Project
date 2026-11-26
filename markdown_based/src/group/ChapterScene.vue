@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { angle, arrow, distance, label, polar, useCanvas, useMotion, type Point } from './canvas';
 import { sceneMath } from './sceneMath';
 import { additiveHomomorphism, factorialRemainders, modularInverse, residue } from '../lib/clock';
-import { allMoves, cornerImage, elements, partition, product, sameSet } from '../lib/square-group';
+import { allMoves, cornerImage, elements, inverse, partition, product, sameSet } from '../lib/square-group';
 import ElementBoard from './ElementBoard.vue';
 
 const props = defineProps<{ id: string; step: number; demo: boolean }>();
@@ -29,8 +29,12 @@ const column = ref(0);
 const squarePose = ref(0);
 const squareFromPose = ref(0);
 const selectedSquareMove = ref<number | undefined>(1);
-const rotation = ref(1);
-const mirror = ref(4);
+const commuteA = ref(1);
+const commuteB = ref(4);
+const commuteSlot = ref<'A' | 'B'>('A');
+const commuteFrom = ref<[number, number]>([product(1, 4), product(4, 1)]);
+const commuteMoves = ref<[number, number]>([0, 0]);
+const commuteAnimating = ref(false);
 const collapsed = ref(false);
 const denominator = ref(props.id === 'correspondence-square' ? 0 : 6);
 const subgroup = ref(1);
@@ -53,7 +57,6 @@ const prompt: Record<string, string> = {
   'clock-inverses': 'Select a residue to highlight its additive inverse.',
   'clock-commutativity': 'Drag either colored endpoint. Compare the two orders.',
   'clock-units': 'Choose a multiplier. Do any arrows share a destination?',
-  'square-noncommutativity': 'Compare the same moves in reverse order.',
   'clock-subgroup': 'Choose a step and follow the residues it generates.',
   subgroups: 'Drag beads into the candidate, then test products and inverses.',
   cosets: 'Drag a representative onto the subgroup tray.',
@@ -439,16 +442,70 @@ function square(layer: Konva.Container, c: Point, r: number, pose: number,
 }
 function squareScenes(layer: Konva.Container) {
   if (props.id === 'square-noncommutativity') {
-    const t = animation.value === 'square' ? progress.value : 1;
-    const [r,s] = [rotation.value,mirror.value];
-    square(layer, { x: 217, y: 213 }, 110, t < .35 ? 0 : t < .72 ? s : product(r,s));
-    square(layer, { x: 583, y: 213 }, 110, t < .35 ? 0 : t < .72 ? r : product(s,r));
-    const notation = (i: number) => ['e','r','r^2','r^3','s','rs','r^2s','r^3s'][i];
-    formula(layer, notation(r) + '\\cdot ' + notation(s) + '=' + notation(product(r,s)), 217, 351);
-    formula(layer, notation(s) + '\\cdot ' + notation(r) + '=' + notation(product(s,r)), 583, 351);
-    control(layer, 'Change turn', 200, 474, () => { rotation.value = rotation.value % 3 + 1; animate('square'); });
-    control(layer, 'Replay both', 400, 474, () => animate('square'));
-    control(layer, 'Change mirror', 600, 474, () => { mirror.value = 4 + (mirror.value - 3) % 4; animate('square'); });
+    const compact = layout.value.compact;
+    const ab = product(commuteA.value, commuteB.value);
+    const ba = product(commuteB.value, commuteA.value);
+    const t = commuteAnimating.value ? progress.value : 1;
+    const moving = commuteAnimating.value && t < 1;
+    const centers = compact ? [{ x: 105, y: 126 }, { x: 285, y: 126 }] : [{ x: 130, y: 238 }, { x: 300, y: 238 }];
+    const radius = compact ? 38 : 63;
+    square(layer, centers[0], radius, moving ? commuteFrom.value[0] : ab,
+      moving ? { move: commuteMoves.value[0], progress: t } : undefined);
+    square(layer, centers[1], radius, moving ? commuteFrom.value[1] : ba,
+      moving ? { move: commuteMoves.value[1], progress: t } : undefined);
+
+    if (compact) {
+      pairSlot(layer, 'A', 105, 34, commuteA.value, commuteSlot.value === 'A', 142, 30);
+      pairSlot(layer, 'B', 285, 34, commuteB.value, commuteSlot.value === 'B', 142, 30);
+      label(layer, { x: centers[0].x, y: 72 }, 'AB (B first)', { width: 166, size: 15, fill: ink });
+      label(layer, { x: centers[1].x, y: 72 }, 'BA (A first)', { width: 166, size: 15, fill: ink });
+      label(layer, { x: centers[0].x, y: 176 }, 'AB = ' + elements[ab], { width: 150, size: 17, fill: ink });
+      label(layer, { x: centers[1].x, y: 176 }, 'BA = ' + elements[ba], { width: 150, size: 17, fill: ink });
+      relationBadge(layer, ab === ba, 195, 210, compact);
+      label(layer, { x: 195, y: 238 }, 'D₄ previews of identity', { width: 370, size: 17, fill: ink });
+    } else {
+      pairSlot(layer, 'A', 540, 96, commuteA.value, commuteSlot.value === 'A', 96, 32);
+      pairSlot(layer, 'B', 674, 96, commuteB.value, commuteSlot.value === 'B', 96, 32);
+      label(layer, { x: centers[0].x, y: 142 }, 'AB (apply B, then A)', { width: 188, size: 16, fill: ink });
+      label(layer, { x: centers[1].x, y: 142 }, 'BA (apply A, then B)', { width: 188, size: 16, fill: ink });
+      label(layer, { x: centers[0].x, y: 316 }, 'AB = ' + elements[ab], { width: 160, size: 18, fill: ink });
+      label(layer, { x: centers[1].x, y: 316 }, 'BA = ' + elements[ba], { width: 160, size: 18, fill: ink });
+      relationBadge(layer, ab === ba, 215, 365, compact);
+      label(layer, { x: 600, y: 56 }, 'D₄ previews of identity', { width: 380, size: 20, fill: ink });
+    }
+
+    for (const move of allMoves) {
+      const x = compact ? 48 + (move % 4) * 98 : 452 + (move % 4) * 94;
+      const row = Math.floor(move / 4);
+      const top = compact ? 260 + row * 94 : 130 + row * 154;
+      const width = 84;
+      const height = compact ? 86 : 110;
+      const isA = commuteA.value === move;
+      const isB = commuteB.value === move;
+      const roles = [isA ? 'A' : '', isB ? 'B' : ''].filter(Boolean).join(' and ');
+      const name = elements[move] + ' identity preview; ' + (roles ? 'assigned to ' + roles : 'assign to ' + commuteSlot.value);
+      controls.push({ name, x: x - width / 2, y: top, w: width, h: height,
+        run: () => chooseCommutativityElement(move), pressed: isA || isB, focusKey: 'commute-tile-' + move });
+      const outline = isA && isB ? '#8753a0' : isA ? colors[0] : isB ? colors[1] : '#91aa99';
+      layer.add(new Konva.Rect({ x: x - width / 2, y: top, width, height, cornerRadius: 10,
+        fill: isA || isB ? '#f5ead2' : '#f7faf4', stroke: focused.value === 'commute-tile-' + move ? '#a87910' : outline,
+        strokeWidth: isA || isB || focused.value === 'commute-tile-' + move ? 3 : 1.5 }));
+      square(layer, { x, y: top + (compact ? 29 : 37) }, compact ? 18 : 23, move);
+      label(layer, { x, y: top + (compact ? 69 : 86) }, elements[move],
+        { width: width - 4, size: compact ? 14 : 17, fill: ink });
+      if (isA) roleBadge(layer, x - 25, top + 12, 'A', colors[0]);
+      if (isB) roleBadge(layer, x + 25, top + 12, 'B', colors[1]);
+    }
+    label(layer, { x: compact ? 195 : 400, y: compact ? 478 : 454 },
+      compact ? 'Rotations commute; rotations and reflections\ngenerally do not.' :
+        'Rotations commute; rotations and reflections generally do not.',
+      { width: compact ? 370 : 780, size: compact ? 13 : 18, fill: ink });
+    const relation = ab === ba ? 'A and B commute: AB equals BA.' : 'A and B do not commute: AB differs from BA.';
+    readout = 'A is ' + elements[commuteA.value] + '; B is ' + elements[commuteB.value] + '. ' +
+      'AB means apply B first, then A, giving ' + elements[ab] + '. ' +
+      'BA means apply A first, then B, giving ' + elements[ba] + '. ' + relation + ' ' +
+      'Rotations commute with one another; rotations and reflections generally do not. ' +
+      'Choose an A or B selector, then select an identity preview.';
     return;
   }
   const compact = layout.value.compact;
@@ -499,6 +556,51 @@ function applySquareSymmetry(move: number) {
   selectedSquareMove.value = move;
   animation.value = 'square';
   play(1120);
+}
+function pairSlot(layer: Konva.Container, slot: 'A' | 'B', x: number, y: number, move: number,
+  active: boolean, width: number, height: number) {
+  const name = 'Choose ' + slot + '; current value ' + elements[move];
+  controls.push({ name, x: x - width / 2, y: y - height / 2, w: width, h: height,
+    run: () => { commuteSlot.value = slot; }, pressed: active, focusKey: 'commute-slot-' + slot });
+  layer.add(new Konva.Rect({ x: x - width / 2, y: y - height / 2, width, height, cornerRadius: 8,
+    fill: active ? '#f5ead2' : '#20302f', stroke: active ? '#a87910' : '#638474', strokeWidth: active ? 2.5 : 1.5 }));
+  label(layer, { x, y }, slot + ' = ' + elements[move],
+    { width: width - 4, size: 15, fill: active ? ink : '#e8f1ee' });
+}
+function roleBadge(layer: Konva.Container, x: number, y: number, role: 'A' | 'B', color: string) {
+  layer.add(new Konva.Circle({ x, y, radius: 10, fill: color, stroke: '#fff', strokeWidth: 1.5 }));
+  label(layer, { x, y }, role, { width: 20, size: 11, fill: '#fff' });
+}
+function relationBadge(layer: Konva.Container, commute: boolean, x: number, y: number, compact: boolean) {
+  const width = compact ? 190 : 270;
+  const height = compact ? 30 : 40;
+  layer.add(new Konva.Rect({ x: x - width / 2, y: y - height / 2, width, height, cornerRadius: 10,
+    fill: commute ? '#e7f0e8' : '#f5ead2', stroke: commute ? green : '#a87910', strokeWidth: 2 }));
+  label(layer, { x, y }, commute ? 'AB = BA' : 'AB ≠ BA',
+    { width: width - 8, size: compact ? 19 : 23, fill: commute ? green : '#704e09' });
+}
+function chooseCommutativityElement(move: number) {
+  if (commuteAnimating.value && progress.value < 1) {
+    stop();
+    progress.value = 1;
+  }
+  const oldA = commuteA.value;
+  const oldB = commuteB.value;
+  const nextA = commuteSlot.value === 'A' ? move : oldA;
+  const nextB = commuteSlot.value === 'B' ? move : oldB;
+  if (nextA === oldA && nextB === oldB) return;
+
+  const oldAB = product(oldA, oldB);
+  const oldBA = product(oldB, oldA);
+  const nextAB = product(nextA, nextB);
+  const nextBA = product(nextB, nextA);
+  commuteFrom.value = [oldAB, oldBA];
+  commuteMoves.value = [product(nextAB, inverse(oldAB)), product(nextBA, inverse(oldBA))];
+  commuteA.value = nextA;
+  commuteB.value = nextB;
+  animation.value = 'square';
+  commuteAnimating.value = true;
+  play(900);
 }
 function lagrange(layer: Konva.Container) {
   const blocks = partition(subgroup.value === 2 ? [0,1,2,3] : [0,4]);
@@ -672,7 +774,7 @@ function maps(layer: Konva.Container) {
   }
 }
 const layout = computed(() => {
-  const compact = props.id === 'square-symmetries' && size.value.width < 650;
+  const compact = (props.id === 'square-symmetries' || props.id === 'square-noncommutativity') && size.value.width < 650;
   const width = compact ? 390 : 800;
   const scale = Math.max(.01, Math.min(size.value.width / width, size.value.height / 520));
   return { compact, scale, x: (size.value.width - width*scale)/2, y: (size.value.height-520*scale)/2 };
