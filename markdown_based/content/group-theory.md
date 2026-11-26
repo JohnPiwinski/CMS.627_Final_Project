@@ -198,6 +198,28 @@ Unlike addition on a clock, changing the order of our transformations can change
 ::pause
 
 ## Subgroups and Quotient Groups {#subgroups-quotients}
+### A subgroup on the clock {#clock-subgroup}
+::scene[clock]
+
+:::display
+Click 8 and then 5 on the 12-position clock. Count the hops until the first return to zero.
+
+The order of a step $n$ is the least positive number of hops that make a whole number of laps. With $m$ positions, the order is $m/\gcd(m,n)$. If $m$ and $n$ share no factor larger than 1, the path visits every position.
+:::
+
+:::narration[clock-subgroup-intro]
+We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?
+:::
+::pause
+
+### Clock subgroup diagram {#clock-subgroup-diagram}
+::scene[clock]
+
+:::display
+Click a clock position to trace the subgroup it generates. Change the modulus to compare subgroup diagrams.
+:::
+::pause
+
 ### Subgroups {#subgroups}
 ::scene[square]
 
@@ -206,15 +228,9 @@ Sometimes, within a group, we can find a smaller collection of elements that for
 
 For example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.
 
-This smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Try selecting other collections of symmetries and see whether they form subgroups.
-:::
-::pause
+This smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Start with three guided questions. The gold outline marks a move given in the question. To answer, click the picture you think is the result in the highlighted subgroup. For the first question, which picture shows two quarter-turns? After the third question, choose Free exploration to try the Compose and Inverse tools on any subgroup.
 
-### A subgroup on the clock {#clock-subgroup}
-::scene[clock]
-
-:::narration[clock-subgroup-intro]
-We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?
+In free exploration, click a subgroup card to highlight it. With Compose, click two pictures in the same card to form their product. The square plays the right-hand move first, and the result lights up in the card. With Inverse, click one picture to highlight the move that undoes it.
 :::
 ::pause
 
@@ -279,6 +295,7 @@ For a normal subgroup, the answer is always yes. This allows us to define multip
 :::
 ::pause
 
+<!--
 ## Bonus: Group Homomorphisms {#homomorphisms-bonus}
 ### Homomorphisms and generators {#homomorphisms-generators}
 ::scene[clock]
@@ -339,3 +356,4 @@ Try selecting subgroups on either side of the diagram. Expand the quotient to se
 The correspondence theorem lets us study the subgroups above a normal subgroup by studying the smaller quotient group instead.
 :::
 ::pause
+-->

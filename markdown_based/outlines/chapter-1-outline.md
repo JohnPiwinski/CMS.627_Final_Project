@@ -285,47 +285,49 @@ Unlike addition on a clock, changing the order of our transformations can change
 ::pause
 
 ## Subgroups and Quotient Groups {#subgroups-quotients}
-### Subgroups {#subgroups}
-::scene[square]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 170"><rect width="100%" height="100%" fill="#fffdf7"/><rect x="8" y="8" width="324" height="154" rx="10" fill="#526070" fill-opacity=".07" stroke="#526070" /><rect x="20" y="38" width="300" height="55" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><text x="35" y="28" text-anchor="middle" font-size="13" fill="#263344">D₄</text><circle cx="57" cy="65" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="57" y="69" text-anchor="middle" font-size="13" fill="#263344">e</text><circle cx="132" cy="65" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="132" y="69" text-anchor="middle" font-size="13" fill="#263344">r</text><circle cx="207" cy="65" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="207" y="69" text-anchor="middle" font-size="13" fill="#263344">r²</text><circle cx="282" cy="65" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="282" y="69" text-anchor="middle" font-size="13" fill="#263344">r³</text><circle cx="57" cy="127" r="17" fill="#888888" fill-opacity=".16" stroke="#888888"/><text x="57" y="131" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="132" cy="127" r="17" fill="#888888" fill-opacity=".16" stroke="#888888"/><text x="132" y="131" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="207" cy="127" r="17" fill="#888888" fill-opacity=".16" stroke="#888888"/><text x="207" y="131" text-anchor="middle" font-size="13" fill="#263344">r²s</text><circle cx="282" cy="127" r="17" fill="#888888" fill-opacity=".16" stroke="#888888"/><text x="282" y="131" text-anchor="middle" font-size="13" fill="#263344">r³s</text></svg>
--->
-<!--
-Diagram: a large rounded rectangular boundary labeled G = D₄ contains eight circular beads or miniature symmetry tiles, arranged in two rows of four. Top row e,r,r²,r³; bottom row s,rs,r²s,r³s. Draw a blue rounded enclosure around the top row, labeled H. The enclosure represents a subset, not a new group element. Use the same transformation thumbnails and notation as the previous scene. Selecting a bead previews its action on a separate square. Allow students to select or deselect beads to define a candidate subset; update the enclosure to surround selected beads (rearrange into a selected tray if needed). Provide a product tester: choose two selected elements in stated rightmost-first order, animate their transformations, then highlight the resulting bead. If outside the subset, animate a copy traveling outside its boundary. Provide an inverse tester and an identity check. A complete validation checks every product and inverse and identity membership, not just sampled pairs. Offer presets for rotations, {e,s}, and a failing subset, without prematurely revealing answers. Use labels and outlines in addition to color. Render equations inside Konva.
--->
-:::narration[subgroups-intro]
-Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.
-
-For example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.
-
-This smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Try selecting other collections of symmetries and see whether they form subgroups.
-:::
-::pause
-
 ### A subgroup on the clock {#clock-subgroup}
 ::scene[clock]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 150"><rect width="100%" height="100%" fill="#fffdf7"/><circle cx="85" cy="72" r="49" fill="none" stroke="#526070"/><text x="85.0" y="15.0" text-anchor="middle" font-size="9" fill="#263344">0</text><circle cx="85.0" cy="23.0" r="2" fill="#526070"/><text x="137.83" y="45.5" text-anchor="middle" font-size="9" fill="#263344">1</text><circle cx="127.43524478543749" cy="47.49999999999999" r="2" fill="#526070"/><text x="137.83" y="106.5" text-anchor="middle" font-size="9" fill="#263344">2</text><circle cx="127.4352447854375" cy="96.49999999999999" r="2" fill="#526070"/><text x="85.0" y="137.0" text-anchor="middle" font-size="9" fill="#263344">3</text><circle cx="85.0" cy="121.0" r="2" fill="#526070"/><text x="32.17" y="106.5" text-anchor="middle" font-size="9" fill="#263344">4</text><circle cx="42.56475521456252" cy="96.50000000000003" r="2" fill="#526070"/><text x="32.17" y="45.5" text-anchor="middle" font-size="9" fill="#263344">5</text><circle cx="42.56475521456251" cy="47.49999999999999" r="2" fill="#526070"/><rect x="170" y="35" width="155" height="70" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><circle cx="195" cy="70" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="195" y="74" text-anchor="middle" font-size="13" fill="#263344">0</text><circle cx="247" cy="70" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="247" y="74" text-anchor="middle" font-size="13" fill="#263344">2</text><circle cx="299" cy="70" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="299" y="74" text-anchor="middle" font-size="13" fill="#263344">4</text></svg>
--->
-<!--
-Reuse the clock with modulus six. Highlight 0,2,4 with blue rings. Animate repeated addition of two, cycling 0→2→4→0. Allow selection of two highlighted residues and display their sum modulo six. Let learners inspect additive inverses. The highlighted subset is a subgroup under the original addition operation. Keep this brief and reuse existing clock controls where practical.
--->
+<!-- Trace repeated addition on the 12-position dial. Show elapsed hops, whole laps, and the order calculation. -->
+
+:::display
+Click 8 and then 5 on the 12-position clock. Count the hops until the first return to zero.
+
+The order of a step $n$ is the least positive number of hops that make a whole number of laps. With $m$ positions, the order is $m/\gcd(m,n)$. If $m$ and $n$ share no factor larger than 1, the path visits every position.
+:::
+
 :::narration[clock-subgroup-intro]
 We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?
 :::
 ::pause
 
+### Clock subgroup diagram {#clock-subgroup-diagram}
+::scene[clock]
+<!-- Rebuild the subgroup lattice from the divisors when the modulus changes. Synchronize clock selection and the matching subgroup card. -->
+
+:::display
+Click a clock position to trace the subgroup it generates. Change the modulus to compare subgroup diagrams.
+:::
+::pause
+
+### Subgroups {#subgroups}
+::scene[square]
+<!-- Show all ten subgroups as cards with labeled square previews. Ask three guided product or inverse questions, then enable both tools for direct selection inside each card. -->
+
+:::narration[subgroups-intro]
+Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.
+
+For example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.
+
+This smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Start with three guided questions. The gold outline marks a move given in the question. To answer, click the picture you think is the result in the highlighted subgroup. For the first question, which picture shows two quarter-turns? After the third question, choose Free exploration to try the Compose and Inverse tools on any subgroup.
+
+In free exploration, click a subgroup card to highlight it. With Compose, click two pictures in the same card to form their product. The square plays the right-hand move first, and the result lights up in the card. With Inverse, click one picture to highlight the move that undoes it.
+:::
+::pause
+
 ### Cosets {#cosets}
 ::scene[square]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 200"><rect width="100%" height="100%" fill="#fffdf7"/><defs><marker id="arrow" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0 0 L5 2.5 L0 5 Z" fill="#4686da"/></marker></defs><rect x="15" y="10" width="310" height="60" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><rect x="15" y="130" width="310" height="60" rx="10" fill="#d99436" fill-opacity=".07" stroke="#d99436" /><circle cx="53" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="53" y="44" text-anchor="middle" font-size="13" fill="#263344">e</text><path d="M53 60 V138" stroke="#4686da" marker-end="url(#arrow)"/><circle cx="53" cy="160" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="53" y="164" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="131" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="131" y="44" text-anchor="middle" font-size="13" fill="#263344">r</text><path d="M131 60 V138" stroke="#4686da" marker-end="url(#arrow)"/><circle cx="131" cy="160" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="131" y="164" text-anchor="middle" font-size="13" fill="#263344">sr</text><circle cx="209" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="209" y="44" text-anchor="middle" font-size="13" fill="#263344">r²</text><path d="M209 60 V138" stroke="#4686da" marker-end="url(#arrow)"/><circle cx="209" cy="160" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="209" y="164" text-anchor="middle" font-size="13" fill="#263344">sr²</text><circle cx="287" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="287" y="44" text-anchor="middle" font-size="13" fill="#263344">r³</text><path d="M287 60 V138" stroke="#4686da" marker-end="url(#arrow)"/><circle cx="287" cy="160" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="287" y="164" text-anchor="middle" font-size="13" fill="#263344">sr³</text><text x="170" y="100" text-anchor="middle" font-size="13" fill="#263344">Multiply by s</text></svg>
--->
-<!--
-Diagram: two horizontal rounded trays, each wide enough for four evenly spaced circular beads. Upper blue tray H contains e,r,r²,r³. Lower amber tray is the destination coset. Put a multiplier slot between them, with downward arrows from each upper bead to its image. Drag a symmetry tile g into the slot to animate copies h→gh; preserve the original H tray. For g=s the lower tray initially shows s,sr,sr²,sr³ in correspondence order; also show canonical labels s,r³s,r²s,rs respectively. Do not confuse pairing order with set equality. Maintain a separate overview of all eight elements, outlining each distinct coset as it is discovered. Repeated choices yielding the same coset reuse its boundary, even when the internal correspondence changes. Allow undo and representative changes. Include a preset H={e,s} so learners can discover four cosets of size two. Keep all group elements distinct and never duplicate them in the partition overview. Use a draggable tile or accessible selection equivalent.
--->
+<!-- Reuse the subgroup lattice as a selector and show every left coset in a separate box. -->
+
 :::narration[cosets-intro]
 What happens if we take every element of a subgroup and multiply it on the left by the same group element?
 
@@ -337,13 +339,8 @@ Try choosing other multipliers. Can two different cosets partially overlap? How 
 
 ### Lagrange's theorem {#lagrange-theorem}
 ::scene[square]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 170"><rect width="100%" height="100%" fill="#fffdf7"/><rect x="15" y="10" width="310" height="60" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><rect x="15" y="80" width="310" height="60" rx="10" fill="#d99436" fill-opacity=".07" stroke="#d99436" /><circle cx="53" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="53" y="44" text-anchor="middle" font-size="13" fill="#263344">e</text><circle cx="131" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="131" y="44" text-anchor="middle" font-size="13" fill="#263344">r</text><circle cx="209" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="209" y="44" text-anchor="middle" font-size="13" fill="#263344">r²</text><circle cx="287" cy="40" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="287" y="44" text-anchor="middle" font-size="13" fill="#263344">r³</text><circle cx="53" cy="110" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="53" y="114" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="131" cy="110" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="131" y="114" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="209" cy="110" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="209" y="114" text-anchor="middle" font-size="13" fill="#263344">r²s</text><circle cx="287" cy="110" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="287" y="114" text-anchor="middle" font-size="13" fill="#263344">r³s</text><text x="170" y="160" text-anchor="middle" font-size="13" fill="#263344">2 × 4 = 8</text></svg>
--->
-<!--
-Reuse the coset partition overview. Initially show two outlined trays of four elements each for the rotation subgroup. Let students count trays and beads per tray before revealing 2 × 4 = 8. Switch to H={e,s}, showing four trays of two. Display |G|=[G:H]|H| with scene-integrated math; define the index as the number of left cosets. Ask which subgroup sizes are impossible for a group of order eight. Divisibility is necessary, not sufficient in general. No formal proof required; optionally replay multiplication by g and g^{-1} to illustrate equal sizes.
--->
+<!-- Reuse the coset explorer. Ask the learner to count boxes and their members before revealing the product. -->
+
 :::narration[lagrange-intro]
 The left cosets partition our group into collections of equal size. Each collection has as many elements as the subgroup itself.
 
@@ -355,13 +352,8 @@ This is Lagrange's theorem: the order of a subgroup of a finite group divides th
 
 ### Normal subgroups {#normal-subgroups}
 ::scene[square]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 190"><rect width="100%" height="100%" fill="#fffdf7"/><text x="85" y="18" text-anchor="middle" font-size="13" fill="#263344">sH</text><text x="255" y="18" text-anchor="middle" font-size="13" fill="#263344">Hs</text><rect x="10" y="28" width="150" height="60" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><circle cx="32" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="32" y="62" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="69" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="69" y="62" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="106" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="106" y="62" text-anchor="middle" font-size="13" fill="#263344">r²s</text><circle cx="143" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="143" y="62" text-anchor="middle" font-size="13" fill="#263344">r³s</text><rect x="180" y="28" width="150" height="60" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><circle cx="202" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="202" y="62" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="239" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="239" y="62" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="276" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="276" y="62" text-anchor="middle" font-size="13" fill="#263344">r²s</text><circle cx="313" cy="58" r="15" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="313" y="62" text-anchor="middle" font-size="13" fill="#263344">r³s</text><text x="170" y="105" text-anchor="middle" font-size="13" fill="#263344">Rotation subgroup: equal</text><rect x="10" y="120" width="150" height="55" rx="10" fill="#d99436" fill-opacity=".07" stroke="#d99436" /><rect x="180" y="120" width="150" height="55" rx="10" fill="#38a078" fill-opacity=".07" stroke="#38a078" /><circle cx="50" cy="147" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="50" y="151" text-anchor="middle" font-size="13" fill="#263344">r</text><circle cx="115" cy="147" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="115" y="151" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="220" cy="147" r="17" fill="#38a078" fill-opacity=".16" stroke="#38a078"/><text x="220" y="151" text-anchor="middle" font-size="13" fill="#263344">r</text><circle cx="285" cy="147" r="17" fill="#38a078" fill-opacity=".16" stroke="#38a078"/><text x="285" y="151" text-anchor="middle" font-size="13" fill="#263344">r³s</text></svg>
--->
-<!--
-Diagram: two equally sized panels labeled gH and Hg, each containing an outlined tray of beads. A shared multiplier tile g and subgroup selector control both. Animate left multiplication h→gh on the left and right multiplication h→hg on the right. Compare sets, not positions or pairing order; highlight unmatched beads. Preset H=<r>, g=s: both trays contain s,rs,r²s,r³s. Preset H=<s>, g=r: left tray contains r,rs; right tray contains r,r³s. Use blue matching outlines for equal sets and distinct amber/green outlines plus explicit inequality for different sets. Allow every g to be tested and provide a complete check before declaring normality. After exploration introduce conjugation: animate h→ghg^{-1} and show whether the resulting subgroup boundary agrees with H. For the reflection example, conjugating s by r rotates its reflection axis by a quarter-turn, giving r²s. Do not require classification of all subgroups. Preserve square previews and rightmost-first composition.
--->
+<!-- Use one board with solid teal outlines for the left partition and dashed amber outlines for the right partition. Compare the rotation and vertical mirror subgroups. -->
+
 :::narration[normal-subgroups-intro]
 Because the dihedral group is not abelian, multiplying a subgroup on the left might produce a different collection of elements than multiplying it on the right.
 
@@ -372,7 +364,7 @@ Soon we will define a notion of dividing one group by a subgroup. Normality is e
 Try the rotation subgroup and then the subgroup consisting of the identity and a single reflection. Compare the left and right cosets for different multipliers.
 :::
 ::pause
-<!-- Render gH=Hg for every g in G, equivalently gHg^{-1}=H. Introduce conjugation only after the left/right comparison. -->
+
 :::narration[normal-subgroups-conjugation]
 Another way to describe normality is through conjugation. Multiply each element of the subgroup on the left by a group element and on the right by its inverse. A normal subgroup is unchanged as a set by every such conjugation.
 :::
@@ -380,14 +372,8 @@ Another way to describe normality is through conjugation. Multiply each element 
 
 ### Quotient groups {#quotient-groups}
 ::scene[square]
-<!--
-STATIC SVG REFERENCE: representative state only; implement behavior using the adjacent scene instructions.
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 240"><rect width="100%" height="100%" fill="#fffdf7"/><rect x="15" y="10" width="140" height="100" rx="10" fill="#4686da" fill-opacity=".07" stroke="#4686da" /><rect x="185" y="10" width="140" height="100" rx="10" fill="#d99436" fill-opacity=".07" stroke="#d99436" /><circle cx="52" cy="35" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="52" y="39" text-anchor="middle" font-size="13" fill="#263344">e</text><circle cx="118" cy="35" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="118" y="39" text-anchor="middle" font-size="13" fill="#263344">r</text><circle cx="52" cy="83" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="52" y="87" text-anchor="middle" font-size="13" fill="#263344">r²</text><circle cx="118" cy="83" r="17" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="118" y="87" text-anchor="middle" font-size="13" fill="#263344">r³</text><circle cx="222" cy="35" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="222" y="39" text-anchor="middle" font-size="13" fill="#263344">s</text><circle cx="288" cy="35" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="288" y="39" text-anchor="middle" font-size="13" fill="#263344">rs</text><circle cx="222" cy="83" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="222" y="87" text-anchor="middle" font-size="13" fill="#263344">r²s</text><circle cx="288" cy="83" r="17" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="288" y="87" text-anchor="middle" font-size="13" fill="#263344">r³s</text><text x="170" y="135" text-anchor="middle" font-size="13" fill="#263344">↓ Collapse each coset ↓</text><circle cx="85" cy="185" r="32" fill="#4686da" fill-opacity=".16" stroke="#4686da"/><text x="85" y="189" text-anchor="middle" font-size="13" fill="#263344">H</text><circle cx="255" cy="185" r="32" fill="#d99436" fill-opacity=".16" stroke="#d99436"/><text x="255" y="189" text-anchor="middle" font-size="13" fill="#263344">sH</text><text x="170" y="235" text-anchor="middle" font-size="13" fill="#263344">D₄/H ≅ ℤ/2ℤ</text></svg>
--->
-<!--
-Diagram: two side-by-side rounded rectangular enclosures, blue for rotations and amber for reflections. Each contains four beads arranged in a two-by-two grid. Blue: e,r,r²,r³; amber: s,rs,r²s,r³s. Label the enclosures H and sH and caption them Rotations and Reflections. A Collapse cosets control animates the four beads in each enclosure toward its center, shrinking or fading them into a single larger circular token labeled H or sH. Never merge the two different cosets. Expand cosets reverses the animation, restoring all original beads and labels. The tokens are quotient elements, not original transformations. Show D₄/H ≅ Z/2Z after collapse. H is the quotient identity.
-Next, provide two operand trays and a product tray. Select two cosets, then choose one representative from each; animate the product in rightmost-first order and highlight its destination coset. Changing either representative leaves the destination coset unchanged for H=<r>. Allow all four pairs of quotient elements, including two reflection cosets whose product is H. Show (aH)(bH)=abH. Then offer a non-normal comparison H={e,s}: use operands H and rH. Representatives e,r give rH, whereas s,r give srH=r³H, a different left coset. Animate the distinct destinations and explain why the proposed multiplication is not well-defined. Do not collapse the non-normal cosets into a purported group. All labels and equations are scene-integrated; exact timing and styling are implementation decisions.
--->
+<!-- Fade individual labels and gather each normal coset into one labeled dot. Reverse the animation on Expand. Let learners compose the dots or compare representatives. For the vertical mirror subgroup, keep the partition expanded and show that swapping representatives can change the result coset. -->
+
 :::narration[quotient-groups-intro]
 Imagine that we are no longer interested in distinguishing the individual rotations of a square. Instead, we only want to distinguish rotations from reflections.
 
@@ -402,7 +388,6 @@ Choose two cosets and multiply a representative from each. Now change the repres
 For a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters.
 :::
 ::pause
-
 
 ## Bonus: Group Homomorphisms {#homomorphisms-bonus}
 ### Homomorphisms and generators {#homomorphisms-generators}

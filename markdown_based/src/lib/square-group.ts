@@ -34,10 +34,10 @@ export function sameSet(left: readonly number[], right: readonly number[]): bool
   return new Set(left).size === new Set(right).size && left.every(move => right.includes(move));
 }
 
-export function partition(subgroup: readonly number[]): number[][] {
+export function partition(subgroup: readonly number[], side: 'left' | 'right' = 'left'): number[][] {
   const blocks: number[][] = [];
   for (const g of allMoves) {
-    if (!blocks.some(block => block.includes(g))) blocks.push(coset(g, subgroup));
+    if (!blocks.some(block => block.includes(g))) blocks.push(coset(g, subgroup, side));
   }
   return blocks;
 }

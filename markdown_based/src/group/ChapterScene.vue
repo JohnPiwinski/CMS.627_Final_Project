@@ -4,8 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { angle, arrow, distance, label, polar, useCanvas, useMotion, type Point } from './canvas';
 import { sceneMath } from './sceneMath';
 import { additiveHomomorphism, factorialRemainders, modularInverse, residue } from '../lib/clock';
-import { allMoves, cornerImage, elements, inverse, partition, product, sameSet } from '../lib/square-group';
-import ElementBoard from './ElementBoard.vue';
+import { allMoves, cornerImage, elements, inverse, mirrorSubgroup, partition, product, rotations, sameSet } from '../lib/square-group';
 
 const props = defineProps<{ id: string; step: number; demo: boolean }>();
 const green = '#376858';
@@ -16,7 +15,7 @@ const values = ref([props.id === "clock-addition" && props.step === 0 ? 0 : 5, 8
 const arcs = ref([2, 3, 2]);
 const turns = ref(0);
 const identityHour = ref(0);
-const selected = ref(0);
+const selected = ref(props.id === 'clock-subgroup' ? 8 : props.id === 'clock-subgroup-diagram' ? 4 : 0);
 const secondOperand = ref(1);
 const selectedOutput = ref<number>();
 const modulusOut = ref(6);
@@ -40,7 +39,6 @@ const denominator = ref(props.id === 'correspondence-square' ? 0 : 6);
 const subgroup = ref(1);
 const notice = ref('');
 const focused = ref('');
-const board = ref<InstanceType<typeof ElementBoard>>();
 const { progress, play, stop } = useMotion();
 const animation = ref<'demo' | 'turn' | 'square' | 'collapse'>();
 const demoCancelled = ref(false);
@@ -48,23 +46,21 @@ const starting = ref(0);
 const mapSquare = computed(() => props.id.endsWith('-square'));
 const correspondence = computed(() => props.id.startsWith('correspondence'));
 const mapScene = computed(() => correspondence.value || props.id.startsWith('first-isomorphism') || props.id === 'homomorphisms-generators');
-const boardMode = computed(() => ({
-  subgroups: 'subgroups', cosets: 'cosets', 'normal-subgroups': 'normality', 'quotient-groups': 'quotient',
-} as const)[props.id as 'subgroups']);
 const prompt: Record<string, string> = {
   'clock-associativity': 'Drag a colored endpoint on either clock.',
   'clock-identity': 'Set the hour hand, then drag the dot below to add full turns.',
   'clock-inverses': 'Select a residue to highlight its additive inverse.',
   'clock-commutativity': 'Drag either colored endpoint. Compare the two orders.',
   'clock-units': 'Choose a multiplier. Do any arrows share a destination?',
-  'clock-subgroup': 'Choose a step and follow the residues it generates.',
-  subgroups: 'Drag beads into the candidate, then test products and inverses.',
-  cosets: 'Drag a representative onto the subgroup tray.',
-  'normal-subgroups': 'Choose a representative and step through conjugation.',
-  'quotient-groups': 'Collapse each coset, then compose the resulting tokens.',
+  'clock-subgroup': 'Try adding 8, then 5. Count the hops until the first return to zero.',
+  subgroups: 'Answer three questions to unlock Compose and Inverse.',
+  cosets: 'Choose a subgroup to see how its cosets partition the eight moves.',
+  'normal-subgroups': 'Compare both partitions on the same eight moves.',
+  'quotient-groups': 'Each coset becomes one element of the quotient group.',
+  'clock-subgroup-diagram': 'Choose a clock step or a subgroup. Change the modulus to redraw the diagram.',
   'correspondence-clock': 'Select a region to highlight its matching subgroup on both sides.',
   'correspondence-square': 'Select a region to highlight its matching subgroup on both sides.',
-  'lagrange-theorem': 'Count the trays and count the beads in each tray.',
+  'lagrange-theorem': 'Choose a subgroup and count the moves in each coset.',
 };
 
 type End = { move?: (p: Point) => void; end: (p: Point) => void; cancel?: () => void };
@@ -272,9 +268,9 @@ function identity(layer: Konva.Container) {
 }
 function inverseOrSubgroup(layer: Konva.Container) {
   const m = n.value;
-  const c = { x: 400, y: 222 };
-  const r = 143;
   const inverse = props.id === 'clock-inverses';
+  const c = { x: 400, y: inverse ? 222 : 206 };
+  const r = 143;
   dial(layer, c, r, m, undefined, selected.value);
   if (inverse) for (let i = 0; i < m; i++) {
     const j = residue(-i, m);
@@ -288,10 +284,24 @@ function inverseOrSubgroup(layer: Konva.Container) {
   const cycle: number[] = [];
   if (!inverse) {
     for (let a = 0; !cycle.includes(a); a = residue(a + selected.value, m)) cycle.push(a);
-    cycle.forEach((a, i) => arrow(layer, tick(c, r * .69, m, a), tick(c, r * .69, m, cycle[(i + 1) % cycle.length]), green));
+    if (cycle.length > 1) cycle.forEach((a, i) => arrow(layer, tick(c, r * .69, m, a), tick(c, r * .69, m, cycle[(i + 1) % cycle.length]), green));
   }
   formula(layer, inverse ? selected.value + '+' + residue(-selected.value, m) + '\\equiv 0\\pmod{' + m + '}' :
     '\\langle ' + selected.value + '\\rangle=\\{' + [...cycle].sort((a,b) => a-b).join(',') + '\\}', 400, 385);
+  if (!inverse) {
+    const order=cycle.length;
+    const d=m/order;
+    label(layer,{x:400,y:410},'After '+order+' hops: '+order+' × '+selected.value+' ticks = '+(order*selected.value/m)+' whole laps',{size:16,width:760});
+    label(layer,{x:400,y:441},'Order = '+m+' ÷ gcd('+m+', '+selected.value+') = '+m+' ÷ '+d+' = '+order,{size:16,width:760});
+    label(layer,{x:400,y:475},d===1?'The step and modulus are coprime. Every position is visited.':'The visited positions form the subgroup generated by '+selected.value+'.',{size:15,width:760});
+    readout='Adding '+selected.value+' modulo '+m+' visits '+cycle.join(', ')+' and returns to zero after '+order+' hops.';
+    for (let a=0;a<m;a++) {
+      const p=tick(c,r*.82,m,a);
+      if (target('Add '+a,p.x,p.y,29,29,()=>selected.value=a,a===selected.value))
+        layer.add(new Konva.Circle({...p,radius:14,stroke:'#a87910',strokeWidth:2}));
+    }
+    return;
+  }
   const setModulus = (value: number) => {
     n.value = Math.min(24, Math.max(2, value));
     selected.value %= n.value;
@@ -602,18 +612,6 @@ function chooseCommutativityElement(move: number) {
   commuteAnimating.value = true;
   play(900);
 }
-function lagrange(layer: Konva.Container) {
-  const blocks = partition(subgroup.value === 2 ? [0,1,2,3] : [0,4]);
-  blocks.forEach((block, i) => {
-    const x = 400 + (i - (blocks.length - 1) / 2) * 160;
-    layer.add(new Konva.Rect({ x: x - 66, y: 125, width: 132, height: 47 + block.length * 54,
-      stroke: colors[i % 3], cornerRadius: 13, strokeWidth: 2, fill: '#f7faf4' }));
-    block.forEach((g,j) => bead(layer, x, 165 + j * 54, elements[g], colors[i % 3]));
-  });
-  if (hint.value) formula(layer, '|G|=[G:H]|H|=' + blocks.length + '\\times ' + blocks[0].length + '=8', 400, 405);
-  control(layer, 'Switch subgroup', 280, 476, () => { subgroup.value = subgroup.value === 2 ? 1 : 2; hint.value = 0; }, 145);
-  control(layer, 'Reveal count', 520, 476, () => hint.value = 1);
-}
 function bead(layer: Konva.Container, x: number, y: number, text: string, color = green) {
   layer.add(new Konva.Circle({ x, y, radius: 17, stroke: color, fill: '#f7faf4', strokeWidth: 2 }));
   label(layer, { x,y }, text, { width: 36, size: 15, fill: ink });
@@ -773,6 +771,351 @@ function maps(layer: Konva.Container) {
     },145);
   }
 }
+// Keep the row start separate from the item offset through the Vue build.
+function centeredItem(center: number, index: number, count: number, spacing: number) {
+  const start = center - spacing * (count - 1) / 2;
+  return start + index * spacing;
+}
+
+function diagramLabel(layer: Konva.Container, point: Point, value: string, options: Parameters<typeof label>[3] = {}) {
+  label(layer, point, value, { fill: '#000', ...options });
+}
+
+const moveName = (move: number) => move === 7 ? 'sr' : elements[move];
+const squareSubgroups = [
+  [{ name: 'All square symmetries', moves: allMoves }],
+  [
+    { name: 'Rotations', moves: rotations },
+    { name: 'Axial mirrors · Klein four', moves: [0, 2, 4, 6] },
+    { name: 'Diagonal mirrors · Klein four', moves: [0, 2, 5, 7] },
+  ],
+  [
+    { name: 'Half-turn', moves: [0, 2] },
+    { name: 'Horizontal mirror', moves: [0, 6] },
+    { name: 'Vertical mirror', moves: mirrorSubgroup },
+    { name: 'Diagonal ↘', moves: [0, 7] },
+    { name: 'Diagonal ↗', moves: [0, 5] },
+  ],
+  [{ name: 'Identity', moves: [0] }],
+];
+const questions = [
+  { card: 'Rotations', moves: [1, 1], answer: 2 },
+  { card: 'Rotations', moves: [1], answer: 3 },
+  { card: 'Vertical mirror', moves: [4, 4], answer: 0 },
+];
+const questionIndex = ref(0);
+const questionSolved = ref(false);
+const activeCard = ref('Rotations');
+const squareTool = ref<'compose' | 'inverse'>('compose');
+const operands = ref<number[]>([]);
+const resultMove = ref<number>();
+const replayMoves = ref<number[]>([]);
+const subgroupMessage = ref('');
+const mirrorExample = ref(false);
+const representatives = ref<[number, number]>([4, 4]);
+const representativeSlot = ref<0 | 1>(0);
+const priorProduct = ref<number>();
+const quotientTokens = ref<number[]>([]);
+const { progress: lessonMotion, play: playLessonMotion, stop: stopLessonMotion } = useMotion();
+
+function target(name: string, x: number, y: number, w: number, h: number, run: () => void, pressed?: boolean) {
+  const focusKey = name;
+  controls.push({ name, x: x-w/2, y: y-h/2, w, h, run, focusKey, pressed });
+  return focused.value === focusKey;
+}
+function panel(layer: Konva.Container, x: number, y: number, w: number, h: number, stroke = '#91aa9e', fill = '#f7faf4', dash?: number[]) {
+  layer.add(new Konva.Rect({ x:x-w/2, y:y-h/2, width:w, height:h, cornerRadius:9, stroke, fill, strokeWidth:2, dash }));
+}
+function clockSubgroupDiagram(layer: Konva.Container) {
+  const m = n.value;
+  const c = { x:191, y:245 };
+  const cycle: number[] = [];
+  for (let a = 0; !cycle.includes(a); a = residue(a+selected.value,m)) cycle.push(a);
+  dial(layer,c,140,m,undefined,selected.value);
+  cycle.forEach((a,i) => {
+    const start = tick(c,92,m,a);
+    const end = tick(c,92,m,cycle[(i+1)%cycle.length]);
+    if (cycle.length > 1) arrow(layer,start,end,green);
+    layer.add(new Konva.Circle({ ...start, radius:4, fill:green }));
+  });
+  for (let a=0; a<m; a++) {
+    const p = tick(c,119,m,a);
+    if (target('Add '+a,p.x,p.y,23,23,()=>selected.value=a,a===selected.value))
+      layer.add(new Konva.Circle({ ...p,radius:12,stroke:'#a87910',strokeWidth:2 }));
+  }
+  const groups = cyclicSubgroups(m);
+  const depth = groups.map(() => 0);
+  const edges: [number,number][] = [];
+  groups.forEach((parent,i) => groups.forEach((child,j) => {
+    if (i>=j || parent.length%child.length || groups.some(mid =>
+      parent.length>mid.length && mid.length>child.length && parent.length%mid.length===0 && mid.length%child.length===0)) return;
+    edges.push([i,j]); depth[j]=Math.max(depth[j],depth[i]+1);
+  }));
+  const points = groups.map((_,i) => {
+    const row=depth.flatMap((d,j)=>d===depth[i]?[j]:[]);
+    return {x: 572+(row.indexOf(i)-(row.length-1)/2)*132,y:104+depth[i]* (266/Math.max(...depth,1))};
+  });
+  edges.forEach(([i,j])=>layer.add(new Konva.Line({points:[points[i].x,points[i].y+21,points[j].x,points[j].y-21],stroke:green,strokeWidth:2})));
+  groups.forEach((group,i)=>{
+    const {x,y}=points[i];
+    const active=group.length===cycle.length;
+    const name=group.length===m?'All '+m+' positions':'{'+group.join(', ')+'}';
+    const focusedCard=target('Show subgroup '+name,x,y,128,42,()=>selected.value=group[1]??0,active);
+    panel(layer,x,y,128,42,active||focusedCard?green:'#91aa9e',active?'#d5ead7':'#f7faf4');
+    if (name.length>23) {
+      diagramLabel(layer,{x,y:y-7},group.length+' positions',{size:12,width:124});
+      diagramLabel(layer,{x,y:y+8},'Multiples of '+group[1],{size:11,width:124});
+    } else diagramLabel(layer,{x,y},name,{size:name.length>17?11:14,width:124});
+  });
+  diagramLabel(layer,{x:191,y:415},'Add '+selected.value+' · order '+cycle.length,{width:300});
+  control(layer,'Modulus −',92,474,()=>{n.value=Math.max(2,m-1);selected.value%=n.value;},108);
+  diagramLabel(layer,{x:191,y:474},String(m),{width:50});
+  control(layer,'Modulus +',290,474,()=>n.value=Math.min(24,m+1),108);
+  readout='Modulo '+m+', adding '+selected.value+' visits '+cycle.join(', ')+' before returning to zero.';
+}
+
+function selectSquareOperand(card: string, move: number) {
+  const question=questions[questionIndex.value];
+  if (question) {
+    if (card!==question.card || questionSolved.value) return;
+    if (move!==question.answer) {
+      subgroupMessage.value=moveName(move)+' is not the result. Try another picture in '+card+'.';
+      return;
+    }
+    questionSolved.value=true;
+    resultMove.value=move;
+    replayMoves.value=question.moves.length===2?[...question.moves].reverse():[move];
+  } else {
+    if (activeCard.value!==card || operands.value.length===2 || resultMove.value!==undefined) operands.value=[];
+    activeCard.value=card;
+    operands.value=[...operands.value,move];
+    if (squareTool.value==='compose' && operands.value.length===1) {
+      resultMove.value=undefined;
+      subgroupMessage.value='Choose the second factor in '+card+'.';
+      return;
+    }
+    const [a,b]=operands.value;
+    resultMove.value=squareTool.value==='inverse'?inverse(a):product(a,b);
+    replayMoves.value=squareTool.value==='inverse'?[resultMove.value]:[b,a];
+  }
+  subgroupMessage.value='Result: '+moveName(resultMove.value!)+' · inside '+card+'.';
+  playLessonMotion(1400);
+}
+
+function squareLattice(layer: Konva.Container, explorer: boolean) {
+  const id = props.id;
+  const counting = id==='lagrange-theorem';
+  const question=explorer?undefined:questions[questionIndex.value];
+  const center=explorer?221:510;
+  const cardWidths=[274,173,106,106].map(w=>w*(explorer ? .77 : 1));
+  const positions=squareSubgroups.map((row,rank)=>row.map((card,i)=>({
+    ...card,x:centeredItem(center,i,row.length,cardWidths[rank]+6),y:91+rank*99,w:cardWidths[rank],
+  })));
+  positions.slice(0,-1).forEach((row,rank)=>row.forEach(parent=>positions[rank+1].forEach(child=>{
+    if (child.moves.every(move=>parent.moves.includes(move)))
+      layer.add(new Konva.Line({points:[parent.x,parent.y+34,child.x,child.y-34],stroke:'#6d9584',strokeWidth:1.5}));
+  })));
+  positions.flat().forEach(card=>{
+    const current=card.name===(question?.card??activeCard.value);
+    const select=()=>{
+      activeCard.value=card.name;
+      operands.value=[];
+      resultMove.value=undefined;
+      subgroupMessage.value='';
+      hint.value=0;
+    };
+    const cardName='Select '+card.name;
+    const focus=(explorer||!question) && focused.value===cardName;
+    panel(layer,card.x,card.y,card.w,68,current||focus?green:'#91aa9e',current?'#d9eddc':'#f7faf4');
+    diagramLabel(layer,{x:card.x,y:card.y-21},card.name,{size:explorer?9:11,width:card.w-2});
+    const spacing=Math.min(explorer?25:32,(card.w-7)/card.moves.length);
+    card.moves.forEach((move,i)=>{
+      const x=centeredItem(card.x,i,card.moves.length,spacing);
+      const y=card.y+3;
+      const marked=current && (question?.moves??operands.value).includes(move);
+      const answer=current && resultMove.value===move;
+      const tileFocused=!explorer && (!question||current) && target(card.name+': '+moveName(move),x,y+7,spacing,38,()=>selectSquareOperand(card.name,move),marked||answer);
+      if (marked||answer||tileFocused) panel(layer,x,y+7,spacing-2,39,answer?green:'#a87910',answer?'#acd8ae':'#fff2c9');
+      square(layer,{x,y},Math.min(10,spacing*.37),move);
+      diagramLabel(layer,{x,y:y+17},moveName(move),{size:11,width:spacing});
+    });
+    // Preview targets take precedence over the surrounding card.
+    if (explorer || !question) target(cardName,card.x,card.y,card.w,68,select,current);
+  });
+  if (explorer) {
+    const group=positions.flat().find(card=>card.name===activeCard.value)!;
+    const blocks=partition(group.moves);
+    diagramLabel(layer,{x:612,y:73},'Left cosets of '+group.name,{size:16,width:350});
+    const columns=blocks.length===1?1:2;
+    const rows=Math.ceil(blocks.length/columns);
+    const height=Math.min(122,315/rows);
+    blocks.forEach((block,i)=>{
+      const width=columns===1?340:165;
+      const x=columns===1?612:526+(i%2)*172;
+      const y=107+height/2+Math.floor(i/columns)*height;
+      panel(layer,x,y,width,height-7,colors[i%colors.length]);
+      const gap=Math.min(44,(width-12)/block.length);
+      block.forEach((move,j)=>{
+        const p={x:centeredItem(x,j,block.length,gap),y:y+3};
+        square(layer,p,Math.min(15,gap*.33),move);
+        diagramLabel(layer,{x:p.x,y:p.y+21},moveName(move),{size:13,width:gap});
+      });
+      diagramLabel(layer,{x,y:y-height/2+13},i===0?'H':moveName(block[0])+'H',{size:12,width});
+    });
+    const count=blocks.length+' cosets × '+group.moves.length+' moves per coset = 8';
+    if (counting && !hint.value) control(layer,'Reveal count',612,468,()=>hint.value=1);
+    diagramLabel(layer,{x:612,y:counting?425:462},counting&&!hint.value?'Count the boxes, then count the moves in each.':count,{size:14,width:370});
+    readout=group.name+'. '+blocks.map(block=>block.map(moveName).join(', ')).join(' | ')+'. '+count;
+    return;
+  }
+  const moves=replayMoves.value;
+  const t=lessonMotion.value*moves.length;
+  const step=Math.min(Math.floor(t),moves.length-1);
+  const pose=moves.slice(0,Math.max(0,step)).reduce((p,move)=>product(move,p),0);
+  square(layer,{x:103,y:172},56,pose,step<0?undefined:{move:moves[step],progress:t-step});
+  const promptText=question
+    ? question.moves.length===1?'Find the inverse of '+moveName(question.moves[0])+'.':'Find '+question.moves.map(moveName).join(' × ')+'.'
+    : squareTool.value==='compose'?'Choose a first and second factor.':'Choose a move to invert.';
+  if (question) diagramLabel(layer,{x:103,y:240},'Question '+(questionIndex.value+1)+' of '+questions.length,{width:200,size:13});
+  diagramLabel(layer,{x:103,y:260},promptText,{width:200,size:13});
+  const instruction=question
+    ? 'Click the answer in the '+question.card+' card. Gold marks the given move.'
+    : 'Click a card to highlight it, or click a move to use the tool.';
+  const feedback=subgroupMessage.value||instruction;
+  diagramLabel(layer,{x:400,y:435},feedback,{width:780,size:15});
+  if (questionSolved.value) control(layer,questionIndex.value===questions.length-1?'Free exploration':'Next question',400,479,()=>{
+    questionIndex.value++;questionSolved.value=false;resultMove.value=undefined;replayMoves.value=[];subgroupMessage.value='';
+  },156);
+  if (!question) {
+    const chooseTool=(tool:typeof squareTool.value)=>{squareTool.value=tool;operands.value=[];resultMove.value=undefined;subgroupMessage.value='';};
+    control(layer,squareTool.value==='compose'?'✓ Compose':'Compose',330,479,()=>chooseTool('compose'));
+    control(layer,squareTool.value==='inverse'?'✓ Inverse':'Inverse',470,479,()=>chooseTool('inverse'));
+  }
+  readout=promptText+' '+feedback;
+}
+
+function cosetComparison(layer: Konva.Container, quotient: boolean) {
+  const mirror=mirrorExample.value;
+  const subset=mirror?mirrorSubgroup:rotations;
+  const left=partition(subset);
+  const right=partition(subset,'right');
+  const normal=left.every(block=>right.some(other=>sameSet(block,other)));
+  const points=(mirror?[0,4,1,5,2,6,7,3]:allMoves).reduce<Point[]>((poses,move,index)=>{
+    const column=index%4;
+    poses[move]={x:176+column*147+(mirror&&column>=2?8:0),y:177+Math.floor(index/4)*106};
+    return poses;
+  },[]);
+  const amount=quotient&&normal?(collapsed.value?lessonMotion.value:1-lessonMotion.value):0;
+  const shift=Math.max(0,(amount-.24)/.76);
+  const names=['Rotation','Reflection'];
+  const productMove=product(...representatives.value);
+  const blockIndex=(move:number)=>left.findIndex(block=>block.includes(move));
+  const centerOf=(block:number[])=>({
+    x:block.reduce((sum,move)=>sum+points[move].x,0)/block.length,
+    y:block.reduce((sum,move)=>sum+points[move].y,0)/block.length,
+  });
+  function outlines(blocks:number[][], color:string, dash?: number[]) {
+    if (shift>=1) return;
+    const group=new Konva.Group({opacity:1-shift});
+    blocks.forEach(block=>{
+      const xs=block.map(move=>points[move].x);
+      const ys=block.map(move=>points[move].y);
+      const {x,y}=centerOf(block);
+      const inset=dash?-9:0;
+      const w=Math.max(...xs)-Math.min(...xs)+108+inset*2;
+      const h=Math.max(...ys)-Math.min(...ys)+85+inset*2;
+      panel(group,x,y+7,w,h,color,'transparent',dash);
+    });
+    layer.add(group);
+  }
+  control(layer,mirror?'Rotations':'✓ Rotations',280,78,()=>chooseExample(false),140);
+  control(layer,mirror?'✓ Identity and a reflection':'Identity and a reflection',474,78,()=>chooseExample(true),226);
+  function chooseExample(next:boolean) {
+    stopLessonMotion();
+    lessonMotion.value=1;
+    mirrorExample.value=next;
+    representatives.value=next?[0,1]:[4,4];
+    representativeSlot.value=0;
+    priorProduct.value=undefined;
+    quotientTokens.value=[];
+    collapsed.value=false;
+  }
+  outlines(left,'#087e78');
+  if (!quotient) outlines(right,'#ad6d08',[7,5]);
+  points.forEach((p,move)=>{
+    const group=new Konva.Group({opacity:1-shift});
+    const slot=representativeSlot.value;
+    if (quotient && amount===0) {
+      const active=representatives.value[slot];
+      const eligible=blockIndex(move)===blockIndex(active);
+      const focus=eligible&&target('Use '+moveName(move)+' for factor '+(slot+1),p.x,p.y+7,75,73,()=>{
+        priorProduct.value=productMove;
+        const pair:[number,number]=[...representatives.value];
+        pair[slot]=move;
+        representatives.value=pair;
+      });
+      if (eligible || move===productMove)
+        panel(group,p.x,p.y+7,77,72,focus?'#ad6d08':move===productMove?green:'#9dbdaf',move===productMove?'#d3ead2':'#eef5e8');
+    }
+    const center=centerOf(left[blockIndex(move)]);
+    const x=p.x+(center.x-p.x)*shift;
+    const y=p.y+(center.y-p.y)*shift;
+    if (shift<1) square(group,{x,y},22*(1-shift),move);
+    const labels=new Konva.Group({opacity:Math.max(0,1-amount/.24)});
+    diagramLabel(labels,{x,y:y+31},moveName(move),{width:70,size:17});
+    group.add(labels);
+    layer.add(group);
+  });
+  if (!quotient) {
+    diagramLabel(layer,{x:400,y:377},'Solid teal: left cosets     ·     Dashed amber: right cosets',{width:690,size:17});
+    diagramLabel(layer,{x:400,y:412},normal?'Same partition · H is normal':'Different partitions · H is not normal',{width:740,size:21});
+    diagramLabel(layer,{x:400,y:456},'A subgroup is normal when the two partitions agree.',{width:740,size:16});
+    readout='Left: '+left.map(b=>[...b].sort((a,b)=>a-b).map(moveName).join(', ')).join(' | ')+'. Right: '+right.map(b=>[...b].sort((a,b)=>a-b).map(moveName).join(', ')).join(' | ')+'.';
+    return;
+  }
+  if (shift>0) left.forEach((block,i)=>{
+    const p=centerOf(block);
+    const ready=shift===1;
+    const focus=ready&&target('Compose '+names[i],p.x,p.y+8,120,76,()=>{
+      quotientTokens.value=quotientTokens.value.length===2?[i]:[...quotientTokens.value,i];
+    });
+    const token=new Konva.Group({opacity:shift});
+    token.add(new Konva.Circle({...p,radius:16,fill:i===0?'#087e78':'#ad6d08',stroke:focus?'#151e19':undefined,strokeWidth:3}));
+    diagramLabel(token,{x:p.x,y:p.y+34},names[i],{width:140});
+    layer.add(token);
+  });
+  if (normal && lessonMotion.value===1) control(layer,collapsed.value?'Expand cosets':'Collapse cosets',400,477,()=>{
+    collapsed.value=!collapsed.value;
+    quotientTokens.value=[];
+    playLessonMotion(1500);
+  },160);
+  if (collapsed.value) {
+    const pair=quotientTokens.value;
+    const text=pair.length===2?names[pair[0]]+' × '+names[pair[1]]+' = '+names[(pair[0]+pair[1])%2]:
+      pair.length===1?names[pair[0]]+' × …':'Click two dots to compose their cosets.';
+    diagramLabel(layer,{x:400,y:402},text,{width:750});
+    readout=text;
+    return;
+  }
+  [0,1].forEach(i=>control(layer,(representativeSlot.value===i?'✓ ':'')+'Factor '+(i+1)+': '+moveName(representatives.value[i]),190+i*145,373,
+    ()=>representativeSlot.value=i as 0|1,135));
+  const swap=()=>{
+    priorProduct.value=productMove;
+    const i=mirror?0:1;
+    representatives.value=mirror?(representatives.value[0]===0?[4,1]:[0,1]):[4,representatives.value[1]===4?5:4];
+    representativeSlot.value=i;
+  };
+  control(layer,'Swap a representative',553,373,swap,210);
+  const description=(move:number)=>normal?names[blockIndex(move)]:left[blockIndex(move)].map(moveName).join(', ');
+  const comparison=priorProduct.value===undefined?'Choose a factor, then click another tile in its coset.':
+    moveName(priorProduct.value)+' → '+moveName(productMove)+' · '+(blockIndex(priorProduct.value)===blockIndex(productMove)?'same result coset':'different result coset');
+  const equation=representatives.value.map(moveName).join(' × ')+' = '+moveName(productMove)+' · '+description(productMove);
+  diagramLabel(layer,{x:400,y:413},equation,{width:760,size:18});
+  diagramLabel(layer,{x:400,y:442},comparison,{width:760,size:15});
+  if (!normal) diagramLabel(layer,{x:400,y:477},'Different representatives can give different cosets. No quotient group.',{width:760,size:15});
+  readout=equation+'. '+comparison;
+}
+
 const layout = computed(() => {
   const compact = (props.id === 'square-symmetries' || props.id === 'square-noncommutativity') && size.value.width < 650;
   const width = compact ? 390 : 800;
@@ -789,34 +1132,11 @@ function draw(layer: Konva.Layer) {
   const instruction = notice.value || prompt[id] || (id === 'clock-addition' ?
     props.step ? 'Drag either input hand and watch the result.' : 'Drag the hour hand to see the residue class change. After a full turn, it wraps around.' : '');
   if (instruction) label(stage,{ x:400,y:30 },instruction,{ width:780,size:18,fill:ink });
-  if (boardMode.value && board.value) {
-    const group = new Konva.Group({ y: 48, scaleX: .84, scaleY: .72, x: 64 });
-    group.add(new Konva.Rect({ width:800,height:520,fill:'#263c35',cornerRadius:12 }));
-    board.value.draw(group);
-    stage.add(group);
-    const local = (p: Point) => {
-      const dx = p.x - 64;
-      const dy = p.y - 48;
-      return { x: dx / .84, y: dy / .72 };
-    };
-    interact = p => {
-      const gesture=board.value?.begin(local(p));
-      if (gesture) return { move:q=>gesture.move?.(local(q)),end:q=>gesture.end(local(q)),cancel:gesture.cancel };
-    };
-    const current = board.value;
-    current.actions.forEach(({name,run},i)=>control(stage,name,82+i*91,449,run,68,29));
-    if (boardMode.value === 'subgroups') {
-      control(stage,'Test product',310,489,current.testProduct);
-      control(stage,'Test inverse',490,489,current.testInverse);
-    } else if (boardMode.value === 'quotient') control(stage,'Collapse / expand',400,489,current.toggleCollapse,155);
-    else {
-      control(stage,'Rotations',235,489,() => current.choosePreset('rotations'));
-      control(stage,'Mirror subgroup',400,489,() => current.choosePreset('mirror'),145);
-      const normality = boardMode.value === 'normality';
-      control(stage,normality?'Next phase':'Clear tiles',565,489,normality?current.nextPhase:current.clear);
-    }
-    readout = current.message || instruction;
-  } else if (id === 'clock-addition') addition(stage);
+  if (id === 'clock-subgroup-diagram') clockSubgroupDiagram(stage);
+  else if (id === 'subgroups') squareLattice(stage,false);
+  else if (id === 'cosets' || id === 'lagrange-theorem') squareLattice(stage,true);
+  else if (id === 'normal-subgroups' || id === 'quotient-groups') cosetComparison(stage,id === 'quotient-groups');
+  else if (id === 'clock-addition') addition(stage);
   else if (id === 'clock-commutativity') commutative(stage);
   else if (id === 'clock-associativity') associative(stage);
   else if (id === 'clock-identity') identity(stage);
@@ -824,9 +1144,8 @@ function draw(layer: Konva.Layer) {
   else if (id === 'clock-units') units(stage);
   else if (id === 'wilson-theorem') wilson(stage);
   else if (id.startsWith('square-')) squareScenes(stage);
-  else if (id === 'lagrange-theorem') lagrange(stage);
   else if (mapScene.value) maps(stage);
-  const dockItems = controls.filter(c => c.y >= 420);
+  const dockItems = controls.filter(c => c.y >= 420 && !c.focusKey);
   if (dockItems.length) {
     const left = Math.min(...dockItems.map(c => c.x)) - 7;
     const top = Math.min(...dockItems.map(c => c.y)) - 6;
@@ -859,7 +1178,7 @@ function begin(p: Point): End | undefined {
   const hit = (q:Point) => controls.find(c=>q.x>=c.x && q.x<=c.x+c.w && q.y>=c.y && q.y<=c.y+c.h);
   const point = local(p);
   const button = hit(point);
-  if (button) return { end:q=>{ if (hit(local(q))?.name===button.name) button.run(); } };
+  if (button) return { end:q=>{ const next=hit(local(q)); if (next?.name===button.name && next.x===button.x && next.y===button.y) button.run(); } };
   cancelDemo();
   const gesture = interact?.(point);
   if (gesture) return { move:q=>gesture.move?.(local(q)),end:q=>gesture.end(local(q)),cancel:gesture.cancel };
@@ -871,7 +1190,6 @@ const { host,size,pointerdown,pointermove,pointerup,pointercancel } = useCanvas(
   <div class="scene chapter-interactive">
     <div ref="host" class="chapter-canvas" aria-hidden="true" @pointerdown.capture="pointerdown" @pointermove.capture="pointermove"
       @wheel="scrollMatrix" @pointerup.capture="pointerup" @pointercancel="pointercancel" @lostpointercapture="pointercancel"></div>
-    <ElementBoard v-if="boardMode" ref="board" :mode="boardMode" embedded />
     <div class="chapter-access">
       <button v-for="(button,i) in buttons" :key="button.focusKey || i" :aria-pressed="button.pressed"
         @focus="focused = button.focusKey || button.name" @blur="focused = ''" @click="button.run">{{ button.name }}</button>

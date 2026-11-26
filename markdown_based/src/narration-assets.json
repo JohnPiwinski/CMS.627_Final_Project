@@ -115,13 +115,13 @@
     "file": "square-order-explore-02d61590694303f2.mp3",
     "text": "Try rotating the square and then reflecting it. Now perform the same transformations in the opposite order.\n\nUnlike addition on a clock, changing the order of our transformations can change the result. The dihedral group is therefore an example of a non-abelian group."
   },
-  "subgroups-intro": {
-    "file": "subgroups-intro-989e05fe3fa8a452.mp3",
-    "text": "Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.\n\nFor example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.\n\nThis smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Try selecting other collections of symmetries and see whether they form subgroups."
-  },
   "clock-subgroup-intro": {
     "file": "clock-subgroup-intro-c932d45a1b44a489.mp3",
     "text": "We can find subgroups in our clock groups as well. On a clock with six positions, start at zero and repeatedly add two. Which positions can you reach? Try adding two numbers from this collection. Do you ever leave it?"
+  },
+  "subgroups-intro": {
+    "file": "subgroups-intro-4c3922e6e1180ec5.mp3",
+    "text": "Sometimes, within a group, we can find a smaller collection of elements that forms a group of its own.\n\nFor example, consider only the rotations of a square. Composing two rotations gives us another rotation, and the inverse of a rotation is also a rotation.\n\nThis smaller group is called a subgroup. It contains the identity, and it is closed under products and inverses. Start with three guided questions. The gold outline marks a move given in the question. To answer, click the picture you think is the result in the highlighted subgroup. For the first question, which picture shows two quarter-turns? After the third question, choose Free exploration to try the Compose and Inverse tools on any subgroup.\n\nIn free exploration, click a subgroup card to highlight it. With Compose, click two pictures in the same card to form their product. The square plays the right-hand move first, and the result lights up in the card. With Inverse, click one picture to highlight the move that undoes it."
   },
   "cosets-intro": {
     "file": "cosets-intro-622cd2471c341cc2.mp3",
@@ -146,26 +146,6 @@
   "quotient-groups-products": {
     "file": "quotient-groups-products-897c3c6853fb99cb.mp3",
     "text": "Choose two cosets and multiply a representative from each. Now change the representatives while keeping the same cosets. Does the product still belong to the same coset?\n\nFor a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters."
-  },
-  "homomorphisms-generators-intro": {
-    "file": "homomorphisms-generators-intro-38c2057d70c62f51.mp3",
-    "text": "A homomorphism is a map from one group to another that preserves the group operation. If f maps G to H, then f of a product is the product of the images. For additive groups, this means f of a sum is the sum of the images.\n\nA homomorphism is determined entirely by where it sends the generators of the input group. Once we know where one goes on an additive clock, we know where every other number goes. Not every choice of generator images is possible, because the relations in the input group must still hold.\n\nChoose the image of one on the output clock and watch the other images appear. Select two input numbers to compare mapping their sum with adding their images. Change the clock sizes to explore which choices are possible."
-  },
-  "first-isomorphism-clock-intro": {
-    "file": "first-isomorphism-clock-intro-5036bca194e91cb7.mp3",
-    "text": "The kernel of a homomorphism consists of all the elements that are sent to the identity of the output group. On our additive clocks, that identity is zero. The image consists of all elements in the output group that occur as outputs of some element of the input group.\n\nHover over a number on the output clock, or tap it, to see all the input numbers that are sent there. Notice that each nonempty collection is a coset of the kernel. Try changing the clock sizes and the image of the generator.\n\nClick Collapse cosets to identify the elements in each coset. The resulting quotient has exactly the same group structure as the image. This is the first isomorphism theorem. Click Expand cosets to recover the original diagram."
-  },
-  "first-isomorphism-square-intro": {
-    "file": "first-isomorphism-square-intro-f8448cc5a4d6018e.mp3",
-    "text": "We can do the same thing with the symmetries of a square. Send every rotation to zero and every reflection to one, using addition modulo two in the output group.\n\nHover over zero or one to see the corresponding coset, or select a symmetry to see its output. The kernel is the rotation subgroup. When we divide the dihedral group by this subgroup, all rotations become the identity and all reflections become a single other element.\n\nClick Collapse cosets to see the quotient. Try composing two symmetries and compare their output with the sum of their individual outputs. We have forgotten the particular motion but retained whether it preserves or reverses orientation."
-  },
-  "correspondence-clock-intro": {
-    "file": "correspondence-clock-intro-fb5f620b3451b937.mp3",
-    "text": "Dividing by a normal subgroup also gives us a way to understand the subgroups of the quotient. Every subgroup of the original group that contains the denominator corresponds to exactly one subgroup of the quotient, and every subgroup of the quotient arises this way.\n\nChoose the number of positions on the clock and then choose the subgroup you want to divide by. Select a subgroup containing it to see its boundary. Click Collapse to identify the elements of each coset. The denominator becomes the identity, and the selected subgroup becomes a subgroup of the quotient.\n\nSelect another boundary, or select a subgroup on the quotient side to see its full preimage in the original group. Notice that containment relationships are preserved. This is the correspondence theorem."
-  },
-  "correspondence-square-intro": {
-    "file": "correspondence-square-intro-560cf6291bf05aad.mp3",
-    "text": "Now try the same experiment with the dihedral group. Choose a normal subgroup to divide by. Select a subgroup containing it, and click Collapse to see its corresponding subgroup in the quotient. The normal subgroup itself becomes the identity, which we can label one when using multiplicative notation.\n\nTry selecting subgroups on either side of the diagram. Expand the quotient to see which original elements each boundary represents. Notice that the subgroups need not form a single chain: several different subgroups can contain the same normal subgroup without containing one another.\n\nThe correspondence theorem lets us study the subgroups above a normal subgroup by studying the smaller quotient group instead."
   },
   "wallpaper-overview-v2": {
     "file": "wallpaper-overview-v2-eaab75ff9865d73f.mp3",

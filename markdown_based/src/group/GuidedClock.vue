@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
           <div class="tools"><button v-if="!definition" @click="resetKey++">Reset scene</button></div>
         </div>
         <div class="scene-frame">
-          <ChapterScene v-if="!definition" :key="page.id + ':' + step + ':' + resetKey"
+          <ChapterScene v-if="!definition" :key="page.id + ':' + (page.id === 'quotient-groups' ? 0 : step) + ':' + resetKey"
             :id="page.id" :step="step" :demo="playing && !muted" @solution="jump(challengeIndex, 1)" />
         </div>
       </section>
@@ -104,8 +104,7 @@ onBeforeUnmount(() => {
             <button :aria-pressed="transcript" @click="transcript = !transcript">Transcript</button>
           </div>
           <button v-if="complete" @click="emit('explore')">Explore more</button>
-          <button v-if="complete" @click="emit('office')">Finish chapter</button>
-          <button v-if="!challenge" class="continue" @click="advance">{{ complete ? 'Bonus lessons' : last ? 'Finish chapter' : 'Continue' }}</button>
+          <button v-if="!challenge" class="continue" @click="advance">{{ last ? 'Finish chapter' : 'Continue' }}</button>
         </div>
       </footer>
     </main>

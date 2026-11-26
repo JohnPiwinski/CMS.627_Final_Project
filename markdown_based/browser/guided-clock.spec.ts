@@ -4,8 +4,10 @@ for (const viewport of [{ width: 390, height: 740 }, { width: 1180, height: 760 
   test(`walks Chapter 1 at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.getByRole('button', { name: /Enter Emmy Noether/ }).click();
     await page.getByRole('button', { name: /Introductory Group Theory/ }).click();
-    await expect(page.locator('.chapter-one .dot')).toHaveCount(21);
+    await expect(page.locator('.chapter-one .dot')).toHaveCount(17);
     await expect(page.locator('.group-definition-slide .katex').first()).toBeVisible();
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Addition on a clock' })).toBeVisible();
@@ -39,14 +41,14 @@ for (const viewport of [{ width: 390, height: 740 }, { width: 1180, height: 760 
     await expect(page.getByRole('status')).toContainText('3+9');
 
     const dots = page.locator('.chapter-one .dot');
-    for (let i = 2; i < 21; i++) {
+    for (let i = 2; i < 17; i++) {
       await dots.nth(i).click();
       await expect(dots.nth(i)).toHaveAttribute('aria-current', 'step');
       await expect(canvas).toHaveCount(1);
     }
     await page.getByRole('button', { name: 'Quotient groups', exact: true }).click();
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Bonus lessons' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Bonus lessons' })).toHaveCount(0);
     await page.getByRole('button', { name: 'Finish chapter' }).click();
     await expect(page.getByRole('button', { name: /Introductory Group Theory/ })).toBeVisible();
   });
@@ -56,6 +58,8 @@ test('shows the colored associativity statement and keeps arc controls working a
   for (const viewport of [{ width: 390, height: 740 }, { width: 1180, height: 760 }]) {
     await page.setViewportSize(viewport);
     await page.goto('/');
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await page.getByRole('button', { name: /Enter Emmy Noether/ }).click();
     await page.getByRole('button', { name: /Introductory Group Theory/ }).click();
     await page.getByRole('button', { name: 'Associativity', exact: true }).click();
 
