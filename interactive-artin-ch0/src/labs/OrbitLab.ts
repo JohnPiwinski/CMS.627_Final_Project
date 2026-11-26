@@ -23,7 +23,7 @@ export class OrbitLab {
   private readonly notes: HTMLElement;
   private readonly hint: HTMLElement;
 
-  constructor(private readonly root: HTMLElement) {
+  constructor(private readonly root: HTMLElement, private readonly autoNarrate = false) {
     try {
       const saved = localStorage.getItem(STORAGE);
       if (saved) this.state = JSON.parse(saved) as State;
@@ -59,6 +59,7 @@ export class OrbitLab {
     root.addEventListener('click', this.click);
     root.addEventListener('change', this.change);
     root.addEventListener('input', this.input);
+    if (this.autoNarrate) this.narrate();
   }
 
   private get trial(): Trial | undefined {
@@ -229,6 +230,7 @@ export class OrbitLab {
       this.state.scene = index;
       this.restorePose();
       this.render();
+      if (this.autoNarrate) this.narrate();
     } else if (action === 'track') this.viewer.chooseTrackedFeature();
     else if (action === 'track-type' || action === 'axis') this.viewer.selectFeatureByType(value as Feature, action === 'track-type');
     else if (action === 'rotate' || action === 'reflect') {
@@ -294,11 +296,8 @@ export class OrbitLab {
     } else if (action === 'pattern-hint') {
       this.feedback(patternHints[Math.min(this.patternHint++, patternHints.length - 1)]);
     } else if (action === 'conjecture') this.testConjecture();
-    else if (action === 'speak' && 'speechSynthesis' in window) {
-      this.stop();
-      this.speech = true;
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance(orbitScenes[this.state.scene].narration));
-    } else if (action === 'stop') this.stop();
+    else if (action === 'speak') this.narrate();
+    else if (action === 'stop') this.stop();
     else if (action === 'restart' && window.confirm('Clear the saved observations in this investigation?')) {
       this.stop();
       this.state = initial();
@@ -324,6 +323,13 @@ export class OrbitLab {
     this.state.discovered = true;
     this.render();
     this.feedback('Your relationship works across the checked rows.');
+  }
+
+  private narrate(): void {
+    if (!('speechSynthesis' in window)) return;
+    this.stop();
+    this.speech = true;
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(orbitScenes[this.state.scene].narration));
   }
 
   private stop(): void {
