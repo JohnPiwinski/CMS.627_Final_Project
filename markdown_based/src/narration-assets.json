@@ -196,12 +196,12 @@
     "text": "So far, we have studied groups as collections of\ntransformations. Now we are going to study what those\ntransformations actually do to geometric objects.\n\nSelect a vertex of the cube and then use the rotation\nand reflection tools to move it around.\n\nWhen a group transforms the elements of a set in this\nway, we say that the group acts on that set."
   },
   "orbit-introduction": {
-    "file": "orbit-introduction-e8f603b62fb3e3a2.mp3",
-    "text": "Select a vertex of the cube. How many different positions\ncan you move this vertex to using rotations of the cube?\n\nThe collection of all positions to which we can move\na particular object using elements of a group is called\nits orbit.\n\nTry the same experiment with an edge or a face."
+    "file": "orbit-introduction-f4e9018e2d7eeece.mp3",
+    "text": "Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids.\n\nWhen a rotation can send any vertex to any other vertex, we say that the action on vertices is transitive. The rotations act transitively on edges and on faces too. The set of positions a feature can reach is its orbit."
   },
   "stabilizer-introduction": {
-    "file": "stabilizer-introduction-1b42e23d0e25b172.mp3",
-    "text": "Now let's ask a slightly different question.\n\nHow many transformations can we perform without\nchanging the position of our selected feature?\n\nClick a face and explore rotations around the axis\npassing through its center.\n\nThe elements of a group that leave a particular object\nunchanged form a subgroup called its stabilizer."
+    "file": "stabilizer-introduction-f113322070f8d658.mp3",
+    "text": "Now follow the yellow face. The rotations can take it to any face position, but which rotations leave it where it started? Use the rotation tool and select the yellow face to turn around the axis through its center.\n\nThe rotations that leave the chosen feature in its original position form its stabilizer. A face or edge can stay in the same position even when its corners swap. Try a vertex or an edge, then switch to another Platonic solid."
   },
   "rotation-table": {
     "file": "rotation-table-52a6c67d5c886a30.mp3",

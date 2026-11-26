@@ -38,6 +38,8 @@ export class CubeLab {
   private tracked: { type: Feature; index: number } | null = null;
   private visited = new Set<number>();
   private readonly investigation = new THREE.Group();
+  private focusPalette = false;
+  private readonly baseColors = new WeakMap<Pickable, THREE.Color>();
   private marks: {type: Feature; index: number; color: number}[] = [];
   private trackingEnabled = false;
   private choosingFeature = false;
@@ -58,6 +60,9 @@ export class CubeLab {
   }
 
   onTrack: (type: Feature, index: number) => void = () => {};
+  onMoveStart?: (before: THREE.Matrix4, after: THREE.Matrix4) => void;
+  onMoveProgress?: (progress: number) => void;
+  private positionLabels: { point: THREE.Vector3; element: HTMLSpanElement }[] = [];
   onTransform: (matrix: THREE.Matrix4) => void = () => {};
   onSelected: (type: Feature) => void = () => {};
   onHint: (hint: string) => void = () => {};
@@ -113,6 +118,8 @@ export class CubeLab {
     mesh.userData = { type, order, center: center.clone(), index: this.pickables.filter(m => m.userData.type === type).length };
     this.cube.add(mesh);
     this.pickables.push(mesh);
+    this.baseColors.set(mesh, mesh.material.color.clone());
+    if (this.focusPalette) this.paintFeature(mesh);
   }
 
   private makeSolid(): void {
@@ -316,9 +323,32 @@ export class CubeLab {
     this.pickables.forEach(mesh => this.paintFeature(mesh));
   }
 
-  setInvestigationMarks(marks: {type: Feature; index: number; color: number}[]): void {
+  setInvestigationMarks(marks: {type: Feature; index: number; color: number}[], focusPalette = false): void {
     this.marks = marks;
+    this.focusPalette = focusPalette;
     this.pickables.forEach(mesh => this.paintFeature(mesh));
+  }
+
+  setPositionLabels(labels: {point: THREE.Vector3; text: string; color: string}[]): void {
+    for (const label of this.positionLabels) label.element.remove();
+    this.positionLabels = labels.map(({point,text,color}) => {
+      const element = document.createElement('span');
+      element.className = 'solid-position-label';
+      element.textContent = text;
+      element.style.borderColor = color;
+      element.setAttribute('aria-hidden','true');
+      this.host.append(element);
+      return {point,element};
+    });
+  }
+
+  private placePositionLabels(): void {
+    const width = this.host.clientWidth, height = this.host.clientHeight;
+    for (const {point,element} of this.positionLabels) {
+      const p = point.clone().project(this.camera);
+      element.style.left = ((p.x+1)*width/2) + 'px';
+      element.style.top = ((1-p.y)*height/2) + 'px';
+    }
   }
 
   setInvestigationLines(lines: {points: THREE.Vector3[]; color: number}[]): void {
@@ -338,6 +368,12 @@ export class CubeLab {
     const { type, index } = mesh.userData;
     const tracked = type === this.tracked?.type;
     const mark = this.marks.find(m => m.type === type && m.index === index);
+    if (this.focusPalette) {
+      mesh.material.color.setHex(mark?.color ?? (type === 'face' ? 0x8e949c : 0x555d66));
+      mesh.material.emissive.setHex(mark ? 0x443600 : 0);
+      return;
+    }
+    mesh.material.color.copy(this.baseColors.get(mesh)!);
     mesh.material.emissive.setHex(mark ? mark.color : mesh === this.selected ? COLORS[type as Feature]
       : tracked && index === this.tracked?.index ? 0x138f77
       : mesh === this.hovered ? 0x4d3b12 : tracked && this.visited.has(index) ? 0x395e50 : 0);
@@ -557,6 +593,10 @@ export class CubeLab {
     const type = hit.userData.type as Feature;
     const start = performance.now();
     const matrix = new THREE.Matrix4();
+    if (this.onMoveStart) {
+      const delta = angle === null ? reflectionMatrix(axis) : new THREE.Matrix4().makeRotationAxis(axis,angle);
+      this.onMoveStart(basis.clone(),delta.multiply(basis));
+    }
     this.motion = now => {
       const time = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : Math.min(1, (now - start) / 680);
       const progress = time * time * (3 - 2 * time);
@@ -564,6 +604,7 @@ export class CubeLab {
       else matrix.makeRotationAxis(axis, angle * progress);
       this.cube.matrix.multiplyMatrices(matrix, basis);
       this.cube.matrixWorldNeedsUpdate = true;
+      this.onMoveProgress?.(progress);
       if (time < 1) return;
       this.motion = null;
       this.controls.enabled = this.orbitEnabled;
@@ -601,9 +642,11 @@ export class CubeLab {
     if (this.controls.enabled) this.controls.update();
     this.motion?.(performance.now());
     this.renderer.render(this.scene,this.camera);
+    if (this.positionLabels.length) this.placePositionLabels();
   };
 
   destroy():void {
+    this.setPositionLabels([]);
     cancelAnimationFrame(this.frame);
     this.observer.disconnect();
     const el=this.surface;

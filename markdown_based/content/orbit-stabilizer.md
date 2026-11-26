@@ -41,27 +41,21 @@ way, we say that the group acts on that set.
 ::scene[solids]
 
 <!--
-Mark the original vertex in gold.
+Mark the original vertex in yellow and render the rest of the solid in gray.
 
 Keep track of every distinct spatial vertex position
 to which the marked vertex has been transported.
 
-Previously visited positions remain highlighted in blue.
-The current position is highlighted in gold.
+Count visited positions while highlighting only the current feature.
 
 Display a discovered-positions counter.
 Do not reveal the total before exploration.
 -->
 
 :::narration[orbit-introduction]
-Select a vertex of the cube. How many different positions
-can you move this vertex to using rotations of the cube?
+Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids.
 
-The collection of all positions to which we can move
-a particular object using elements of a group is called
-its orbit.
-
-Try the same experiment with an edge or a face.
+When a rotation can send any vertex to any other vertex, we say that the action on vertices is transitive. The rotations act transitively on edges and on faces too. The set of positions a feature can reach is its orbit.
 :::
 ::pause
 
@@ -69,7 +63,7 @@ Try the same experiment with an edge or a face.
 ::scene[solids]
 
 <!--
-Mark a selected feature in gold.
+Mark a selected feature in yellow and render the rest of the solid in gray.
 
 Record distinct group transformations that return
 the feature to its original spatial position.
@@ -83,16 +77,9 @@ transformation as additional group elements.
 -->
 
 :::narration[stabilizer-introduction]
-Now let's ask a slightly different question.
+Now follow the yellow face. The rotations can take it to any face position, but which rotations leave it where it started? Use the rotation tool and select the yellow face to turn around the axis through its center.
 
-How many transformations can we perform without
-changing the position of our selected feature?
-
-Click a face and explore rotations around the axis
-passing through its center.
-
-The elements of a group that leave a particular object
-unchanged form a subgroup called its stabilizer.
+The rotations that leave the chosen feature in its original position form its stabilizer. A face or edge can stay in the same position even when its corners swap. Try a vertex or an edge, then switch to another Platonic solid.
 :::
 ::pause
 
@@ -178,6 +165,14 @@ stabilizer?
 
 Does the same relationship hold for every Platonic
 solid that you investigated?
+:::
+::pause
+
+### Moving cosets {#moving-cosets}
+::scene[solids]
+
+:::display
+A coset is a block of moves that sends the starting feature to the same destination. Try a symmetry and watch the blocks move with the solid.
 :::
 ::pause
 

@@ -11,6 +11,8 @@ import { ToolDock } from './labs/ToolDock';
 import { createRenderer, features } from './scenes';
 import { solidGroups, type Solid } from './lib/solids';
 import type { Feature } from './lib/features';
+import SolidCosetBoard from './group/SolidCosetBoard.vue';
+import { solidCosets, type CosetBlock } from './lib/solid-cosets';
 import { identify, symmetryGroup, type Symmetry } from './lib/symmetry';
 import { useNarration } from './useNarration';
 import assets from './narration-assets.json';
@@ -37,8 +39,12 @@ const hint = ref('');
 const tool = ref<'rotate'|'reflect'>('rotate');
 const marking = ref(false);
 const mode = computed(()=>page.value.id);
-const rotationsOnly = computed(()=>['discover-orbits','discover-stabilizers','rotation-counting','cube-s3','multiple-feature-stabilizer'].includes(mode.value));
+const cosets = computed(()=>mode.value==='moving-cosets');
+const cosetFull = ref(false);
+const rotationsOnly = computed(()=>cosets.value ? !cosetFull.value : ['discover-orbits','discover-stabilizers','rotation-counting','cube-s3','multiple-feature-stabilizer'].includes(mode.value));
 const counting = computed(()=>['rotation-counting','full-symmetry-counting'].includes(mode.value));
+const guidedFeature = computed(()=>mode.value==='discover-orbits'||mode.value==='discover-stabilizers');
+const focusPalette = computed(()=>guidedFeature.value||counting.value||cosets.value);
 const discovery = computed(()=>mode.value==='orbit-stabilizer-discovery');
 const bonus = computed(()=>mode.value==='cube-s3'||mode.value==='multiple-feature-stabilizer');
 const fullTable = ref(false);
@@ -64,10 +70,70 @@ const fixing = ref(new Set<string>());
 const moves = ref(new Set<string>());
 const fixedBy = (sym: Symmetry, mark: Mark)=>group.value.image(mark.type,mark.index,sym)===mark.index;
 const solids = solidGroups.flatMap(set=>[...set.solids]);
-const notes = reactive(Object.fromEntries(['rotate','full'].map(kind=>[kind,solids.flatMap(name=>
-  (['vertex','edge','face'] as const).map(type=>({name,type,orbit:'',stabilizer:'',order:''}))) ])));
+const notes = reactive(Object.fromEntries(['rotate','full'].map(kind=>[kind,solids.flatMap(name=>{
+  const elements = symmetryGroup(name).elements;
+  const order = kind==='full' ? elements.size :
+    [...elements.values()].filter(element=>element.kind==='identity'||element.kind==='rotation').length;
+  return (['vertex','edge','face'] as const).map(type=>({name,type,orbit:'',stabilizer:'',order}));
+})])));
 const rows = computed(()=>notes[(!rotationsOnly.value && fullTable.value)?'full':'rotate']);
 const activeRows = computed(()=>discovery.value?rows.value:rows.value.filter(row=>row.name===solid.value));
+
+const cosetBlocks = ref<CosetBlock[]>([]);
+const pendingBlocks = ref<CosetBlock[]>();
+const slideProgress = ref(0);
+const highlightedBlock = ref<number>();
+const cosetResetKey = ref(0);
+const cosetModel = computed(()=>cosets.value && tracked.value ?
+  solidCosets(solid.value,tracked.value.type,tracked.value.index,!cosetFull.value) : undefined);
+const accents = ['#f2c15c','#62acd2','#c77dd4','#72bd99','#dc8c78','#a9a5ed'];
+const destinationColor = (index: number) => accents[index % accents.length];
+
+function paintCosets() {
+  const model = cosetModel.value, item = tracked.value;
+  if (!model || !item) return;
+  const current = identify(model.group.vertices,pose) ?? model.group.identity;
+  const block = cosetBlocks.value.find(candidate => candidate.id===highlightedBlock.value);
+  const marks = [{...item,color:0xffd320}];
+  if (block) {
+    const index = model.group.features[item.type].findIndex((_,i)=>model.group.image(item.type,i,current)===block.destination);
+    if (index>=0) {
+      const highlight={type:item.type,index,color:Number.parseInt(destinationColor(block.destination).slice(1),16)};
+      if (index===item.index) marks[0]=highlight;
+      else marks.push(highlight);
+    }
+  }
+  lab?.setInvestigationMarks(marks,true);
+  const positions = model.blocks.length<=4 ? model.blocks.map(b=>b.destination) : block ? [block.destination] : [];
+  lab?.setPositionLabels(positions.map(index=>{
+    const vertices=model.group.features[item.type][index].map(i=>model.group.vertices[i]);
+    const point=vertices[0].clone().multiplyScalar(0);
+    for (const vertex of vertices) point.add(vertex);
+    point.multiplyScalar(1.15/vertices.length);
+    return {point,text:model.positionName(index),color:destinationColor(index)};
+  }));
+}
+function highlightCoset(id: number | undefined) {
+  highlightedBlock.value=id;
+  paintCosets();
+}
+function resetCosets() {
+  pose=new Matrix4();
+  lab?.setTrialPose(pose);
+  cosetBlocks.value=cosetModel.value?.blocks ?? [];
+  pendingBlocks.value=undefined;
+  slideProgress.value=0;
+  highlightedBlock.value=undefined;
+  cosetResetKey.value++;
+  paintCosets();
+}
+function chooseCosetMode(full: boolean) {
+  if (pendingBlocks.value || cosetFull.value===full) return;
+  cosetFull.value=full;
+  resetCosets();
+  setTool('rotate');
+  mountDock();
+}
 
 function clearObservations() {
   const identity = group.value.identity.key;
@@ -81,30 +147,44 @@ function paint(sym=group.value.identity) {
   const item = tracked.value;
   const marks: {type:Feature;index:number;color:number}[] = [];
   if (item) {
-    marks.push({...item,color:0xd79520});
-    if (mode.value !== 'geometric-actions') group.value.features[item.type].forEach((_,local)=>{
+    marks.push({...item,color:focusPalette.value?0xffd320:0xd79520});
+    if (!focusPalette.value && mode.value !== 'geometric-actions') group.value.features[item.type].forEach((_,local)=>{
       if (local!==item.index && positions.value.has(group.value.image(item.type,local,sym))) {
         marks.push({type:item.type,index:local,color:0x357bbd});
       }
     });
   }
   if (extraMark.value) marks.push({...extraMark.value,color:0xa45cca});
-  lab?.setInvestigationMarks(marks);
+  lab?.setInvestigationMarks(marks,focusPalette.value);
 }
 function mark(item: Mark) {
   tracked.value = item;
   diagonal.value = undefined;
   marking.value = false;
   lab?.setInspectionOnly(false);
+  if (cosets.value) {
+    resetCosets();
+    hint.value='Choose a feature for the rotation dial, or point at a coset block to see its destination.';
+    return;
+  }
   clearObservations();
   paint();
   drawOverlays();
-  hint.value = 'Gold is the feature you’re following. Select a separate feature to set the axis or mirror.';
+  hint.value = focusPalette.value
+    ? 'Follow the yellow feature. Select a face, edge, or vertex to set a rotation axis.'
+    : 'Gold is the feature you’re following. Select a separate feature to set the axis or mirror.';
 }
 function record(matrix: Matrix4) {
   const sym = identify(group.value.vertices,matrix);
   if (!sym || (rotationsOnly.value && matrix.determinant()<0)) { lab?.setTrialPose(pose); return; }
   pose = matrix;
+  if (cosets.value) {
+    if (pendingBlocks.value) cosetBlocks.value=pendingBlocks.value;
+    pendingBlocks.value=undefined;
+    slideProgress.value=0;
+    paintCosets();
+    return;
+  }
   moves.value.add(sym.key);
   const item = tracked.value;
   if (item) positions.value.add(group.value.image(item.type,item.index,sym));
@@ -171,12 +251,14 @@ function markDiagonal(pair: number[]) {
   hint.value='The gold diagonal is an unoriented line. Its endpoints may swap.';
 }
 function changeSolid(value: Solid) {
+  const trackedType=tracked.value?.type ?? 'vertex';
   solid.value=value;
   lab?.setSolid(value);
   tracked.value=extraMark.value=diagonal.value=undefined;
   showDiagonals.value=showTriangles.value=false;
-  clearObservations();
-  chooseMark();
+  if (cosets.value) mark({type:trackedType,index:0});
+  else if (guidedFeature.value) mark({type:mode.value==='discover-orbits'?'vertex':'face',index:0});
+  else { clearObservations(); paint(); chooseMark(); }
 }
 function setExample() {
   if (mode.value==='multiple-feature-stabilizer') {
@@ -194,10 +276,16 @@ async function jump(next: number) {
   stop();
   const previous=index.value;
   index.value=next;
+  lab?.setPositionLabels([]);
+  if (cosets.value) {
+    cosetFull.value=false;
+    tracked.value=undefined;
+  }
   fullTable.value=next===4;
   visitedPages.value.add(page.value.id);
   hints.value=0; revealed.value=false; feedback.value=''; guess.value='';
-  if (![3,4].includes(next)||![3,4].includes(previous)) changeSolid('Cube');
+  if (cosets.value) changeSolid('Tetrahedron');
+  else if (![3,4].includes(next)||![3,4].includes(previous)) changeSolid(guidedFeature.value && [1,2].includes(previous) ? solid.value : 'Cube');
   else if (previous===4 && next===3) { clearObservations(); paint(); }
   tool.value='rotate';
   lab?.setInspectionOnly(false, !tracked.value && !discovery.value);
@@ -236,6 +324,15 @@ onMounted(()=>{
   lab.configure([...features],true,true);
   lab.enableInvestigation();
   lab.onTrack=(type,index)=>mark({type,index});
+  lab.onMoveStart=(before,after)=>{
+    const model=cosetModel.value;
+    if (!model) return;
+    const delta=identify(model.group.vertices,after.clone().multiply(before.clone().invert()));
+    if (!delta) return;
+    pendingBlocks.value=model.moveBlocks(cosetBlocks.value,delta);
+    slideProgress.value=0;
+  };
+  lab.onMoveProgress=progress=>{if(cosets.value) slideProgress.value=progress;};
   lab.onTransform=record;
   lab.onHint=text=>hint.value=text;
   mountDock();
@@ -265,30 +362,37 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
         <div class="lesson-title">
           <h2>{{ page.title }}</h2>
           <div v-if="!discovery" class="tools">
-            <label v-if="counting">Solid
-              <select :value="solid" @change="changeSolid(($event.target as HTMLSelectElement).value as Solid)">
+            <label v-if="counting || focusPalette">Solid
+              <select :value="solid" :disabled="!!pendingBlocks" @change="changeSolid(($event.target as HTMLSelectElement).value as Solid)">
                 <option v-for="name in solids" :key="name">{{ name }}</option>
               </select>
             </label>
-            <button v-if="mode!=='multiple-feature-stabilizer'" :aria-pressed="marking" @click="chooseMark">Mark a feature</button>
-            <button v-for="type in features" :key="type" @click="lab?.selectFeatureByType(type,marking)">
+            <template v-if="cosets">
+              <button :aria-pressed="!cosetFull" :disabled="!!pendingBlocks" @click="chooseCosetMode(false)">Rotations</button>
+              <button :aria-pressed="cosetFull" :disabled="!!pendingBlocks" @click="chooseCosetMode(true)">Full group</button>
+            </template>
+            <button v-if="mode!=='multiple-feature-stabilizer'" :disabled="!!pendingBlocks"  :aria-pressed="marking" @click="chooseMark">Mark a feature</button>
+            <button v-for="type in features" :key="type" :disabled="!!pendingBlocks" @click="lab?.selectFeatureByType(type,marking)">
               {{ marking ? 'Mark' : 'Select' }} {{ type }}
             </button>
             <button @click="lab?.resetView()">Reset view</button>
-            <button @click="clearObservations();paint()">Reset experiment</button>
+            <button @click="cosets ? resetCosets() : (clearObservations(),paint())">Reset experiment</button>
           </div>
         </div>
-        <div class="orbit-workspace-new" :class="{split:counting||bonus}">
+        <div class="orbit-workspace-new" :class="{split:counting||bonus||cosets,'coset-workspace':cosets}">
           <div v-show="!discovery" class="scene-frame">
             <div id="orbit-view" ref="surface" class="scene" data-scene="solids"></div>
             <div v-show="!discovery" ref="dockHost" class="transform-dock"></div>
             <p v-if="hint" class="scene-hint" role="status">{{ hint }}</p>
-            <div v-if="mode!=='geometric-actions'" class="orbit-counts" aria-live="polite">
+            <div v-if="mode!=='geometric-actions' && !cosets" class="orbit-counts" aria-live="polite">
               <span v-if="tracked && mode!=='cube-s3' && mode!=='multiple-feature-stabilizer'">{{ positions.size }} positions reached</span>
               <span v-if="(tracked||diagonal) && mode!=='discover-orbits'">{{ fixing.size }} fixing moves found</span>
               <span v-if="counting">{{ moves.size }} distinct moves tried</span>
             </div>
           </div>
+          <SolidCosetBoard v-if="cosetModel && tracked" :key="cosetResetKey" :blocks="cosetBlocks" :next="pendingBlocks"
+            :progress="slideProgress" :names="cosetModel.names" :position-name="cosetModel.positionName"
+            :color="destinationColor" :reference="tracked.index" @highlight="highlightCoset" />
           <aside v-if="counting || discovery" class="orbit-notebook" aria-label="Experiment notebook">
             <div class="orbit-notebook-heading">
               <h3>{{ discovery ? 'Compare your observations' : 'Experiment notebook' }}</h3>
@@ -299,15 +403,16 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
             </div>
             <p v-if="counting && !rotationsOnly">Rotations and plane reflections can be composed. Some orientation-reversing moves take more than one step.</p>
             <div class="orbit-table-scroll"><table>
-              <thead><tr><th v-if="discovery">Solid</th><th>Feature</th><th>Orbit</th><th>Stabilizer</th><th>Group</th></tr></thead>
+              <thead><tr><th v-if="discovery">Solid</th><th>Feature</th><th>Orbit</th><th>Stabilizer</th><th>Group order</th></tr></thead>
               <tbody><tr v-for="row in activeRows" :key="row.name+row.type">
                 <th v-if="discovery">{{ row.name }}</th><th>{{ row.type }}</th>
                 <td v-for="field in ['orbit','stabilizer','order'] as const" :key="field">
-                  <input v-if="counting" v-model="row[field]" inputmode="numeric" :aria-label="row.name+' '+row.type+' '+field">
+                  <input v-if="counting && field!=='order'" v-model="row[field]" inputmode="numeric" :aria-label="row.name+' '+row.type+' '+field">
                   <span v-else>{{ row[field] || '—' }}</span>
                 </td>
               </tr></tbody>
             </table></div>
+            <p class="notebook-hint">Hint: We’ve already shown that the group action is transitive. What does that tell you about the orbit?</p>
             <div v-if="discovery" class="orbit-investigate">
               <label>Group size equals
                 <select v-model="guess"><option value="">Choose a relationship</option>
@@ -354,6 +459,9 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
             </template>
           </aside>
         </div>
+        <div v-if="cosetModel" class="coset-caption">
+          {{ page.beats[0].display }} {{ cosetBlocks.length }} destinations. {{ cosetBlocks[0]?.moves.length }} moves per destination.
+        </div>
       </section>
       <footer class="guide">
         <p v-if="voice && (transcript || subtitles && playing || failed || !clip)" class="transcript">{{ voice.text }}</p>
@@ -367,9 +475,9 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
             <button :aria-pressed="subtitles" @click="subtitles=!subtitles">Subtitles</button>
             <button :aria-pressed="transcript" @click="transcript=!transcript">Transcript</button>
           </div>
-          <button v-if="discovery" @click="emit('office')">Finish chapter</button>
+          <button v-if="cosets" @click="emit('office')">Finish chapter</button>
           <button class="continue" @click="index===pages.length-1 ? emit('office') : jump(index+1)">
-            {{ index===pages.length-1 ? 'Finish chapter' : discovery ? 'Bonus challenges' : 'Continue' }}
+            {{ index===pages.length-1 ? 'Finish chapter' : cosets ? 'Bonus challenges' : 'Continue' }}
           </button>
         </div>
       </footer>
@@ -380,10 +488,14 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
 <style>
 .orbit-workspace-new { position:relative; flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr); }
 .orbit-workspace-new.split { grid-template-columns:minmax(0,1fr) minmax(17rem,30%); }
+.orbit-workspace-new.coset-workspace.split { grid-template-columns:minmax(0,1fr) minmax(20rem,42%); }
+.solid-position-label { position:absolute; z-index:0; pointer-events:none; transform:translate(-50%,-50%); padding:.1rem .28rem; border:2px solid; border-radius:.45rem; background:#182d27; color:#fff; font-size:.78rem; font-weight:600; }
+.coset-caption { padding:.4rem .75rem; font-size:.85rem; }
 .orbit-notebook { min-height:0; overflow:auto; padding:1rem; background:#e7eee6; color:#283b37; }
 .orbit-notebook h3 { margin:0 0 .6rem; font-size:1rem; }
 .orbit-notebook button,.orbit-notebook select { color:#edf5ef; }
 .orbit-notebook p { margin:.6rem 0; }
+.orbit-notebook .notebook-hint { padding:.55rem .65rem; border-left:3px solid #876724; background:#f8f2dc; }
 .orbit-table-scroll { overflow:auto; }
 .orbit-notebook table { border-collapse:collapse; width:100%; text-align:left; }
 .orbit-notebook th,.orbit-notebook td { padding:.35rem; border-bottom:1px solid #b2c4bc; font-weight:400; }
@@ -394,7 +506,7 @@ onBeforeUnmount(()=>{dock?.destroy();lab?.destroy();if(renderer instanceof WebGL
 .orbit-counts { position:absolute; z-index:2; bottom:6.25rem; left:.6rem; display:flex; flex-wrap:wrap; gap:.35rem; pointer-events:none; }
 .orbit-counts span { border-radius:.35rem; padding:.3rem .5rem; background:#243a37; color:#e8f1ee; font-size:.8rem; }
 @media(max-width:690px) {
-  .orbit-workspace-new.split { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1.6fr) minmax(0,1fr); }
+  .orbit-workspace-new.split,.orbit-workspace-new.coset-workspace.split { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1.6fr) minmax(0,1fr); }
   .orbit-notebook { padding:.6rem; }
   .orbit-lesson .lesson-title h2 { white-space:normal; }
 }
