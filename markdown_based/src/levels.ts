@@ -16,7 +16,10 @@ export function levelPage(level: LevelId, tutorialCount: number): number {
     : officePage + tutorialCount + levels.findIndex(item => item.id === level);
 }
 
+export const wilsonSolutionPage = (tutorialCount: number) => officePage + tutorialCount + levels.length;
+
 export function pageLevel(page: number, tutorialCount: number): LevelId | undefined {
   if (page >= tutorialStart && page < tutorialStart + tutorialCount) return 'tutorial';
+  if (page === wilsonSolutionPage(tutorialCount)) return 'intro';
   return levels.slice(1).find(level => levelPage(level.id, tutorialCount) === page)?.id;
 }

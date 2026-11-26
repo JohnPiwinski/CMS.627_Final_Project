@@ -11,27 +11,29 @@ const props = defineProps<{ id: string; step: number; demo: boolean }>();
 const green = '#376858';
 const ink = '#283b37';
 const colors = ['#b64b45', '#376fb0', '#a87910'];
-const n = ref(props.id === 'wilson-theorem' ? 7 : props.id === 'clock-units' ? 8 : 12);
+const n = ref(props.id === 'clock-units' ? 8 : 12);
 const values = ref([props.id === "clock-addition" && props.step === 0 ? 0 : 5, 8, 2]);
 const arcs = ref([2, 3, 2]);
 const turns = ref(0);
+const identityHour = ref(0);
 const selected = ref(0);
 const secondOperand = ref(1);
 const selectedOutput = ref<number>();
 const modulusOut = ref(6);
 const multiplier = ref(props.id === 'clock-units' ? 3 : 1);
-const hint = ref(props.id === 'wilson-theorem' && props.step ? 3 : 0);
+const hint = ref(0);
+const emit = defineEmits<{ solution: [] }>();
 const matrix = ref(false);
 const row = ref(2);
 const column = ref(0);
 const squarePose = ref(0);
-const discovered = ref([0]);
+const squareFromPose = ref(0);
+const selectedSquareMove = ref<number | undefined>(1);
 const rotation = ref(1);
 const mirror = ref(4);
 const collapsed = ref(false);
 const denominator = ref(props.id === 'correspondence-square' ? 0 : 6);
 const subgroup = ref(1);
-const factor = ref(props.id === 'wilson-theorem' && props.step ? 6 : 0);
 const notice = ref('');
 const focused = ref('');
 const board = ref<InstanceType<typeof ElementBoard>>();
@@ -47,12 +49,10 @@ const boardMode = computed(() => ({
 } as const)[props.id as 'subgroups']);
 const prompt: Record<string, string> = {
   'clock-associativity': 'Drag a colored endpoint on either clock.',
-  'clock-identity': 'Drag the marker along the number line to wind the clock.',
+  'clock-identity': 'Set the hour hand, then drag the dot below to add full turns.',
   'clock-inverses': 'Select a residue to highlight its additive inverse.',
   'clock-commutativity': 'Drag either colored endpoint. Compare the two orders.',
   'clock-units': 'Choose a multiplier. Do any arrows share a destination?',
-  'wilson-theorem': 'Explore factorial remainders, then investigate the prime case.',
-  'square-symmetries': 'Use the dock or drag across the square to discover symmetries.',
   'square-noncommutativity': 'Compare the same moves in reverse order.',
   'clock-subgroup': 'Choose a step and follow the residues it generates.',
   subgroups: 'Drag beads into the candidate, then test products and inverses.',
@@ -65,7 +65,7 @@ const prompt: Record<string, string> = {
 };
 
 type End = { move?: (p: Point) => void; end: (p: Point) => void; cancel?: () => void };
-type Control = { name: string; x: number; y: number; w: number; h: number; run: () => void };
+type Control = { name: string; x: number; y: number; w: number; h: number; run: () => void; pressed?: boolean; focusKey?: string };
 const buttons = ref<Control[]>([]);
 const live = ref('');
 let controls: Control[] = [];
@@ -114,8 +114,8 @@ function cancelDemo() {
 }
 function addition(layer: Konva.Container) {
   const single = props.id === 'clock-addition' && props.step === 0;
-  const centers = single ? [{ x: 400, y: 230 }] : [145, 400, 655].map(x => ({ x, y: 220 }));
-  const r = single ? 138 : 95;
+  const centers = single ? [{ x: 400, y: 240 }] : [145, 400, 655].map(x => ({ x, y: 220 }));
+  const r = single ? 130 : 95;
   const active = props.demo && !demoCancelled.value && animation.value === 'demo' && progress.value < 1;
   const t = progress.value;
   const demoIndex = single || t < .5 ? 0 : 1;
@@ -124,7 +124,11 @@ function addition(layer: Konva.Container) {
     (single ? 10 : values.value[i]) + Math.max(0, Math.min(1, (phase - .2) / .6)) * (single ? 2 : 3) : values.value[i];
   if (single) {
     dial(layer, centers[0], r, 12, preview(0));
-    readout = "Clock position " + values.value[0] + ". ";
+    const current = residue(Math.round(preview(0)), 12);
+    formula(layer, '\\mathbb{Z}/12\\mathbb{Z}', 400, 70, 21);
+    label(layer, { x: 400, y: 398 }, 'Current residue class', { width: 280, size: 16, fill: ink });
+    formula(layer, '[' + current + ']_{12}', 400, 418, 28);
+    readout = 'Clock position ' + current + '. Residue class [' + current + '] modulo 12.';
   }
   else {
     dial(layer, centers[0], r, 12, preview(0));
@@ -138,8 +142,7 @@ function addition(layer: Konva.Container) {
     label(layer, p, phase > .2 && phase < .8 ? '●' : '↖', { size: 24, fill: '#a26026' });
   }
   const [a, b] = values.value;
-  formula(layer, single ? '\\mathbb{Z}/12\\mathbb{Z}' :
-    a + '+' + b + '\\equiv ' + residue(a + b, 12) + '\\pmod{12}', 400, 355);
+  if (!single) formula(layer, a + '+' + b + '\\equiv ' + residue(a + b, 12) + '\\pmod{12}', 400, 355);
   interact = p => {
     const i = centers.findIndex(c => distance(p, c) < r + 10);
     if (i < 0 || i > 1) return;
@@ -187,22 +190,32 @@ function commutative(layer: Konva.Container) {
   }
 }
 function associative(layer: Konva.Container) {
-  const centers = [{ x: 220, y: 205 }, { x: 580, y: 205 }];
+  const centers = [{ x: 220, y: 250 }, { x: 580, y: 250 }];
+  const dialRadius = 106;
+  const radii = [73, 63, 53];
   const [a, b, c] = arcs.value;
   const starts = [0, a, a + b];
   const ends = [a, a + b, a + b + c];
+  const [red, blue, yellow] = ['a', 'b', 'c'].map((letter, i) =>
+    `\\textcolor{${colors[i]}}{${letter}}`);
+  sceneMath(layer, `(${red}+${blue})+${yellow}=${red}+(${blue}+${yellow})`, 400, 56, 28);
+  readout = 'Associativity: (a + b) + c equals a + (b + c). ';
   for (const [i, center] of centers.entries()) {
-    dial(layer, center, 126, 12, a + b + c);
-    arcs.value.forEach((length, k) => arc(layer, center, 85 - k * 11, starts[k], length, colors[k], true));
-    arc(layer, center, 49, i ? a : 0, i ? b + c : a + b, i ? '#368064' : '#8753a0');
-    arc(layer, center, 38, 0, a + b + c, '#895d40');
-    formula(layer, (i ? a + '+(' + b + '+' + c + ')' : '(' + a + '+' + b + ')+' + c) +
-      '\\equiv ' + residue(a + b + c, 12), center.x, 350);
+    dial(layer, center, dialRadius, 12, a + b + c);
+    arcs.value.forEach((length, k) => arc(layer, center, radii[k], starts[k], length, colors[k], true));
+    arc(layer, center, 44, i ? a : 0, i ? b + c : a + b, i ? '#368064' : '#8753a0');
+    arc(layer, center, 34, 0, a + b + c, '#895d40');
+    const [redValue, blueValue, yellowValue] = [a, b, c].map((value, k) =>
+      `\\textcolor{${colors[k]}}{${value}}`);
+    const total = residue(a + b + c, 12);
+    sceneMath(layer, (i ? `${redValue}+(${blueValue}+${yellowValue})` : `(${redValue}+${blueValue})+${yellowValue}`) +
+      '\\equiv ' + total, center.x, 360, 24);
+    readout += (i ? `${a} + (${b} + ${c})` : `(${a} + ${b}) + ${c}`) + ' is congruent to ' + total + ' modulo 12. ';
   }
   interact = p => {
     const center = centers.find(c => distance(p, c) < 120);
     if (!center) return;
-    const i = ends.findIndex((end, k) => distance(p, tick(center, 85 - k * 11, 12, end)) < 17);
+    const i = ends.findIndex((end, k) => distance(p, tick(center, radii[k], 12, end)) < 17);
     if (i === -1) return;
     const move = (q: Point) => { arcs.value[i] = residue(at(q, center, 12) - starts[i], 12); };
     return { move, end: move };
@@ -215,7 +228,9 @@ function associative(layer: Konva.Container) {
 function identity(layer: Konva.Container) {
   const c = { x: 400, y: 196 };
   const moved = animation.value === 'turn' ? starting.value + (turns.value - starting.value) * progress.value : turns.value;
-  dial(layer, c, 125, 12, moved * 12);
+  dial(layer, c, 125, 12, identityHour.value + moved * 12);
+  label(layer, { x: 400, y: 342 }, 'Starting hour: ' + identityHour.value + '   ·   Added hours: ' + (turns.value * 12),
+    { width: 500, size: 18, fill: ink });
   layer.add(new Konva.Line({ points: [130, 375, 670, 375], stroke: green, strokeWidth: 2 }));
   for (let i = -3; i <= 3; i++) {
     const x = 400 + i * 90;
@@ -228,10 +243,29 @@ function identity(layer: Konva.Container) {
     turns.value = to;
     animate('turn');
   }
-  interact = p => p.y > 344 && p.y < 420 ? { end: q => wind(Math.max(-3, Math.min(3, Math.round((q.x - 400) / 90)))) } : undefined;
+  function setHour(hour: number) {
+    stop();
+    animation.value = undefined;
+    starting.value = turns.value = 0;
+    identityHour.value = residue(hour, 12);
+  }
+  interact = p => {
+    const distanceFromCenter = distance(p,c);
+    if (distanceFromCenter >= 12 && distanceFromCenter <= 135) {
+      const move = (q: Point) => { if (distance(q,c)>=12) setHour(at(q,c,12)); };
+      return { move, end: move };
+    }
+    if (p.y > 350 && p.y < 420)
+      return { end: q => wind(Math.max(-3, Math.min(3, Math.round((q.x - 400) / 90)))) };
+  };
   control(layer, 'One turn left', 300, 472, () => wind(turns.value - 1), 145);
   control(layer, 'One turn right', 500, 472, () => wind(turns.value + 1), 145);
-  readout = turns.value * 12 + ' hours. The hand returns to zero.';
+  controls.push(
+    { name: 'Hand back one tick', x: -10, y: -10, w: 0, h: 0, run: () => setHour(identityHour.value - 1) },
+    { name: 'Hand forward one tick', x: -10, y: -10, w: 0, h: 0, run: () => setHour(identityHour.value + 1) },
+  );
+  readout = 'Starting hour: ' + identityHour.value + '. Added hours: ' + (turns.value * 12) +
+    '. After any whole number of turns, the hand reads ' + identityHour.value + '.';
 }
 function inverseOrSubgroup(layer: Konva.Container) {
   const m = n.value;
@@ -317,63 +351,91 @@ function units(layer: Konva.Container) {
   control(layer, matrix.value ? 'Single clock' : 'View multiplication maps', 400, 470, () => { matrix.value = !matrix.value; }, 200);
 }
 function wilson(layer: Konva.Container) {
-  const m = n.value;
-  const result = factorialRemainders(m)[factor.value];
-  dial(layer, { x: 400, y: 194 }, 122, m, result);
-  formula(layer, factor.value + '!\\equiv ' + result + '\\pmod{' + m + '}', 400, 325);
-  const text = hint.value === 1 ? 'Pair each value with its inverse. Which values pair with themselves?' :
-    hint.value === 2 ? 'Only 1 and −1 are self-inverse modulo a prime. All other pairs multiply to 1.' :
-    hint.value === 3 ? 'Modulo 7, pair 2 with 4 and 3 with 5. The leftover factors are 1 and 6.' : notice.value;
-  label(layer, { x: 400, y: 388 }, text, { width: 740, fill: ink, size: 15 });
-  if (hint.value === 3) {
-    const c = { x: 400, y: 194 };
-    for (const [a, b] of [[2,4],[3,5]]) arrow(layer, tick(c, 83, 7, a), tick(c, 83, 7, b), '#a26026', 1);
+  formula(layer, '(p-1)!\\equiv -1\\pmod{p}', 400, 25, 34);
+  label(layer, { x: 400, y: 86 }, 'For every prime p. Can you explain why?', { width: 650, size: 22, fill: ink });
+  if (hint.value === 1) {
+    label(layer, { x: 400, y: 136 }, 'Think about the small cases: p = 2, 3, and 5.', { width: 720, size: 20, fill: ink });
+    [2, 3, 5].forEach((prime, i) => {
+      const x = 170 + i * 230;
+      const result = factorialRemainders(prime)[prime - 1];
+      dial(layer, { x, y: 266 }, 77, prime, result);
+      formula(layer, (prime - 1) + '!\\equiv ' + result + '\\pmod{' + prime + '}', x, 363);
+    });
+  } else if (hint.value === 2) {
+    label(layer, { x: 400, y: 127 }, 'Modulo 7: connect each nonzero residue to its inverse.', { width: 740, size: 19, fill: ink });
+    const c = { x: 400, y: 278 };
+    const prime = 7;
+    dial(layer, c, 105, prime);
+    for (let a = 1; a < prime; a++) {
+      const b = modularInverse(a, prime)!;
+      if (a > b) continue;
+      const p = tick(c, 68, prime, a);
+      if (a === b) {
+        layer.add(new Konva.Circle({ ...p, radius: 9, stroke: '#a26026', strokeWidth: 3 }));
+        continue;
+      }
+      const q = tick(c, 68, prime, b);
+      layer.add(new Konva.Line({ points: [p.x, p.y, q.x, q.y], stroke: green, strokeWidth: 3 }));
+      for (const endpoint of [p,q]) layer.add(new Konva.Circle({ ...endpoint, radius: 4, fill: green }));
+    }
+    const minusOne = tick(c, 130, prime, 6);
+    label(layer, minusOne, '−1', { size: 19, fill: '#a26026' });
+    label(layer, { x: 400, y: 415 }, 'Pairs: 2 with 4 and 3 with 5. Why do 1 and −1 loop to themselves?',
+      { width: 780, size: 17, fill: ink });
   }
-  layer.add(new Konva.Line({ points: [278, 415, 522, 415], stroke: green, strokeWidth: 2 }));
-  layer.add(new Konva.Circle({ x: 278 + factor.value * 244 / (m - 1), y: 415, radius: 8, fill: green }));
-  interact = p => {
-    if (Math.abs(p.y - 415) > 15 || p.x < 263 || p.x > 537) return;
-    const move = (q: Point) => { factor.value = Math.max(0, Math.min(m - 1, Math.round((q.x - 278) * (m - 1) / 244))); };
-    return { move, end: move };
-  };
-  control(layer, 'Factor −', 85, 438, () => { factor.value = Math.max(0, factor.value - 1); });
-  control(layer, 'Factor +', 220, 438, () => { factor.value = Math.min(m - 1, factor.value + 1); });
-  control(layer, 'Modulus −', 580, 438, () => { n.value = Math.max(2, m - 1); factor.value = 0; hint.value = 0; });
-  control(layer, 'Modulus +', 715, 438, () => { n.value = Math.min(20, m + 1); factor.value = 0; hint.value = 0; });
-  if (hint.value < 2) control(layer, hint.value ? 'Reveal the solution' : 'Reveal a hint', 400, 478, () => hint.value++, 165);
-  else {
-    control(layer, 'I got it', 310, 478, () => { hint.value = 0; notice.value = 'You found the inverse pairing.';
-      const Audio = window.AudioContext;
-      if (Audio) {
-        const context = new Audio();
-        const note = context.createOscillator();
-        const volume = context.createGain();
-        note.connect(volume).connect(context.destination);
-        note.frequency.setValueAtTime(523, context.currentTime);
-        note.frequency.setValueAtTime(659, context.currentTime + .12);
-        volume.gain.setValueAtTime(.065, context.currentTime);
-        volume.gain.exponentialRampToValueAtTime(.001, context.currentTime + .28);
-        note.onended = () => { void context.close(); };
-        note.start();
-        note.stop(context.currentTime + .3);
-      } });
-    control(layer, 'Please explain it to me', 490, 478, () => { n.value = 7; factor.value = 6; hint.value = 3; }, 178);
-  }
+  readout = 'Wilson’s theorem: p minus one factorial is congruent to minus one modulo p for every prime p. Can you explain why?' +
+    (hint.value === 1 ? ' Think about primes 2, 3, and 5.' : hint.value === 2 ?
+      ' Modulo 7 the pairs are 2 with 4 and 3 with 5. Both 1 and 6 pair with themselves. Six represents minus one.' : '');
+  const text = ['Reveal a hint', 'Reveal the second hint', 'Reveal the solution'][hint.value];
+  control(layer, text, 400, 475, () => { if (hint.value < 2) hint.value++; else emit('solution'); }, 195);
 }
-function square(layer: Konva.Container, c: Point, r: number, pose: number) {
-  layer.add(new Konva.Rect({ x: c.x - r, y: c.y - r, width: r * 2, height: r * 2, cornerRadius: 5,
-    fill: '#f7faf4', stroke: green, strokeWidth: 2 }));
+function squareTransform(point: Point, move: number, progress: number): Point {
+  const t = Math.max(0, Math.min(1, progress));
+  if (move < 4) {
+    const turn = move * Math.PI / 2 * t;
+    return { x: point.x * Math.cos(turn) - point.y * Math.sin(turn),
+      y: point.x * Math.sin(turn) + point.y * Math.cos(turn) };
+  }
+  const axisAngle = Math.PI / 2 + (move % 4) * Math.PI / 4;
+  const axis = { x: Math.cos(axisAngle), y: Math.sin(axisAngle) };
+  const along = point.x * axis.x + point.y * axis.y;
+  const depth = Math.cos(Math.PI * t);
+  return { x: along * axis.x + (point.x - along * axis.x) * depth,
+    y: along * axis.y + (point.y - along * axis.y) * depth };
+}
+function square(layer: Konva.Container, c: Point, r: number, pose: number,
+  motion?: { move: number; progress: number }) {
   const locations = [[1,-1],[-1,-1],[-1,1],[1,1]];
+  const pointAt = (corner: number) => {
+    const [x,y] = locations[corner];
+    const point = { x: x * r, y: y * r };
+    return motion ? squareTransform(point, motion.move, motion.progress) : point;
+  };
+  const outline = locations.map((_, corner) => pointAt(corner));
+  const reflecting = motion && motion.move >= 4;
+  const turnPhase = motion ? Math.sin(Math.PI * motion.progress) : 0;
+  const axisAngle = reflecting ? Math.PI / 2 + (motion.move % 4) * Math.PI / 4 : 0;
+  const axis = { x: Math.cos(axisAngle), y: Math.sin(axisAngle) };
+  const normal = { x: -axis.y, y: axis.x };
+  layer.add(new Konva.Line({
+    points: outline.flatMap(point => [c.x + point.x, c.y + point.y]), closed: true,
+    fill: '#f7faf4', stroke: green, strokeWidth: 2, lineJoin: 'round',
+    shadowColor: '#20302f', shadowBlur: reflecting ? 12 : 0, shadowOpacity: reflecting ? .24 : 0,
+    shadowOffsetX: reflecting ? normal.x * turnPhase * 13 : 0,
+    shadowOffsetY: reflecting ? normal.y * turnPhase * 13 : 0,
+  }));
+  if (reflecting) {
+    const half = r * 1.42;
+    layer.add(new Konva.Line({ points: [c.x - axis.x * half, c.y - axis.y * half,
+      c.x + axis.x * half, c.y + axis.y * half], stroke: '#a87910', strokeWidth: 2,
+      dash: [6, 5], opacity: .72 * turnPhase }));
+  }
   const shades = [...colors, '#397d66'];
   for (let i = 0; i < 4; i++) {
-    const [x,y] = locations[cornerImage(pose,i)];
-    layer.add(new Konva.Circle({ x: c.x + x * r * .72, y: c.y + y * r * .72, radius: Math.min(12, r / 5), fill: shades[i] }));
+    const point = pointAt(cornerImage(pose,i));
+    layer.add(new Konva.Circle({ x: c.x + point.x * .72, y: c.y + point.y * .72,
+      radius: Math.min(12, r / 5), fill: shades[i], stroke: '#fff', strokeWidth: r > 40 ? 1 : .5 }));
   }
-}
-function discover(move: number, absolute = false) {
-  squarePose.value = absolute ? move : product(move, squarePose.value);
-  if (!discovered.value.includes(squarePose.value)) discovered.value.push(squarePose.value);
-  if (absolute) animate('square');
 }
 function squareScenes(layer: Konva.Container) {
   if (props.id === 'square-noncommutativity') {
@@ -389,25 +451,54 @@ function squareScenes(layer: Konva.Container) {
     control(layer, 'Change mirror', 600, 474, () => { mirror.value = 4 + (mirror.value - 3) % 4; animate('square'); });
     return;
   }
-  const c = { x: 220, y: 250 };
+  const compact = layout.value.compact;
+  const c = compact ? { x: 195, y: 136 } : { x: 190, y: 270 };
   const replay = animation.value === 'square' ? progress.value : 1;
-  const pose = replay < .35 ? 0 : replay < .72 && squarePose.value >= 4 ? 4 : squarePose.value;
-  square(layer, c, 120, pose);
-  for (const move of allMoves) {
-    const x = 451 + (move % 4) * 83;
-    const y = 177 + Math.floor(move / 4) * 132;
-    if (discovered.value.includes(move)) square(layer, { x, y }, 28, move);
-    control(layer, discovered.value.includes(move) ? elements[move] : '·', x, y + 54,
-      () => { if (discovered.value.includes(move)) discover(move, true); }, 58, 29);
+  const moving = replay < 1 && selectedSquareMove.value !== undefined;
+  square(layer, c, compact ? 61 : 108, moving ? squareFromPose.value : squarePose.value,
+    moving ? { move: selectedSquareMove.value!, progress: replay } : undefined);
+  label(layer, { x: c.x, y: compact ? 42 : 106 }, 'Current: ' + elements[squarePose.value],
+    { width: 300, size: compact ? 17 : 20, fill: ink });
+  if (compact) {
+    layer.add(new Konva.Line({ points: [16, 211, 374, 211], stroke: '#b4c6b8', strokeWidth: 1 }));
+    label(layer, { x: 195, y: 226 }, 'D₄ transformations', { width: 370, size: 18, fill: ink });
+  } else {
+    layer.add(new Konva.Line({ points: [390, 118, 390, 421], stroke: '#b4c6b8', strokeWidth: 1 }));
+    label(layer, { x: 590, y: 88 }, 'D₄ transformations', { width: 380, size: 20, fill: ink });
   }
-  label(layer, { x: 575, y: 395 }, discovered.value.length + ' / 8 discovered', { width: 255, fill: ink });
-  interact = p => distance(p,c) < 150 ? { end: q => {
-    const delta = Math.atan2(Math.sin(angle(q,c)-angle(p,c)), Math.cos(angle(q,c)-angle(p,c)));
-    if (distance(p,q) > 15) discover(Math.abs(delta) > .45 ? (delta > 0 ? 1 : 3) : 4);
-  }} : undefined;
-  control(layer, 'Turn ↻', 280, 474, () => discover(1));
-  control(layer, 'Mirror ↔', 420, 474, () => discover(4));
-  control(layer, 'Next hint', 560, 474, () => { notice.value = 'Try successive turns, then mirror and turn again.'; });
+  for (const move of allMoves) {
+    const x = compact ? 48 + (move % 4) * 98 : 451 + (move % 4) * 94;
+    const row = Math.floor(move / 4);
+    const top = compact ? 236 + row * 116 : row === 0 ? 126 : 280;
+    const preview = product(move, squarePose.value);
+    const active = selectedSquareMove.value === move;
+    const name = elements[move] + ' — apply; preview ' + elements[preview];
+    const width = compact ? 88 : 84;
+    const height = compact ? 106 : 112;
+    controls.push({ name, x: x - width / 2, y: top, w: width, h: height,
+      run: () => applySquareSymmetry(move), pressed: active, focusKey: 'square-move-' + move });
+    layer.add(new Konva.Rect({ x: x - width / 2, y: top, width, height, cornerRadius: 10,
+      fill: active ? '#f5ead2' : '#f7faf4', stroke: active ? '#a87910' : '#91aa99',
+      strokeWidth: active ? 3 : focused.value === 'square-move-' + move ? 3 : 1.5 }));
+    square(layer, { x, y: top + (compact ? 35 : 38) }, 23, preview);
+    label(layer, { x, y: top + (compact ? 80 : 87) }, elements[move],
+      { width: width - 4, size: compact ? 15 : 17, fill: ink });
+  }
+  const selected = selectedSquareMove.value;
+  readout = 'Current square: ' + elements[squarePose.value] + '. ' +
+    (selected === undefined ? '' : 'Selected action: ' + elements[selected] + '. Preview result: ' +
+      elements[product(selected, squarePose.value)] + '.');
+}
+function applySquareSymmetry(move: number) {
+  if (animation.value === 'square' && progress.value < 1) {
+    stop();
+    progress.value = 1;
+  }
+  squareFromPose.value = squarePose.value;
+  squarePose.value = product(move, squarePose.value);
+  selectedSquareMove.value = move;
+  animation.value = 'square';
+  play(1120);
 }
 function lagrange(layer: Konva.Container) {
   const blocks = partition(subgroup.value === 2 ? [0,1,2,3] : [0,4]);
@@ -581,8 +672,10 @@ function maps(layer: Konva.Container) {
   }
 }
 const layout = computed(() => {
-  const scale = Math.max(.01, Math.min(size.value.width / 800, size.value.height / 520));
-  return { scale, x: (size.value.width - 800*scale)/2, y: (size.value.height-520*scale)/2 };
+  const compact = props.id === 'square-symmetries' && size.value.width < 650;
+  const width = compact ? 390 : 800;
+  const scale = Math.max(.01, Math.min(size.value.width / width, size.value.height / 520));
+  return { compact, scale, x: (size.value.width - width*scale)/2, y: (size.value.height-520*scale)/2 };
 });
 function draw(layer: Konva.Layer) {
   const { scale,x,y } = layout.value;
@@ -592,7 +685,7 @@ function draw(layer: Konva.Layer) {
   readout = '';
   const id = props.id;
   const instruction = notice.value || prompt[id] || (id === 'clock-addition' ?
-    props.step ? 'Drag either input hand and watch the result.' : 'Drag the hand across zero.' : '');
+    props.step ? 'Drag either input hand and watch the result.' : 'Drag the hour hand to see the residue class change. After a full turn, it wraps around.' : '');
   if (instruction) label(stage,{ x:400,y:30 },instruction,{ width:780,size:18,fill:ink });
   if (boardMode.value && board.value) {
     const group = new Konva.Group({ y: 48, scaleX: .84, scaleY: .72, x: 64 });
@@ -678,8 +771,8 @@ const { host,size,pointerdown,pointermove,pointerup,pointercancel } = useCanvas(
       @wheel="scrollMatrix" @pointerup.capture="pointerup" @pointercancel="pointercancel" @lostpointercapture="pointercancel"></div>
     <ElementBoard v-if="boardMode" ref="board" :mode="boardMode" embedded />
     <div class="chapter-access">
-      <button v-for="(button,i) in buttons" :key="i" @focus="focused = button.name" @blur="focused = ''"
-        @click="button.run">{{ button.name }}</button>
+      <button v-for="(button,i) in buttons" :key="button.focusKey || i" :aria-pressed="button.pressed"
+        @focus="focused = button.focusKey || button.name" @blur="focused = ''" @click="button.run">{{ button.name }}</button>
       <p role="status">{{ live }}</p>
     </div>
   </div>

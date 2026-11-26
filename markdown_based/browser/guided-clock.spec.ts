@@ -51,3 +51,22 @@ for (const viewport of [{ width: 390, height: 740 }, { width: 1180, height: 760 
     await expect(page.getByRole('button', { name: /Introductory Group Theory/ })).toBeVisible();
   });
 }
+
+test('shows the colored associativity statement and keeps arc controls working at both viewport sizes', async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 740 }, { width: 1180, height: 760 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.getByRole('button', { name: /Introductory Group Theory/ }).click();
+    await page.getByRole('button', { name: 'Associativity', exact: true }).click();
+
+    const canvas = page.locator('.chapter-canvas canvas');
+    const status = page.getByRole('status');
+    await expect(canvas).toBeVisible();
+    await expect(status).toContainText('Associativity: (a + b) + c equals a + (b + c).');
+    await expect(status).toContainText('(2 + 3) + 2 is congruent to 7 modulo 12.');
+
+    await page.getByRole('button', { name: 'Red +', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    await expect(status).toContainText('(3 + 3) + 2 is congruent to 8 modulo 12.');
+  }
+});

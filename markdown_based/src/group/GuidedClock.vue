@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useNav } from '@slidev/client';
+import { levelPage, wilsonSolutionPage } from '../levels';
+import tutorialSource from '../../content/chapter-0.md?raw';
 import { useNarration } from '../useNarration';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import markdown from '../../content/group-theory.md?raw';
@@ -9,11 +12,18 @@ import ChapterScene from './ChapterScene.vue';
 const emit = defineEmits<{ office: []; explore: [] }>();
 const chapter = parseChapter(markdown, 'content/group-theory.md');
 const pages = chapter.sections.flatMap(section => section.subsections);
-const index = ref(0);
-const step = ref(0);
+const { currentPage, go } = useNav();
+const tutorialCount = parseChapter(tutorialSource).sections.flatMap(section => section.subsections).length;
+const solutionRoute = wilsonSolutionPage(tutorialCount);
+const challengeIndex = pages.findIndex(page => page.id === 'wilson-theorem');
+const onSolutionRoute = currentPage.value === solutionRoute;
+const index = ref(onSolutionRoute ? challengeIndex : 0);
+const step = ref(onSolutionRoute ? 1 : 0);
 const page = computed(() => pages[index.value]);
 const beat = computed(() => page.value.beats[step.value]);
-const definition = computed(() => page.value.id === 'group-definition');
+const solution = computed(() => index.value === challengeIndex && step.value === 1);
+const challenge = computed(() => index.value === challengeIndex && step.value === 0);
+const definition = computed(() => page.value.id === 'group-definition' || solution.value);
 const visited = ref(new Set([pages[0].id]));
 const { audio, playing, muted, failed, play, stop } = useNarration();
 const transcript = ref(false);
@@ -31,6 +41,8 @@ function jump(destination: number, nextStep = 0) {
   index.value = destination;
   step.value = nextStep;
   visited.value.add(page.value.id);
+  if (solution.value && currentPage.value !== solutionRoute) void go(solutionRoute);
+  else if (!solution.value && currentPage.value === solutionRoute) void go(levelPage('intro', tutorialCount));
   void nextTick(() => { if (audio.value === previous) void play(); });
   void nextTick(() => document.querySelector('.chapter-one .dot[aria-current]')?.scrollIntoView({ inline: 'nearest', block: 'nearest' }));
 }
@@ -43,6 +55,10 @@ function advance() {
   else emit('office');
 }
 
+watch(currentPage, (route, previous) => {
+  if (route === solutionRoute && !solution.value) jump(challengeIndex, 1);
+  else if (previous === solutionRoute && solution.value && route === levelPage('intro', tutorialCount)) jump(challengeIndex);
+});
 watch(definition, value => document.body.classList.toggle('show-group-slide', value), { immediate: true });
 onBeforeUnmount(() => {
   document.body.classList.remove('show-group-slide');
@@ -67,12 +83,12 @@ onBeforeUnmount(() => {
       </header>
       <section class="lesson" :aria-label="page.title">
         <div class="lesson-title">
-          <h2>{{ page.title }}</h2>
+          <h2>{{ solution ? "Wilson’s theorem solution" : page.title }}</h2>
           <div class="tools"><button v-if="!definition" @click="resetKey++">Reset scene</button></div>
         </div>
         <div class="scene-frame">
           <ChapterScene v-if="!definition" :key="page.id + ':' + step + ':' + resetKey"
-            :id="page.id" :step="step" :demo="playing && !muted" />
+            :id="page.id" :step="step" :demo="playing && !muted" @solution="jump(challengeIndex, 1)" />
         </div>
       </section>
       <footer class="guide">
@@ -89,7 +105,7 @@ onBeforeUnmount(() => {
           </div>
           <button v-if="complete" @click="emit('explore')">Explore more</button>
           <button v-if="complete" @click="emit('office')">Finish chapter</button>
-          <button class="continue" @click="advance">{{ complete ? 'Bonus lessons' : last ? 'Finish chapter' : 'Continue' }}</button>
+          <button v-if="!challenge" class="continue" @click="advance">{{ complete ? 'Bonus lessons' : last ? 'Finish chapter' : 'Continue' }}</button>
         </div>
       </footer>
     </main>

@@ -52,12 +52,12 @@ The additive cyclic group: integers modulo 12.
 
 $\mathbb{Z}/12\mathbb{Z}$
 
-Explore addition on a clock by dragging the hand.
+Drag the hour hand to see the residue class change. After a full turn, it wraps around.
 :::
 :::narration[clock-addition-intro]
-One of the simplest examples of a group is the additive cyclic group. We can describe it using modular arithmetic, which you are already familiar with from analog clocks. When a clock reaches the twelfth hour, it wraps back around to zero.
+One of the simplest examples of a group is the integers modulo twelve under addition. You already use modular arithmetic when you read an analog clock. Twelve and zero name the same position. After one full turn, the hand returns to where it started. If you move one tick past twelve, you land on one instead of counting to thirteen.
 
-We say that the clock has a modulus of twelve. We call this group the integers modulo twelve, written Z mod twelve. The letter Z comes from the German word Zahlen, meaning numbers. Integers are called ganze Zahlen in German.
+Now drag the hour hand to different values. Watch how the corresponding element of the integers modulo twelve changes. Try dragging through a full turn and see what happens to the residue class.
 :::
 ::pause
 
@@ -99,9 +99,14 @@ $(a+b)+c=a+(b+c)$
 Does changing the grouping change the final position?
 :::
 :::narration[clock-associativity-intro]
-Each of these colored arcs represents a movement around the clock. You can drag the arcs on either clock to change their lengths.
+Now, let's illustrate what associativity means with the cyclic group. Each of these colored arcs represents a movement around the clock. You can drag the arcs on either clock to change their lengths.
 
-On the left, we combine the first two arcs before adding the third. On the right, we combine the last two arcs first. Both clocks use the same three values.
+We have two clocks on the left and right and three group elements a, b, and c represented by the red, blue, and yellow arcs. Associativity means that no matter how we group the three arcs, we are still left with the same final brown arc.
+
+On the left, we combine the red and blue arcs first to form a purple arc before adding the yellow arc.
+On the right, we combine the blue and yellow arcs first to form a green arc before adding the red arc.
+
+Once again, associativity is the fundamental observation that the way we group the intermediate computations does not change the final answer. The brown arc, which represents the sum of a, b, and c is the same on both sides.
 
 Try a few different values and observe what happens to the final position of the clock hand on each clock. Does the way we group the arcs change the result?
 :::
@@ -132,7 +137,7 @@ Intuitively, making a full rotation around the clock, either clockwise or counte
 
 Drag the dot on the number line above to see that the reading of the clock below is unchanged after a full rotation.
 
-Now change the hour hand on the clock to any value, and then drag the dot on the number line above to go around a whole number of full rotations on the clock. Observe that the reading of the clock is unchanged.
+Now drag the hour hand to any value. This chooses a new starting hour and resets the number line to zero. Then drag the dot on the number line below to add a multiple of twelve hours. The hand makes full turns and comes back to the same hour.
 :::
 ::pause
 
@@ -213,11 +218,10 @@ Euler's totient function counts the number of units for a given modulus. Change 
 ### Wilson's theorem {#wilson-theorem}
 ::scene[clock]
 <!--
-Replace the clock-manipulation activity with a guided challenge card rendered inside the Konva scene. Show the factorial definition and Wilson's congruence using scene-integrated KaTeX. Show 1 = -1 + 2 and 1 ≡ -1 (mod 2) when the narration discusses the apparent exception.
-
-Initially show the challenge and a clickable card labeled "Reveal a hint". The hint asks learners to consider pairing each nonzero residue with its multiplicative inverse and to consider which residues are their own inverses. Do not reveal the full argument yet. After the hint, offer "Reveal the solution". Reveal the inverse-pairing solution below, then offer "I got it" and "Please explain it to me". The first plays a short positive reward sound; the second provides a supportive explanation with a visual example modulo 7, pairing 2 with 4 and 3 with 5, leaving 1 and 6. No penalty or discouraging feedback. Both paths allow the learner to continue.
-
-Implement the card states and conditional explanation playback within the scene component, not with invented manuscript directives. The final narration clip is the explanation for the second path; coordinate playback with the scene controller so it is not automatically played on the reward path. Exact card styling and reward sound remain implementation decisions.
+Show Wilson’s congruence and ask why it holds for primes. Hint one shows clocks
+for 2, 3, and 5. Hint two connects inverse pairs on a clock modulo 7 and loops
+at 1 and 6 (minus one). Reveal the solution on a separate Slidev slide using
+the display block in the second beat.
 -->
 :::narration[wilson-explore]
 Now let's see an example of group theory in action. Let's calculate factorials in modular arithmetic.
@@ -231,19 +235,12 @@ At first, p equals two might seem like an exception, because the answer is one r
 When you are ready, click the card to reveal a hint. Once you feel confident in your answer, click to reveal the solution.
 :::
 ::pause
-<!--
-Solution card: Pair every nonzero residue with its multiplicative inverse. Each distinct pair contributes 1. For odd prime p, the only self-inverse residues are 1 and -1: x² ≡ 1 implies (x-1)(x+1) ≡ 0, and primality implies x ≡ 1 or x ≡ -1. The remaining product is -1. For p=2 the two residues coincide, and 1 ≡ -1. Show the congruence (p-1)! ≡ -1 (mod p). Keep the explanation accessible regardless of self-reported success.
--->
+
+:::display
+Pair each nonzero residue with its multiplicative inverse. Each pair of **distinct** inverses contributes a factor of $1$, so the only factors left are $1$ and $-1$, whose product is $-1$ (they are the same residue when $p=2$).
+:::
 :::narration[wilson-explain]
-The key is to match each number with its multiplicative inverse. Every pair of distinct inverses has a product of one modulo p.
-
-For example, modulo seven, two pairs with four, and three pairs with five. That leaves one and six, which are their own inverses.
-
-For any odd prime, the only numbers that are their own inverses are one and minus one. To see why, if a number squared is one, then the product of that number minus one and that number plus one is zero modulo p. Since p is prime, one of those factors must be zero.
-
-All the other factors pair off to give one, leaving the product of one and minus one, which is minus one. For p equals two, one and minus one are the same residue, so the result still holds.
-
-This is Wilson's theorem.
+Pair each nonzero residue with its multiplicative inverse. Each pair of distinct inverses contributes a factor of one, so the only factors left are one and minus one, whose product is minus one. For p equals two, they are the same residue.
 :::
 ::pause
 
