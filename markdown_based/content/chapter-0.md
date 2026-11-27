@@ -15,7 +15,7 @@ drawings:
 
 ### Square lattice {#square-lattice}
 ::scene[square]
-::enable[translate,rotate,reflect,glide]
+::enable[translate,rotate,reflect]
 
 :::display
 Chapter Zero is about learning the controls. The square lattice is a repeating grid whose dots represent pairs of integers.
@@ -52,15 +52,6 @@ Great. Now try the highlighted Rotate tool. Click a lattice dot to pick a center
 Now select the highlighted Reflect tool. Press a lattice dot and drag horizontally or vertically to choose the mirror line. Release and watch the marked triangle flip across that line.
 :::
 ::wait[reflected]
-
-::cue[glide]
-:::display
-**Glide.** Select Glide just to the right of Reflect. Drag to choose a mirror line, then drag from that line along it to choose the slide.
-:::
-:::narration[square-glide]
-A glide reflection flips across a line and then slides along that same line. Select the highlighted Glide icon, just to the right of Reflect in the bottom toolbar. Drag from a lattice dot to choose a mirror line. Then drag along that line to choose how far to slide.
-:::
-::pause
 
 :::display
 Use the bottom toolbar to switch tools and line up A, B, and C with the dashed target triangle. Match all three corners to unlock the next subsection.

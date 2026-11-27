@@ -6,7 +6,7 @@ const scenes = [
   ['Subgroups', 'square-diagram', 'Find r × r'],
   ['Cosets', 'coset-explorer', '2 cosets'],
   ['Normal subgroups', 'coset-overlays', 'Right:'],
-  ['Quotient groups', 'quotient-expanded', 'Rotation'],
+  ['Quotient groups', 'quotient-expanded', 'D₄ / H ≅ C₂'],
 ] as const;
 
 for (const viewport of [{ width: 390, height: 760 }, { width: 1920, height: 900 }]) {
@@ -46,7 +46,7 @@ for (const viewport of [{ width: 390, height: 760 }, { width: 1920, height: 900 
 
     await button('Collapse cosets').focus();
     await page.keyboard.press('Enter');
-    await expect(status).toContainText('Click two dots');
+    await expect(button('Expand cosets')).toHaveCount(1);
     await expect(canvas).toHaveScreenshot(`quotient-collapsed-${viewport.width}.png`, {
       scale: 'css',
       maxDiffPixelRatio: 0.002,

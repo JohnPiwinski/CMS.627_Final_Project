@@ -10,14 +10,14 @@ it('derives tutorial sections, beats, and narration from one document', () => {
   const square = chapter.sections.flatMap(section => section.subsections).find(item => item.id === 'square-lattice');
   expect(square?.beats.some(beat => beat.narration?.id === 'square-intro' && beat.narration.auto)).toBe(true);
   expect(square?.beats).toContainEqual(expect.objectContaining({ wait: 'translated', cue: 'translate' }));
-  expect(narrationEntries(chapter)).toHaveLength(14);
+  expect(narrationEntries(chapter)).toHaveLength(13);
 });
 
 it('reports invalid content at its source location', () => {
   expect(() => parseChapter(source.replace('::scene[square]', '::scene[missing]'), 'tutorial.md'))
     .toThrow(/tutorial.md:\d+: Expected ::scene/);
-  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect,glide]', '::enable[orbit]'))).toThrow(/unsupported/);
-  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect,glide]', '::enable[translate]'))).toThrow(/disabled/);
+  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect]', '::enable[orbit]'))).toThrow(/unsupported/);
+  expect(() => parseChapter(source.replace('::enable[translate,rotate,reflect]', '::enable[translate]'))).toThrow(/disabled/);
   expect(() => parseChapter(source.replace('square-reflect]', 'square-intro]'))).toThrow(/Duplicate ID/);
 });
 

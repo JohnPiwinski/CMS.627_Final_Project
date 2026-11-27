@@ -76,8 +76,6 @@ test('requires a labeled triangle match to unlock later tutorial sections', asyn
   await expect(page.locator('.prompt')).toContainText('Reflect');
   await chooseTool(page, 2);
   await drag(page, x, y, unit, 0);
-  await expect(page.locator('.prompt')).toContainText('Glide');
-  await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.locator('.prompt')).toContainText('line up A, B, and C');
   await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled();
   await chooseTool(page, 0);

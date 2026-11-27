@@ -56,7 +56,7 @@ const prompt: Record<string, string> = {
   subgroups: 'Answer three questions to unlock Compose and Inverse.',
   cosets: 'Choose a subgroup to see how its cosets partition the eight moves.',
   'normal-subgroups': 'Compare both partitions on the same eight moves.',
-  'quotient-groups': 'Each coset becomes one element of the quotient group.',
+  'quotient-groups': 'Choose a subgroup, then collapse its cosets if it is normal.',
   'clock-subgroup-diagram': 'Choose a clock step or a subgroup. Change the modulus to redraw the diagram.',
   'correspondence-clock': 'Select a region to highlight its matching subgroup on both sides.',
   'correspondence-square': 'Select a region to highlight its matching subgroup on both sides.',
@@ -812,10 +812,6 @@ const resultMove = ref<number>();
 const replayMoves = ref<number[]>([]);
 const subgroupMessage = ref('');
 const mirrorExample = ref(false);
-const representatives = ref<[number, number]>([4, 4]);
-const representativeSlot = ref<0 | 1>(0);
-const priorProduct = ref<number>();
-const quotientTokens = ref<number[]>([]);
 const { progress: lessonMotion, play: playLessonMotion, stop: stopLessonMotion } = useMotion();
 
 function target(name: string, x: number, y: number, w: number, h: number, run: () => void, pressed?: boolean) {
@@ -923,6 +919,11 @@ function squareLattice(layer: Konva.Container, explorer: boolean) {
       resultMove.value=undefined;
       subgroupMessage.value='';
       hint.value=0;
+      if (id==='quotient-groups') {
+        stopLessonMotion();
+        lessonMotion.value=1;
+        collapsed.value=false;
+      }
     };
     const cardName='Select '+card.name;
     const focus=(explorer||!question) && focused.value===cardName;
@@ -945,6 +946,10 @@ function squareLattice(layer: Konva.Container, explorer: boolean) {
   if (explorer) {
     const group=positions.flat().find(card=>card.name===activeCard.value)!;
     const blocks=partition(group.moves);
+    const quotient=id==='quotient-groups';
+    const normal=groupsAgree(blocks,partition(group.moves,'right'));
+    const amount=quotient && normal ? (collapsed.value ? lessonMotion.value : 1-lessonMotion.value) : 0;
+    const shrink=Math.max(0,(amount-.25)/.75);
     diagramLabel(layer,{x:612,y:73},'Left cosets of '+group.name,{size:16,width:350});
     const columns=blocks.length===1?1:2;
     const rows=Math.ceil(blocks.length/columns);
@@ -953,15 +958,39 @@ function squareLattice(layer: Konva.Container, explorer: boolean) {
       const width=columns===1?340:165;
       const x=columns===1?612:526+(i%2)*172;
       const y=107+height/2+Math.floor(i/columns)*height;
-      panel(layer,x,y,width,height-7,colors[i%colors.length]);
+      const tray=new Konva.Group({opacity:1-shrink});
+      panel(tray,x,y,width,height-7,colors[i%colors.length]);
       const gap=Math.min(44,(width-12)/block.length);
       block.forEach((move,j)=>{
-        const p={x:centeredItem(x,j,block.length,gap),y:y+3};
-        square(layer,p,Math.min(15,gap*.33),move);
-        diagramLabel(layer,{x:p.x,y:p.y+21},moveName(move),{size:13,width:gap});
+        const homeX=centeredItem(x,j,block.length,gap);
+        const p={x:homeX+(x-homeX)*shrink,y:y+3*(1-shrink)};
+        if (shrink<1) square(tray,p,Math.min(15,gap*.33)*(1-shrink),move);
+        const names=new Konva.Group({opacity:Math.max(0,1-amount/.25)});
+        diagramLabel(names,{x:p.x,y:p.y+21},moveName(move),{size:13,width:gap});
+        tray.add(names);
       });
-      diagramLabel(layer,{x,y:y-height/2+13},i===0?'H':moveName(block[0])+'H',{size:12,width});
+      const name=i===0?'H':moveName(block[0])+'H';
+      diagramLabel(tray,{x,y:y-height/2+13},name,{size:12,width});
+      layer.add(tray);
+      if (shrink>0) {
+        const dot=new Konva.Group({opacity:shrink});
+        dot.add(new Konva.Circle({x,y:y-6,radius:10,fill:colors[i%colors.length]}));
+        const tokenName=group.name==='Rotations' ? (i===0?'Rotation':'Reflection') : name;
+        diagramLabel(dot,{x,y:y+16},tokenName,{size:13,width});
+        layer.add(dot);
+      }
     });
+    if (quotient) {
+      const outcome=!normal ? 'Not normal. The quotient group does not exist.'
+        : 'D₄ / H ≅ '+({1:'D₄',2:'C₂ × C₂',4:'C₂',8:'the trivial group'}[group.moves.length]);
+      diagramLabel(layer,{x:612,y:493},outcome,{size:15,width:360,fill:normal?'#000':'#a42828'});
+      if (normal && lessonMotion.value===1) control(layer,collapsed.value?'Expand cosets':'Collapse cosets',612,451,()=>{
+        collapsed.value=!collapsed.value;
+        playLessonMotion(1500);
+      },160);
+      readout=group.name+'. '+outcome;
+      return;
+    }
     const count=blocks.length+' cosets × '+group.moves.length+' moves per coset = 8';
     if (counting && !hint.value) control(layer,'Reveal count',612,468,()=>hint.value=1);
     diagramLabel(layer,{x:612,y:counting?425:462},counting&&!hint.value?'Count the boxes, then count the moves in each.':count,{size:14,width:370});
@@ -994,126 +1023,46 @@ function squareLattice(layer: Konva.Container, explorer: boolean) {
   readout=promptText+' '+feedback;
 }
 
-function cosetComparison(layer: Konva.Container, quotient: boolean) {
+function groupsAgree(left: number[][], right: number[][]) {
+  return left.every(block=>right.some(other=>sameSet(block,other)));
+}
+
+function cosetComparison(layer: Konva.Container) {
   const mirror=mirrorExample.value;
   const subset=mirror?mirrorSubgroup:rotations;
   const left=partition(subset);
   const right=partition(subset,'right');
-  const normal=left.every(block=>right.some(other=>sameSet(block,other)));
+  const normal=groupsAgree(left,right);
   const points=(mirror?[0,4,1,5,2,6,7,3]:allMoves).reduce<Point[]>((poses,move,index)=>{
     const column=index%4;
     poses[move]={x:176+column*147+(mirror&&column>=2?8:0),y:177+Math.floor(index/4)*106};
     return poses;
   },[]);
-  const amount=quotient&&normal?(collapsed.value?lessonMotion.value:1-lessonMotion.value):0;
-  const shift=Math.max(0,(amount-.24)/.76);
-  const names=['Rotation','Reflection'];
-  const productMove=product(...representatives.value);
-  const blockIndex=(move:number)=>left.findIndex(block=>block.includes(move));
-  const centerOf=(block:number[])=>({
-    x:block.reduce((sum,move)=>sum+points[move].x,0)/block.length,
-    y:block.reduce((sum,move)=>sum+points[move].y,0)/block.length,
-  });
   function outlines(blocks:number[][], color:string, dash?: number[]) {
-    if (shift>=1) return;
-    const group=new Konva.Group({opacity:1-shift});
     blocks.forEach(block=>{
       const xs=block.map(move=>points[move].x);
       const ys=block.map(move=>points[move].y);
-      const {x,y}=centerOf(block);
+      const x=(Math.min(...xs)+Math.max(...xs))/2;
+      const y=(Math.min(...ys)+Math.max(...ys))/2;
       const inset=dash?-9:0;
       const w=Math.max(...xs)-Math.min(...xs)+108+inset*2;
       const h=Math.max(...ys)-Math.min(...ys)+85+inset*2;
-      panel(group,x,y+7,w,h,color,'transparent',dash);
+      panel(layer,x,y+7,w,h,color,'transparent',dash);
     });
-    layer.add(group);
   }
-  control(layer,mirror?'Rotations':'✓ Rotations',280,78,()=>chooseExample(false),140);
-  control(layer,mirror?'✓ Identity and a reflection':'Identity and a reflection',474,78,()=>chooseExample(true),226);
-  function chooseExample(next:boolean) {
-    stopLessonMotion();
-    lessonMotion.value=1;
-    mirrorExample.value=next;
-    representatives.value=next?[0,1]:[4,4];
-    representativeSlot.value=0;
-    priorProduct.value=undefined;
-    quotientTokens.value=[];
-    collapsed.value=false;
-  }
+  control(layer,mirror?'Rotations':'✓ Rotations',280,78,()=>mirrorExample.value=false,140);
+  control(layer,mirror?'✓ Identity and a reflection':'Identity and a reflection',474,78,()=>mirrorExample.value=true,226);
   outlines(left,'#087e78');
-  if (!quotient) outlines(right,'#ad6d08',[7,5]);
+  outlines(right,'#ad6d08',[7,5]);
   points.forEach((p,move)=>{
-    const group=new Konva.Group({opacity:1-shift});
-    const slot=representativeSlot.value;
-    if (quotient && amount===0) {
-      const active=representatives.value[slot];
-      const eligible=blockIndex(move)===blockIndex(active);
-      const focus=eligible&&target('Use '+moveName(move)+' for factor '+(slot+1),p.x,p.y+7,75,73,()=>{
-        priorProduct.value=productMove;
-        const pair:[number,number]=[...representatives.value];
-        pair[slot]=move;
-        representatives.value=pair;
-      });
-      if (eligible || move===productMove)
-        panel(group,p.x,p.y+7,77,72,focus?'#ad6d08':move===productMove?green:'#9dbdaf',move===productMove?'#d3ead2':'#eef5e8');
-    }
-    const center=centerOf(left[blockIndex(move)]);
-    const x=p.x+(center.x-p.x)*shift;
-    const y=p.y+(center.y-p.y)*shift;
-    if (shift<1) square(group,{x,y},22*(1-shift),move);
-    const labels=new Konva.Group({opacity:Math.max(0,1-amount/.24)});
-    diagramLabel(labels,{x,y:y+31},moveName(move),{width:70,size:17});
-    group.add(labels);
-    layer.add(group);
+    square(layer,p,22,move);
+    diagramLabel(layer,{x:p.x,y:p.y+31},moveName(move),{width:70,size:17});
   });
-  if (!quotient) {
-    diagramLabel(layer,{x:400,y:377},'Solid teal: left cosets     ·     Dashed amber: right cosets',{width:690,size:17});
-    diagramLabel(layer,{x:400,y:412},normal?'Same partition · H is normal':'Different partitions · H is not normal',{width:740,size:21});
-    diagramLabel(layer,{x:400,y:456},'A subgroup is normal when the two partitions agree.',{width:740,size:16});
-    readout='Left: '+left.map(b=>[...b].sort((a,b)=>a-b).map(moveName).join(', ')).join(' | ')+'. Right: '+right.map(b=>[...b].sort((a,b)=>a-b).map(moveName).join(', ')).join(' | ')+'.';
-    return;
-  }
-  if (shift>0) left.forEach((block,i)=>{
-    const p=centerOf(block);
-    const ready=shift===1;
-    const focus=ready&&target('Compose '+names[i],p.x,p.y+8,120,76,()=>{
-      quotientTokens.value=quotientTokens.value.length===2?[i]:[...quotientTokens.value,i];
-    });
-    const token=new Konva.Group({opacity:shift});
-    token.add(new Konva.Circle({...p,radius:16,fill:i===0?'#087e78':'#ad6d08',stroke:focus?'#151e19':undefined,strokeWidth:3}));
-    diagramLabel(token,{x:p.x,y:p.y+34},names[i],{width:140});
-    layer.add(token);
-  });
-  if (normal && lessonMotion.value===1) control(layer,collapsed.value?'Expand cosets':'Collapse cosets',400,477,()=>{
-    collapsed.value=!collapsed.value;
-    quotientTokens.value=[];
-    playLessonMotion(1500);
-  },160);
-  if (collapsed.value) {
-    const pair=quotientTokens.value;
-    const text=pair.length===2?names[pair[0]]+' × '+names[pair[1]]+' = '+names[(pair[0]+pair[1])%2]:
-      pair.length===1?names[pair[0]]+' × …':'Click two dots to compose their cosets.';
-    diagramLabel(layer,{x:400,y:402},text,{width:750});
-    readout=text;
-    return;
-  }
-  [0,1].forEach(i=>control(layer,(representativeSlot.value===i?'✓ ':'')+'Factor '+(i+1)+': '+moveName(representatives.value[i]),190+i*145,373,
-    ()=>representativeSlot.value=i as 0|1,135));
-  const swap=()=>{
-    priorProduct.value=productMove;
-    const i=mirror?0:1;
-    representatives.value=mirror?(representatives.value[0]===0?[4,1]:[0,1]):[4,representatives.value[1]===4?5:4];
-    representativeSlot.value=i;
-  };
-  control(layer,'Swap a representative',553,373,swap,210);
-  const description=(move:number)=>normal?names[blockIndex(move)]:left[blockIndex(move)].map(moveName).join(', ');
-  const comparison=priorProduct.value===undefined?'Choose a factor, then click another tile in its coset.':
-    moveName(priorProduct.value)+' → '+moveName(productMove)+' · '+(blockIndex(priorProduct.value)===blockIndex(productMove)?'same result coset':'different result coset');
-  const equation=representatives.value.map(moveName).join(' × ')+' = '+moveName(productMove)+' · '+description(productMove);
-  diagramLabel(layer,{x:400,y:413},equation,{width:760,size:18});
-  diagramLabel(layer,{x:400,y:442},comparison,{width:760,size:15});
-  if (!normal) diagramLabel(layer,{x:400,y:477},'Different representatives can give different cosets. No quotient group.',{width:760,size:15});
-  readout=equation+'. '+comparison;
+  diagramLabel(layer,{x:400,y:377},'Solid teal: left cosets     ·     Dashed amber: right cosets',{width:690,size:17});
+  diagramLabel(layer,{x:400,y:412},normal?'Same partition · H is normal':'Different partitions · H is not normal',{width:740,size:21});
+  diagramLabel(layer,{x:400,y:456},'A subgroup is normal when the two partitions agree.',{width:740,size:16});
+  const describe=(blocks:number[][])=>blocks.map(b=>[...b].sort((a,b)=>a-b).map(moveName).join(', ')).join(' | ');
+  readout='Left: '+describe(left)+'. Right: '+describe(right)+'.';
 }
 
 const layout = computed(() => {
@@ -1134,8 +1083,8 @@ function draw(layer: Konva.Layer) {
   if (instruction) label(stage,{ x:400,y:30 },instruction,{ width:780,size:18,fill:ink });
   if (id === 'clock-subgroup-diagram') clockSubgroupDiagram(stage);
   else if (id === 'subgroups') squareLattice(stage,false);
-  else if (id === 'cosets' || id === 'lagrange-theorem') squareLattice(stage,true);
-  else if (id === 'normal-subgroups' || id === 'quotient-groups') cosetComparison(stage,id === 'quotient-groups');
+  else if (id === 'cosets' || id === 'lagrange-theorem' || id === 'quotient-groups') squareLattice(stage,true);
+  else if (id === 'normal-subgroups') cosetComparison(stage);
   else if (id === 'clock-addition') addition(stage);
   else if (id === 'clock-commutativity') commutative(stage);
   else if (id === 'clock-associativity') associative(stage);

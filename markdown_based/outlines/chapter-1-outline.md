@@ -372,7 +372,7 @@ Another way to describe normality is through conjugation. Multiply each element 
 
 ### Quotient groups {#quotient-groups}
 ::scene[square]
-<!-- Fade individual labels and gather each normal coset into one labeled dot. Reverse the animation on Expand. Let learners compose the dots or compare representatives. For the vertical mirror subgroup, keep the partition expanded and show that swapping representatives can change the result coset. -->
+<!-- Fade individual labels and gather each normal coset into one labeled dot. Reverse the animation on Expand. Use the full square subgroup diagram to select the denominator. Identify the resulting quotient group below the cosets. For non-normal subgroups, keep the partition expanded and show that the quotient group does not exist. -->
 
 :::narration[quotient-groups-intro]
 Imagine that we are no longer interested in distinguishing the individual rotations of a square. Instead, we only want to distinguish rotations from reflections.
@@ -383,9 +383,9 @@ Collapse the cosets to see the two elements of our new group. Expand them again 
 :::
 ::pause
 :::narration[quotient-groups-products]
-Choose two cosets and multiply a representative from each. Now change the representatives while keeping the same cosets. Does the product still belong to the same coset?
+Choose a subgroup from the diagram on the left. If it is normal, click Collapse cosets. Each box shrinks to one dot, and the label at the bottom tells you which quotient group you made. Try the half-turn subgroup and compare it with the rotations.
 
-For a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters.
+Now try the subgroup made of the identity and one reflection. Its left and right cosets partition the moves differently. This subgroup is not normal, so the quotient group does not exist.
 :::
 ::pause
 

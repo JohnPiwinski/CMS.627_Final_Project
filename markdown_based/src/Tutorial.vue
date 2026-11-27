@@ -90,7 +90,7 @@ function loadPage() {
   if (isSolid.value && solid.value !== 'Cube') controls?.choose(solid.value);
   if (panel.value) panel.value.inert = !isSolid.value;
   if (dockHost.value) {
-    dock = new ToolDock(dockHost.value, isSolid.value ? ['rotate', 'reflect'] : latticeTools, chooseTool);
+    dock = new ToolDock(dockHost.value, isSolid.value ? ['rotate', 'reflect'] : latticeTools.filter(tool => tool !== 'glide'), chooseTool);
     dock.update(tool.value, beat.value.cue);
   }
 }

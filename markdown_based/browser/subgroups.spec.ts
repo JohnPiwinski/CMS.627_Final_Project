@@ -65,15 +65,23 @@ for (const width of [390, 1180]) {
     await expect(status).toContainText('r, rs');
     await expect(status).toContainText('r, sr');
     await button('Quotient groups').click();
-    await keyboard('Swap a representative');
-    await expect(status).toContainText('same result coset');
+    await expect(status).toContainText('Rotations. D₄ / H ≅ C₂');
     await keyboard('Collapse cosets');
-    await keyboard('Compose Reflection');
-    await keyboard('Compose Reflection');
-    await expect(status).toHaveText('Reflection × Reflection = Rotation');
+    await expect(button('Expand cosets')).toHaveCount(1);
     await keyboard('Expand cosets');
-    await keyboard('Identity and a reflection');
-    await keyboard('Swap a representative');
-    await expect(status).toContainText('different result coset');
+    await expect(button('Collapse cosets')).toHaveCount(1);
+    for (const [card, quotient] of [
+      ['Half-turn', 'C₂ × C₂'],
+      ['Identity', 'D₄'],
+      ['All square symmetries', 'the trivial group'],
+      ['Axial mirrors · Klein four', 'C₂'],
+      ['Diagonal mirrors · Klein four', 'C₂'],
+    ]) {
+      await keyboard('Select ' + card);
+      await expect(status).toHaveText(card + '. D₄ / H ≅ ' + quotient);
+    }
+    await keyboard('Select Vertical mirror');
+    await expect(status).toContainText('Not normal. The quotient group does not exist.');
+    await expect(button('Collapse cosets')).toHaveCount(0);
   });
 }

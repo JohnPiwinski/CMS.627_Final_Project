@@ -15,10 +15,6 @@
     "file": "square-reflect-6f83f3acae74d097.mp3",
     "text": "Now select the highlighted Reflect tool. Press a lattice dot and drag horizontally or vertically to choose the mirror line. Release and watch the marked triangle flip across that line."
   },
-  "square-glide": {
-    "file": "square-glide-8f5f8850c7e39922.mp3",
-    "text": "A glide reflection flips across a line and then slides along that same line. Select the highlighted Glide icon, just to the right of Reflect in the bottom toolbar. Drag from a lattice dot to choose a mirror line. Then drag along that line to choose how far to slide."
-  },
   "square-match": {
     "file": "square-match-0a210b8d0dbfb7d5.mp3",
     "text": "Can you line up the two triangles? Use the bottom toolbar to switch between tools. Match A with A, B with B, and C with C on the dashed target. Once all three corners overlap, you can continue."
@@ -144,8 +140,8 @@
     "text": "Imagine that we are no longer interested in distinguishing the individual rotations of a square. Instead, we only want to distinguish rotations from reflections.\n\nWe can identify all the rotations with one another and all the reflections with one another. In doing so, we obtain a new group with only two elements. This is an example of a quotient group. Division here means forgetting certain information: we identify elements that belong to the same coset. A representative can name its coset, but it is the entire coset that is an element of the quotient.\n\nCollapse the cosets to see the two elements of our new group. Expand them again to see which original transformations they represent."
   },
   "quotient-groups-products": {
-    "file": "quotient-groups-products-897c3c6853fb99cb.mp3",
-    "text": "Choose two cosets and multiply a representative from each. Now change the representatives while keeping the same cosets. Does the product still belong to the same coset?\n\nFor a normal subgroup, the answer is always yes. This allows us to define multiplication on the cosets themselves. Try the same experiment with the non-normal reflection subgroup and see why normality matters."
+    "file": "quotient-groups-products-dd69db013f782139.mp3",
+    "text": "Choose a subgroup from the diagram on the left. If it is normal, click Collapse cosets. Each box shrinks to one dot, and the label at the bottom tells you which quotient group you made. Try the half-turn subgroup and compare it with the rotations.\n\nNow try the subgroup made of the identity and one reflection. Its left and right cosets partition the moves differently. This subgroup is not normal, so the quotient group does not exist."
   },
   "wallpaper-overview-v2": {
     "file": "wallpaper-overview-v2-eaab75ff9865d73f.mp3",
