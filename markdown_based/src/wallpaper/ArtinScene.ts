@@ -22,16 +22,7 @@ import {
   describeIsometry,
 } from "../lib/wallpaper";
 
-const COLOR_PERIOD = 4;
-const colors = [
-  "#8cafa2",
-  "#eab295",
-  "#ebcf86",
-  "#a5b4d6",
-  "#c7a7be",
-  "#bdce90",
-];
-const wrap = (v: number, n: number) => ((v % n) + n) % n;
+import { COLOR_PERIOD, wallpaperTexture, wrap } from "./pattern-texture";
 export function createWallpaperScene(
   viewport: HTMLDivElement,
   dockHost: HTMLDivElement,
@@ -60,19 +51,42 @@ export function createWallpaperScene(
   const overlay = new Konva.Layer();
   const stage = new Konva.Stage({ container: viewport, width: 1, height: 1 });
   const layer = new Konva.Layer({ listening: false });
-  const fills = new Konva.Group();
-  const outlines = new Konva.Group();
-  layer.add(fills, outlines);
-  stage.add(layer);
+  const reference = new Konva.Layer({ listening: false });
+  const preview = new Konva.Layer({ listening: false });
+  stage.add(layer, reference, overlay, preview);
 
-  let pattern: Pattern,
-    toLattice: (x: number, y: number) => number[],
-    scale: number,
-    templates: Konva.Path[],
-    seam: Konva.Path | undefined,
-    extent: number[],
-    renderedArea: number[] | undefined;
+  let pattern: Pattern, scale: number;
+  let toLattice: (x: number, y: number) => number[];
+  let fillTexture: CanvasPattern, outlineTexture: CanvasPattern;
+  let fillMatrix: DOMMatrix, outlineMatrix: DOMMatrix;
+  let transform: Affine = identity;
+  let featureArea: { x: number; y: number; width: number; height: number } | undefined;
+  let pendingFrame = 0;
+  let needsPan = false, needsOverlay = false;
   const camera = { x: 0, y: 0 };
+  const offset = { x: 0, y: 0 };
+
+  function paintTexture(context: CanvasRenderingContext2D, texture: CanvasPattern,
+    tileMatrix: DOMMatrix, map: Affine, opacity = 1) {
+    const [a, b, c, d, x, y] = map;
+    const matrix = new DOMMatrix([a * scale, c * scale, b * scale, d * scale,
+      offset.x + x * scale, offset.y + y * scale]);
+    texture.setTransform(matrix.multiply(tileMatrix));
+    context.save();
+    context.globalAlpha = opacity;
+    context.fillStyle = texture;
+    context.fillRect(0, 0, stage.width(), stage.height());
+    context.restore();
+  }
+  layer.add(new Konva.Shape({ listening: false, sceneFunc(context) {
+    if (!fillTexture) return;
+    paintTexture(context._context, fillTexture, fillMatrix, transform);
+    paintTexture(context._context, outlineTexture, outlineMatrix, transform);
+  } }));
+  reference.add(new Konva.Shape({ listening: false, sceneFunc(context) {
+    if (compare && trial && outlineTexture)
+      paintTexture(context._context, outlineTexture, outlineMatrix, identity, 0.24);
+  } }));
 
   function loadPattern() {
     pattern = patterns[index];
@@ -83,40 +97,18 @@ export function createWallpaperScene(
       (ax * y - ay * x) / determinant,
     ];
     scale = pattern.scale;
-    templates?.forEach((template) => template.destroy());
-    seam?.destroy();
-    templates = pattern.cells.map(
-      (cell) =>
-        new Konva.Path({
-          data: cell.path,
-          listening: false,
-          perfectDrawEnabled: false,
-        }),
-    );
-    seam = pattern.seam
-      ? new Konva.Path({
-          data: pattern.seam,
-          stroke: "#4b4037",
-          strokeWidth: 1.05,
-          strokeScaleEnabled: false,
-          listening: false,
-          perfectDrawEnabled: false,
-          lineJoin: "round",
-        })
-      : undefined;
-    extent = limits(
-      pattern.cells.flatMap((cell) => {
-        const [x0, y0, x1, y1] = cell.bounds;
-        return [
-          toLattice(x0, y0),
-          toLattice(x1, y0),
-          toLattice(x0, y1),
-          toLattice(x1, y1),
-        ];
-      }),
-    );
-    camera.x = camera.y = 0;
-    renderedArea = undefined;
+    const context = layer.getContext()._context;
+    const fill = wallpaperTexture(pattern, false);
+    const outline = wallpaperTexture(pattern, true);
+    fillTexture = context.createPattern(fill, "repeat")!;
+    outlineTexture = context.createPattern(outline, "repeat")!;
+    const matrix = (tile: HTMLCanvasElement) => new DOMMatrix([
+      ax * COLOR_PERIOD / tile.width, ay * COLOR_PERIOD / tile.width,
+      bx * COLOR_PERIOD / tile.height, by * COLOR_PERIOD / tile.height, 0, 0,
+    ]);
+    fillMatrix = matrix(fill);
+    outlineMatrix = matrix(outline);
+    featureArea = undefined;
     updateDock();
     onPattern?.(pattern);
     viewport.setAttribute(
@@ -143,112 +135,42 @@ export function createWallpaperScene(
     const jOffset = wrap(v, COLOR_PERIOD);
     const x = iOffset * ax + jOffset * bx;
     const y = iOffset * ay + jOffset * by;
-    layer.position({ x: x * scale, y: y * scale });
-    layer.scale({ x: scale, y: scale });
-
-    const corners = [
-      toLattice(-x, -y),
-      toLattice(width / scale - x, -y),
-      toLattice(-x, height / scale - y),
-      toLattice(width / scale - x, height / scale - y),
-    ];
-    if (trial) {
-      const center = trial.tool === "translate" ? { x: 0, y: 0 } : trial.point;
-      const points = [
-        [0, 0],
-        [width, 0],
-        [0, height],
-        [width, height],
-      ].map(([x, y]) => world({ x, y }));
-      const radius =
-        Math.max(
-          ...points.map((p) => Math.hypot(p.x - center.x, p.y - center.y)),
-        ) +
-        (trial.tool === "translate"
-          ? Math.hypot(trial.point.x, trial.point.y)
-          : Math.abs(trial.amount));
-      for (const dx of [-radius, radius])
-        for (const dy of [-radius, radius])
-          corners.push(toLattice(center.x + dx, center.y + dy));
-    }
-    const [minI, minJ, maxI, maxJ] = limits(corners);
-    const [cellMinI, cellMinJ, cellMaxI, cellMaxJ] = extent;
-
-    // Keep a border of copies outside the viewport and reuse the nodes while
-    // the camera stays inside it. Camera wrapping preserves the color period.
-    const visible = [
-      Math.floor(minI - cellMaxI),
-      Math.floor(minJ - cellMaxJ),
-      Math.ceil(maxI - cellMinI),
-      Math.ceil(maxJ - cellMinJ),
-    ];
-    if (
-      !renderedArea ||
-      visible[0] < renderedArea[0] ||
-      visible[1] < renderedArea[1] ||
-      visible[2] > renderedArea[2] ||
-      visible[3] > renderedArea[3]
-    ) {
-      const area = [
-        visible[0] - 1,
-        visible[1] - 1,
-        visible[2] + 1,
-        visible[3] + 1,
-      ];
-      fills.destroyChildren();
-      outlines.destroyChildren();
-      for (let j = area[1]; j <= area[3]; j++) {
-        for (let i = area[0]; i <= area[2]; i++) {
-          const pos = { x: i * ax + j * bx, y: i * ay + j * by };
-          const colorIndex =
-            wrap(j, COLOR_PERIOD) * COLOR_PERIOD + wrap(i, COLOR_PERIOD);
-          for (const [index, cell] of pattern.cells.entries()) {
-            const template = templates[index];
-            const fill = cell.fill ?? colors[cell.colors[colorIndex]];
-            fills.add(
-              template.clone({
-                ...pos,
-                fill,
-                stroke: fill,
-                strokeWidth: 0.85,
-                strokeScaleEnabled: false,
-              }),
-            );
-            if (!seam && cell.outline !== false) {
-              outlines.add(
-                template.clone({
-                  ...pos,
-                  stroke: "#4b4037",
-                  strokeWidth: 1.05,
-                  strokeScaleEnabled: false,
-                  lineJoin: "round",
-                }),
-              );
-            }
-          }
-          if (seam) outlines.add(seam.clone(pos));
-        }
-      }
-      renderedArea = area;
-    }
-    featureList = features();
+    offset.x = x * scale;
+    offset.y = y * scale;
+    updateFeatures();
     paintTransform();
     drawOverlay();
+    drawPreview();
     layer.batchDraw();
   }
 
-  stage.add(overlay);
+  function scheduleDraw(panChanged = false, overlayChanged = false) {
+    needsPan ||= panChanged;
+    needsOverlay ||= overlayChanged;
+    if (pendingFrame) return;
+    pendingFrame = requestAnimationFrame(() => {
+      pendingFrame = 0;
+      const panChanged = needsPan, overlayChanged = needsOverlay;
+      needsPan = needsOverlay = false;
+      if (panChanged) draw();
+      else {
+        if (overlayChanged) drawOverlay();
+        drawPreview();
+      }
+    });
+  }
+
   const basis = (): Affine => {
     const [a, b] = pattern.lattice;
     return [a[0], b[0], a[1], b[1], 0, 0];
   };
   const screen = (p: Point) => ({
-    x: p.x * scale + layer.x(),
-    y: p.y * scale + layer.y(),
+    x: p.x * scale + offset.x,
+    y: p.y * scale + offset.y,
   });
   const world = (p: Point) => ({
-    x: (p.x - layer.x()) / scale,
-    y: (p.y - layer.y()) / scale,
+    x: (p.x - offset.x) / scale,
+    y: (p.y - offset.y) / scale,
   });
   function snap(p: Point) {
     const [u, v] = toLattice(p.x, p.y);
@@ -271,14 +193,28 @@ export function createWallpaperScene(
       -(p.x - f.point.x) * Math.sin(f.angle) +
         (p.y - f.point.y) * Math.cos(f.angle),
     );
+  const featureMargin = 192;
+  function updateFeatures() {
+    if (tool === "translate") {
+      featureList = [];
+      featureArea = undefined;
+      return;
+    }
+    const width = stage.width(), height = stage.height();
+    if (featureArea && featureArea.width === width && featureArea.height === height &&
+      Math.abs(featureArea.x - offset.x) < featureMargin / 2 &&
+      Math.abs(featureArea.y - offset.y) < featureMargin / 2) return;
+    featureList = features();
+    featureArea = { ...offset, width, height };
+  }
   function features() {
     const B = basis(),
       inv = inverseAffine(B),
       corners = [
-        [0, 0],
-        [stage.width(), 0],
-        [0, stage.height()],
-        [stage.width(), stage.height()],
+        [-featureMargin, -featureMargin],
+        [stage.width() + featureMargin, -featureMargin],
+        [-featureMargin, stage.height() + featureMargin],
+        [stage.width() + featureMargin, stage.height() + featureMargin],
       ].map(([x, y]) => world({ x, y }));
     const range = corners.map((p) => apply(inv, p));
     const loX = Math.floor(Math.min(...range.map((p) => p.x))) - 3,
@@ -318,10 +254,10 @@ export function createWallpaperScene(
           if (f.kind === "rotate") {
             const p = screen(f.point);
             if (
-              p.x < -55 ||
-              p.y < -55 ||
-              p.x > stage.width() + 55 ||
-              p.y > stage.height() + 55
+              p.x < -featureMargin ||
+              p.y < -featureMargin ||
+              p.x > stage.width() + featureMargin ||
+              p.y > stage.height() + featureMargin
             )
               continue;
             f.order =
@@ -391,15 +327,12 @@ export function createWallpaperScene(
             trial.tool === "reflect" && progress === 0.5 ? 0.50001 : progress,
           )
         : identity;
-    // Fill and outline groups share the same transformed frame. The lattice stays fixed.
-    const [a, b, c, d, x, y] = map;
-    const attrs = new Konva.Transform([a, c, b, d, x, y]).decompose();
-    fills.setAttrs(attrs);
-    outlines.setAttrs(attrs);
+    transform = map;
   }
   function hint(s: string) {
+    if (status === s) return;
     status = s;
-    drawOverlay();
+    scheduleDraw(false, true);
   }
   const gestures = createLatticeGestures({
     yUp: false,
@@ -480,8 +413,8 @@ export function createWallpaperScene(
     commit: (move) => {
       trial = move;
       progress = 0;
-      renderedArea = undefined;
-      draw();
+      paintTransform();
+      reference.batchDraw();
       cancelAnimationFrame(animation);
       const start = performance.now();
       const tick = (now: number) => {
@@ -489,7 +422,6 @@ export function createWallpaperScene(
           ? 1
           : Math.min(1, (now - start) / 740);
         paintTransform();
-        drawOverlay();
         layer.batchDraw();
         if (progress < 1) animation = requestAnimationFrame(tick);
       };
@@ -497,7 +429,7 @@ export function createWallpaperScene(
       hint("Outline symmetry applied. Colors may move.");
     },
     hint,
-    changed: () => drawOverlay(),
+    changed: () => scheduleDraw(),
   });
   function updateDock() {
     const tools: LatticeTool[] = ["translate", "rotate", "reflect"];
@@ -523,7 +455,8 @@ export function createWallpaperScene(
     active = undefined;
     gestures.select(next);
     dock?.update(next);
-    featureList = features();
+    updateFeatures();
+    scheduleDraw(false, true);
     const available =
       next === "translate" ||
       featureList.some(
@@ -556,7 +489,7 @@ export function createWallpaperScene(
     progress = 1;
     gestures?.reset();
     camera.x = camera.y = 0;
-    renderedArea = undefined;
+    featureArea = undefined;
     draw();
     selectTool(tool);
   }
@@ -592,17 +525,7 @@ export function createWallpaperScene(
     overlay.destroyChildren();
     const w = stage.width(),
       h = stage.height();
-    if (compare && trial) {
-      const ref = new Konva.Group({ opacity: 0.24, listening: false });
-      for (const node of outlines.children) {
-        const clone = node.clone();
-        const [a, b] = pattern.lattice;
-        ref.add(clone);
-      }
-      ref.position(layer.position());
-      ref.scale({ x: scale, y: scale });
-      overlay.add(ref);
-    }
+    reference.batchDraw();
     if (lattice) {
       const [a, b] = pattern.lattice;
       const points = [
@@ -612,43 +535,38 @@ export function createWallpaperScene(
         [w, h],
       ].map(([x, y]) => toLattice(world({ x, y }).x, world({ x, y }).y));
       const lim = limits(points);
+      const grid = new Path2D();
+      const dots = new Path2D();
+      const B = basis();
       const gridLine = (a: Point, b: Point) => {
-        const p = screen(a),
-          q = screen(b);
-        overlay.add(
-          new Konva.Line({
-            points: [p.x, p.y, q.x, q.y],
-            stroke: "#243b3455",
-            strokeWidth: 1,
-            dash: [3, 6],
-            listening: false,
-          }),
-        );
+        const p = screen(apply(B, a)), q = screen(apply(B, b));
+        grid.moveTo(p.x, p.y);
+        grid.lineTo(q.x, q.y);
       };
       for (let i = Math.floor(lim[0]); i <= Math.ceil(lim[2]); i++)
-        gridLine(
-          apply(basis(), { x: i, y: lim[1] - 1 }),
-          apply(basis(), { x: i, y: lim[3] + 1 }),
-        );
+        gridLine({ x: i, y: lim[1] - 1 }, { x: i, y: lim[3] + 1 });
       for (let j = Math.floor(lim[1]); j <= Math.ceil(lim[3]); j++)
-        gridLine(
-          apply(basis(), { x: lim[0] - 1, y: j }),
-          apply(basis(), { x: lim[2] + 1, y: j }),
-        );
+        gridLine({ x: lim[0] - 1, y: j }, { x: lim[2] + 1, y: j });
       for (let i = Math.floor(lim[0]) - 1; i <= Math.ceil(lim[2]) + 1; i++)
         for (let j = Math.floor(lim[1]) - 1; j <= Math.ceil(lim[3]) + 1; j++) {
-          const p = screen(apply(basis(), { x: i, y: j }));
-          overlay.add(
-            new Konva.Circle({
-              ...p,
-              radius: 3.5,
-              fill: "#243b34",
-              stroke: "#f6eedb",
-              strokeWidth: 1,
-              listening: false,
-            }),
-          );
+          const p = screen(apply(B, { x: i, y: j }));
+          dots.moveTo(p.x + 3.5, p.y);
+          dots.arc(p.x, p.y, 3.5, 0, 2 * Math.PI);
         }
+      overlay.add(new Konva.Shape({ listening: false, sceneFunc(context) {
+        const canvas = context._context;
+        canvas.save();
+        canvas.lineWidth = 1;
+        canvas.strokeStyle = "#243b3455";
+        canvas.setLineDash([3, 6]);
+        canvas.stroke(grid);
+        canvas.setLineDash([]);
+        canvas.fillStyle = "#243b34";
+        canvas.fill(dots);
+        canvas.strokeStyle = "#f6eedb";
+        canvas.stroke(dots);
+        canvas.restore();
+      } }));
       const anchor = snap(
         world({ x: stage.width() / 2, y: stage.height() / 2 }),
       );
@@ -705,35 +623,6 @@ export function createWallpaperScene(
         );
       }
     }
-    const glide = gestures.state.glide;
-    if (glide)
-      for (const amount of glide.amounts ?? []) {
-        const p = screen({
-          x: glide.point.x + amount * Math.cos(glide.angle),
-          y: glide.point.y + amount * Math.sin(glide.angle),
-        });
-        overlay.add(
-          new Konva.Circle({
-            ...p,
-            radius: 6,
-            fill: "#a7d6be",
-            stroke: "#774a86",
-            strokeWidth: 2,
-            listening: false,
-          }),
-        );
-      }
-    drawLatticeGesture(overlay, gestures.state, screen, false);
-    if (focused)
-      overlay.add(
-        new Konva.Circle({
-          ...screen(gestures.state.cursor),
-          radius: 6,
-          stroke: "#fff",
-          fill: "#b88736",
-          listening: false,
-        }),
-      );
     let x = 8,
       y = 8;
     for (const [text, action, pressed] of [
@@ -815,6 +704,39 @@ export function createWallpaperScene(
     accessible.querySelector("[role=status]")!.textContent = status;
     overlay.batchDraw();
   }
+  function drawPreview() {
+    preview.destroyChildren();
+    const glide = gestures.state.glide;
+    if (glide)
+      for (const amount of glide.amounts ?? []) {
+        const p = screen({
+          x: glide.point.x + amount * Math.cos(glide.angle),
+          y: glide.point.y + amount * Math.sin(glide.angle),
+        });
+        preview.add(
+          new Konva.Circle({
+            ...p,
+            radius: 6,
+            fill: "#a7d6be",
+            stroke: "#774a86",
+            strokeWidth: 2,
+            listening: false,
+          }),
+        );
+      }
+    drawLatticeGesture(preview, gestures.state, screen, false);
+    if (focused)
+      preview.add(
+        new Konva.Circle({
+          ...screen(gestures.state.cursor),
+          radius: 6,
+          stroke: "#fff",
+          fill: "#b88736",
+          listening: false,
+        }),
+      );
+    preview.batchDraw();
+  }
   function location(e: PointerEvent) {
     const r = viewport.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -835,7 +757,7 @@ export function createWallpaperScene(
       camera.x += p.x - active.last.x;
       camera.y += p.y - active.last.y;
       active.last = p;
-      draw();
+      scheduleDraw(true);
     } else gestures.move(world(p));
   };
   const up = (e: PointerEvent) => {
@@ -951,8 +873,7 @@ export function createWallpaperScene(
     dispose() {
       cancelAnimationFrame(animation);
       observer.disconnect();
-      templates?.forEach((template) => template.destroy());
-      seam?.destroy();
+      cancelAnimationFrame(pendingFrame);
       dock?.destroy();
       stage.destroy();
       for (const [name, fn] of Object.entries({

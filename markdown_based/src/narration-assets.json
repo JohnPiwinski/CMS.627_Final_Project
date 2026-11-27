@@ -168,8 +168,8 @@
     "text": "So far, we have studied groups as collections of\ntransformations. Now we are going to study what those\ntransformations actually do to geometric objects.\n\nSelect a vertex of the cube and then use the rotation\nand reflection tools to move it around.\n\nWhen a group transforms the elements of a set in this\nway, we say that the group acts on that set."
   },
   "orbit-introduction": {
-    "file": "orbit-introduction-f4e9018e2d7eeece.mp3",
-    "text": "Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids.\n\nWhen a rotation can send any vertex to any other vertex, we say that the action on vertices is transitive. The rotations act transitively on edges and on faces too. The set of positions a feature can reach is its orbit."
+    "file": "orbit-introduction-835b7ca090a3cf9e.mp3",
+    "text": "Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids. Dual solids have the same symmetry group because swapping vertices and faces preserves their symmetries.\n\nWhen a rotation can send any vertex to any other vertex, we say that the action on vertices is transitive. The rotations act transitively on edges and on faces too. The set of positions a feature can reach is its orbit."
   },
   "stabilizer-introduction": {
     "file": "stabilizer-introduction-f113322070f8d658.mp3",

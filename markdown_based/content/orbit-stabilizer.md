@@ -53,7 +53,7 @@ Do not reveal the total before exploration.
 -->
 
 :::narration[orbit-introduction]
-Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids.
+Use the rotation tool to convince yourself that the yellow vertex can reach any vertex position. Try the same experiment with an edge or a face, and switch among the Platonic solids. Dual solids have the same symmetry group because swapping vertices and faces preserves their symmetries.
 
 When a rotation can send any vertex to any other vertex, we say that the action on vertices is transitive. The rotations act transitively on edges and on faces too. The set of positions a feature can reach is its orbit.
 :::

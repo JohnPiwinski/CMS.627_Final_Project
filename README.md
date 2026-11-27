@@ -5,3 +5,5 @@
 The site is built from [`markdown_based/`](markdown_based/), which contains the Emmy Noether’s Office game and its Chapter Zero, group theory, orbit stabilizer, and wallpaper symmetries activities.
 
 GitHub Actions builds and deploys the site to GitHub Pages when the app changes on `main`.
+
+See the [collaborator and agent guide](docs/README.md) for local setup, the code map, and the narration workflow.
