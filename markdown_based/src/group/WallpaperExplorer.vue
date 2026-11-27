@@ -5,7 +5,7 @@ import { axisComponent as along, createLatticeGestures, drawLatticeGesture, glid
 import { ToolDock } from '../labs/ToolDock';
 import { add, distance, sub, type Point, type LatticeTool } from '../lib/geometry';
 import { apply, basisVector, cellBounds, compose, identity, inverseAffine, motion, translate,
-  type Affine, type Wallpaper } from '../../../interactive-artin-ch0/src/lib/wallpaper';
+  type Affine, type Wallpaper } from '../lib/wallpaper';
 import { corners, sourceCell, registeredWallpaper, verifiedMove, wallpaperFeatures, orbitPoints } from '../lib/wallpaper-explorer';
 import { arrow, useCanvas, useMotion } from './canvas';
 

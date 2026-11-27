@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { wallpapers, motion } from '../../interactive-artin-ch0/src/lib/wallpaper';
+import { wallpapers, motion } from '../src/lib/wallpaper';
 import { corners, registeredWallpaper, verifiedMove, wallpaperFeatures } from '../src/lib/wallpaper-explorer';
 
 const pattern = (id: string) => registeredWallpaper(wallpapers.find(p => p.id === id)!);

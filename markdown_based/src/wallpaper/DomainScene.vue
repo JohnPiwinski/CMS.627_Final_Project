@@ -15,7 +15,7 @@ import {
   motion,
   identity,
   type Affine,
-} from "../../../interactive-artin-ch0/src/lib/wallpaper";
+} from "../lib/wallpaper";
 import type { Point, LatticeTool } from "../lib/geometry";
 const props = defineProps<{
   mode: "overview" | "definition" | "dissection" | "explanation";

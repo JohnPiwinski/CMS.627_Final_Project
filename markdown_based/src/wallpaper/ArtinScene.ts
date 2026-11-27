@@ -1,6 +1,6 @@
 import Konva from "konva";
 import type { Point, LatticeTool } from "../lib/geometry";
-import type { Affine } from "../../../interactive-artin-ch0/src/lib/wallpaper";
+import type { Affine } from "../lib/wallpaper";
 import { collectionPatterns, type Pattern, type Collection } from "./catalog";
 type Feature = ReturnType<typeof describeIsometry> & {
   order?: number;
@@ -20,7 +20,7 @@ import {
   motion,
   identity,
   describeIsometry,
-} from "../../../interactive-artin-ch0/src/lib/wallpaper";
+} from "../lib/wallpaper";
 
 const COLOR_PERIOD = 4;
 const colors = [

@@ -2,7 +2,7 @@ import artin from "./artin-patterns.json";
 import {
   wallpapers,
   type Affine,
-} from "../../../interactive-artin-ch0/src/lib/wallpaper";
+} from "../lib/wallpaper";
 import { registeredWallpaper, sourceCell } from "../lib/wallpaper-explorer";
 export type Collection = "artin" | "wikipedia";
 export type Pattern = {

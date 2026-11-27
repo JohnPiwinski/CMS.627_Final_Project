@@ -9,7 +9,7 @@ import {
   compose,
   inverseAffine,
   type Affine,
-} from "../../interactive-artin-ch0/src/lib/wallpaper";
+} from "../src/lib/wallpaper";
 function inside(points: number[][], x: number, y: number) {
   let result = false;
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {

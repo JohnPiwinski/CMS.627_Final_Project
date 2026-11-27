@@ -1,5 +1,5 @@
 import { apply, cellBounds, compose, describeIsometry, inverseAffine, type Affine,
-  type Wallpaper } from '../../../interactive-artin-ch0/src/lib/wallpaper';
+  type Wallpaper } from './wallpaper';
 import data from '../../diagnostics/wallpaper/cells.json';
 import type { Point } from './geometry';
 

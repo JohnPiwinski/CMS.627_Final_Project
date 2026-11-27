@@ -11,7 +11,7 @@ export default defineConfig({
   resolve: { dedupe: ['three'] },
   server: {
     fs: {
-      allow: [searchForWorkspaceRoot(process.cwd()), fileURLToPath(new URL('../interactive-artin-ch0', import.meta.url))],
+      allow: [searchForWorkspaceRoot(process.cwd())],
     },
   },
   plugins: [{
